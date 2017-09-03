@@ -10,7 +10,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.RelativeLayout;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -133,22 +132,6 @@ public class MultiRVScrollView extends NestedScrollView {
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
       helper.fitRecyclerViewHeight();
     }
-  }
-
-  public void setHeight(int height) {
-    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) this.getLayoutParams();
-    layoutParams.height = height;
-    this.setLayoutParams(layoutParams);
-    requestLayout();
-  }
-
-  public void setPaddingTop(int paddingTop) {
-    this.setPadding(0, paddingTop, 0, 0);
-    requestLayout();
-  }
-
-  public int getPaddingTop() {
-    return super.getPaddingTop();
   }
 
 }
