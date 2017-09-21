@@ -11,7 +11,7 @@ import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
 
 public class PullToZoomContainer extends MultiRVScrollView {
   private static final String TAG = PullToZoomContainer.class.getSimpleName();
-  private int headerHeight;
+  private int mHeaderHeight;
 
   public PullToZoomContainer(Context context) {
     super(context);
@@ -53,12 +53,12 @@ public class PullToZoomContainer extends MultiRVScrollView {
       View otherView = findOtherView();
       if (headerView != null) {
         int height = headerView.getHeight();
-        int targetHeight = headerHeight - dyUnconsumed;//Math.max(headerHeight, headerHeight - dyUnconsumed);
+        int targetHeight = mHeaderHeight - dyUnconsumed;
         float scale = targetHeight * 1f / height;
         headerView.setScaleY(Math.max(1, scale));
         headerView.setScaleX(Math.max(1, scale));
         headerView.setPivotY(0f);
-        headerHeight = targetHeight;
+        mHeaderHeight = targetHeight;
         float translationY = otherView.getTranslationY() - dyUnconsumed;
         Log.d(TAG, "scaleY:" + scale);
         if (translationY > 0) {
@@ -98,12 +98,12 @@ public class PullToZoomContainer extends MultiRVScrollView {
         View otherView = findOtherView();
         if (headerView != null) {
           int height = headerView.getHeight();
-          int targetHeight = Math.max(headerHeight, headerHeight + 6);
+          int targetHeight = Math.max(mHeaderHeight, mHeaderHeight + 6);
           float scale = targetHeight * 1f / height;
           headerView.setScaleY(Math.max(1, scale));
           headerView.setScaleX(Math.max(1, scale));
           headerView.setPivotY(0f);
-          headerHeight = targetHeight;
+          mHeaderHeight = targetHeight;
           float translationY = otherView.getTranslationY() + 6;
           Log.d(TAG, "scaleY:" + scale);
           if (translationY > 0) {
@@ -117,7 +117,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
   @Override
   public boolean startNestedScroll(int axes) {
     View headerView = findHeaderView();
-    headerHeight = headerView.getHeight();
+    mHeaderHeight = headerView.getHeight();
     boolean b = super.startNestedScroll(axes);
     Log.d(TAG, "startNestedScroll:" + b);
     return b;
