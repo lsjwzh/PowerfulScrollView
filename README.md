@@ -3,6 +3,9 @@ MultiRecyclerViewContainer
 
 This lib can make multi RecyclerView scroll as only one ScrollView.
 
+TODO
+DEMO gif
+Application Scene
 
 License
 -------
