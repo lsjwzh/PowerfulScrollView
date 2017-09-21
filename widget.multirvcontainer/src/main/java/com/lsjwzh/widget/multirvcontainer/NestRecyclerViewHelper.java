@@ -33,6 +33,7 @@ class NestRecyclerViewHelper {
     // 因此需要禁用Focus
     mNestedRecyclerView.setFocusable(false);
     mNestedRecyclerView.setNestedScrollingEnabled(true);
+    mNestedRecyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
     mChildContainsRecyclerView = findDirectChildContainsRecyclerView();
   }
 
