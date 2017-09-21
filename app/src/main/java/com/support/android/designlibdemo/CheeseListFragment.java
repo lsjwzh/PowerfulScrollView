@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,18 @@ public class CheeseListFragment extends Fragment {
                 R.layout.fragment_cheese_list, container, false);
         setupRecyclerView(rv);
         return rv;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d("test", "onViewCreated");
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d("test", "onActivityCreated");
+        super.onActivityCreated(savedInstanceState);
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
@@ -113,7 +126,7 @@ public class CheeseListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Context context = v.getContext();
-                    Intent intent = new Intent(context, CheeseDetailActivity.class);
+                    Intent intent = new Intent(context, ZoomableImageDetailActivity.class);
                     intent.putExtra(CheeseDetailActivity.EXTRA_NAME, holder.mBoundString);
 
                     context.startActivity(intent);
