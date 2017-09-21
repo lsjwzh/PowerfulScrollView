@@ -1,28 +1,13 @@
-![alt text](https://raw.githubusercontent.com/chrisbanes/cheesesquare/master/art/icon.png)
-
-Cheesesquare Sample
+MultiRecyclerViewContainer
 ===================================
 
-Demos the new Android Design library. This is not an exhaustive sample, but shows
-some of the important features in the Design library:
+This lib can make multi RecyclerView scroll as only one ScrollView.
 
-- Collapsing Toolbar
-- FloatingActionButton
-- View anchoring
-- NavigationView
-- Snackbar
-
-Pre-requisites
---------------
-
-- Android SDK v22
-- Android Build Tools v22.0.1
-- Android Support Repository r16 (for v22.2.1)
 
 License
 -------
 
-Copyright 2014 The Android Open Source Project, Inc.
+Copyright 2017 lsjwzh.
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements.  See the NOTICE file distributed with this work for
