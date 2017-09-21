@@ -92,7 +92,8 @@ class NestRecyclerViewHelper {
                   && mHostScrollView.getScrollY() < mHostScrollView.getChildAt(0).getHeight()
                   - mHostScrollView.getHeight()
                   && !mHostScrollView.mScrollerCompat.isOverScrolled())) {
-                float currentVelocityY = RVScrollViewUtils.getCurrentVelocityY(recyclerView);
+                float currentVelocityYAbs = RVScrollViewUtils.getCurrentVelocityY(recyclerView);
+                float currentVelocityY = velocityY > 0 ? currentVelocityYAbs : -currentVelocityYAbs;
                 mHostScrollView.fling(currentVelocityY == 0 ?
                     (int) (velocityY / 2) : (int) currentVelocityY);
                 Log.d(TAG, mNestedRecyclerView.getId() +
@@ -120,7 +121,7 @@ class NestRecyclerViewHelper {
       currVelocity = scrollY == 0 ? -currVelocity : currVelocity;
       mNestedRecyclerView.stopScroll();
       mNestedRecyclerView.fling(0, (int) currVelocity);
-      Log.d(TAG, mNestedRecyclerView.getId() + "fling onOverScrolled" + currVelocity);
+      Log.d(TAG, mNestedRecyclerView.getId() + " fling onOverScrolled" + currVelocity + " scrollY" + scrollY);
       return true;
     }
     return false;
