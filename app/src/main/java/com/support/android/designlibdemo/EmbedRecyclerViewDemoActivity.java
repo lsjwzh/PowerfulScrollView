@@ -50,7 +50,7 @@ public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
     imageView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        mRecyclerView.scrollToPosition(10);
+        mRecyclerView.smoothScrollToPosition(10);
       }
     });
   }

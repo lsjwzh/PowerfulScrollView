@@ -68,6 +68,17 @@ public class MultiRVScrollView extends NestedScrollView {
     setOnScrollChangeListener(mNestScrollListener);
   }
 
+  public boolean isCoordinatedWith(@NonNull RecyclerView recyclerView) {
+    final ListIterator<NestRecyclerViewHelper> iterator = mNestRecyclerViewHelpers.listIterator();
+    while (iterator.hasNext()) {
+      final NestRecyclerViewHelper next = iterator.next();
+      if (next.mNestedRecyclerView == recyclerView) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void takeOverScrollBehavior(@NonNull RecyclerView recyclerView) {
     final NestRecyclerViewHelper nestRecyclerViewHelper =
         new NestRecyclerViewHelper(recyclerView, this);

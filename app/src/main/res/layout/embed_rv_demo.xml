@@ -17,12 +17,12 @@
       android:layout_height="@dimen/detail_backdrop_height"
       android:scaleType="centerCrop"/>
 
-    <android.support.v7.widget.RecyclerView
+    <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
       android:id="@+id/recyclerview"
       android:overScrollMode="never"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
-    </android.support.v7.widget.RecyclerView>
+    </com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView>
 
   </LinearLayout>
 </com.lsjwzh.widget.multirvcontainer.MultiRVScrollView>
