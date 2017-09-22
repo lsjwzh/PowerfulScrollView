@@ -69,14 +69,21 @@ public class MultiRVScrollView extends NestedScrollView {
   }
 
   public boolean isCoordinatedWith(@NonNull RecyclerView recyclerView) {
-    final ListIterator<NestRecyclerViewHelper> iterator = mNestRecyclerViewHelpers.listIterator();
-    while (iterator.hasNext()) {
-      final NestRecyclerViewHelper next = iterator.next();
+    for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
       if (next.mNestedRecyclerView == recyclerView) {
         return true;
       }
     }
     return false;
+  }
+
+  public int getCoordinatedTop(@NonNull RecyclerView recyclerView) {
+    for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
+      if (next.mNestedRecyclerView == recyclerView) {
+        return next.getRecyclerViewPartTop();
+      }
+    }
+    return 0;
   }
 
   public void takeOverScrollBehavior(@NonNull RecyclerView recyclerView) {

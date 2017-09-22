@@ -136,7 +136,7 @@ class NestRecyclerViewHelper {
     return mHostScrollView.getScrollY() == getRecyclerViewPartTop();
   }
 
-  private int getRecyclerViewPartTop() {
+  int getRecyclerViewPartTop() {
     return mChildContainsRecyclerView == null
         ? mNestedRecyclerView.getTop()
         : mChildContainsRecyclerView.getTop() + mNestedRecyclerView.getTop();

@@ -24,31 +24,42 @@ public class CoordinateScrollRecyclerView extends RecyclerView {
 
   @Override
   public void scrollToPosition(int position) {
-    MultiRVScrollView multiRVScrollView = findMultiRVScrollView();
-    if (multiRVScrollView != null && multiRVScrollView.isCoordinatedWith(this)
-        && getChildCount() > 0) {
-      ViewHolder childViewHolder = getChildViewHolder(getChildAt(getChildCount() - 1));
-      if (childViewHolder != null && childViewHolder.getAdapterPosition() < position) {
-        multiRVScrollView.scrollTo(0, getTop());
-        CoordinateScrollRecyclerView.super.scrollToPosition(position);
-      }
-    } else {
-      super.scrollToPosition(position);
-    }
+    scrollToPositionInternal(position, false);
   }
 
   @Override
   public void smoothScrollToPosition(final int position) {
+    scrollToPositionInternal(position, true);
+  }
+
+  private void scrollToPositionInternal(int position, boolean isSmooth) {
     MultiRVScrollView multiRVScrollView = findMultiRVScrollView();
     if (multiRVScrollView != null && multiRVScrollView.isCoordinatedWith(this)
         && getChildCount() > 0) {
       ViewHolder childViewHolder = getChildViewHolder(getChildAt(getChildCount() - 1));
-      if (childViewHolder != null && childViewHolder.getAdapterPosition() < position) {
-        multiRVScrollView.scrollTo(0, getTop());
-        CoordinateScrollRecyclerView.super.smoothScrollToPosition(position);
+      if (childViewHolder != null) {
+        int coordinatedTop = multiRVScrollView.getCoordinatedTop(this);
+        if (childViewHolder.getAdapterPosition() < position) {
+          multiRVScrollView.scrollTo(0, coordinatedTop);
+          if (isSmooth) {
+            CoordinateScrollRecyclerView.super.smoothScrollToPosition(position);
+          } else {
+            CoordinateScrollRecyclerView.super.scrollToPosition(position);
+          }
+        } else {
+          ViewHolder targetViewHolder = findViewHolderForAdapterPosition(position);
+          if (targetViewHolder != null &&
+              targetViewHolder.itemView.getBottom()
+                  + coordinatedTop
+                  - multiRVScrollView.getScrollY() > multiRVScrollView.getHeight()) {
+            multiRVScrollView.scrollTo(0, coordinatedTop);
+          }
+        }
       }
+    } else if (isSmooth) {
+      CoordinateScrollRecyclerView.super.smoothScrollToPosition(position);
     } else {
-      super.smoothScrollToPosition(position);
+      CoordinateScrollRecyclerView.super.scrollToPosition(position);
     }
   }
 
