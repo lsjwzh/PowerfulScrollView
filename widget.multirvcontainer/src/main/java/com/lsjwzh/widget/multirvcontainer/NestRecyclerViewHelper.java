@@ -19,6 +19,7 @@ class NestRecyclerViewHelper {
                                    int oldTop, int oldRight, int oldBottom) {
           if (mNestedRecyclerView.getHeight() > mHostScrollView.getHeight()) {
             mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getHeight();
+            mNestedRecyclerView.getLayoutManager().setAutoMeasureEnabled(false);
             // sometimes requestLayout will not cause a layout action, so call forceLayout before
             mNestedRecyclerView.forceLayout();
             mNestedRecyclerView.requestLayout();
@@ -52,6 +53,7 @@ class NestRecyclerViewHelper {
         // 如果RecyclerView是automeasurable且自动高度大于ScrollView高度，则需要对齐高度做限制
         // 所以如果RecyclerView的Adapter一开始就有很多数据，最好禁用automeasurable
         mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getHeight();
+        mNestedRecyclerView.getLayoutManager().setAutoMeasureEnabled(false);
         mNestedRecyclerView.requestLayout();
       } else if (mNestedRecyclerView.getLayoutParams().height < 0) {
         // 如果是自适应高度，则需要监听其高度变化
