@@ -17,6 +17,7 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -42,6 +43,12 @@ public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
     mRecyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
         DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 200)));
     mMultiRVScrollView.takeOverScrollBehavior(mRecyclerView);
+    new Handler().postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        mRecyclerView.smoothScrollToPosition(0);
+      }
+    }, 3000);
   }
 
   private void loadBackdrop() {
