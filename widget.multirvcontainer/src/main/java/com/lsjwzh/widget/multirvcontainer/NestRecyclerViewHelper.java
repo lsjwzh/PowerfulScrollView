@@ -19,13 +19,12 @@ class NestRecyclerViewHelper {
                                    int oldTop, int oldRight, int oldBottom) {
           if (mNestedRecyclerView.getHeight() > mHostScrollView.getHeight()) {
             mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getHeight();
-            // sometimes requestLayout will not cause a layout action
-            mNestedRecyclerView.post(new Runnable() {
-              @Override
-              public void run() {
-                mNestedRecyclerView.requestLayout();
-              }
-            });
+            // sometimes requestLayout will not cause a layout action, so call forceLayout before
+            mNestedRecyclerView.forceLayout();
+            mNestedRecyclerView.requestLayout();
+            if (mChildContainsRecyclerView != null) {
+              mChildContainsRecyclerView.requestLayout();
+            }
           }
         }
       };
