@@ -1,1 +1,1 @@
-include ':app', ':widget.multirvcontainer'
+include ':app', 'demo4Zoomable', ':widget.multirvcontainer'

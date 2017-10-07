@@ -3,9 +3,8 @@ MultiRecyclerViewContainer
 
 This lib can make multi RecyclerView scroll as only one ScrollView.
 
-TODO
-DEMO gif
 Application Scene
+1.Mul
 
 Usage:
 1.Add dependency.
@@ -14,7 +13,7 @@ dependencies {
     compile 'com.github.lsjwzh:MultiRVScrollView:latest-version'
 }
 ```
-2.ayout
+2.Layout
 ```
 <com.lsjwzh.widget.multirvcontainer.MultiRVScrollView xmlns:android="http://schemas.android.com/apk/res/android"
                                                       android:id="@+id/main_content"
@@ -33,12 +32,12 @@ dependencies {
       android:layout_height="@dimen/detail_backdrop_height"
       android:scaleType="centerCrop"/>
 
-    <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
+    <android.support.v7.widget.RecyclerView
       android:id="@+id/recyclerview1"
       android:overScrollMode="never"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
-    </com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView>
+    </android.support.v7.widget.RecyclerView>
 
     <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
       android:id="@+id/recyclerview2"
@@ -50,7 +49,10 @@ dependencies {
   </LinearLayout>
 </com.lsjwzh.widget.multirvcontainer.MultiRVScrollView>
 ```
-3.Code
+
+CoordinateScrollRecyclerView is not necessary while you have not call 'scrollToPosition' manually.
+
+3.Java Code
 
     mMultiRVScrollView = (MultiRVScrollView) findViewById(R.id.main_content);
     mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
