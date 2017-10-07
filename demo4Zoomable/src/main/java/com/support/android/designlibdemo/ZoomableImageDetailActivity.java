@@ -25,8 +25,6 @@ import com.bumptech.glide.Glide;
 
 public class ZoomableImageDetailActivity extends AppCompatActivity {
 
-  public static final String EXTRA_NAME = "cheese_name";
-
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

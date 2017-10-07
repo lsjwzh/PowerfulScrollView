@@ -79,15 +79,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".EmbedRecyclerViewDemoActivity"
-                  android:resizeableActivity="false"
-                  android:parentActivityName=".MainActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                       android:value=".MainActivity" />
-        </activity>
-        <activity android:name=".CheeseDetailActivity"
-                  android:resizeableActivity="false"
-            android:parentActivityName=".MainActivity">
+      <activity android:name=".CheeseDetailActivity"
+                android:resizeableActivity="false"
+                android:parentActivityName=".MainActivity">
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
