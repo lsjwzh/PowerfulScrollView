@@ -63,7 +63,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
       if (headerView != null) {
         int height = headerView.getHeight();
         float translationY = otherView.getTranslationY() - dyUnconsumed;
-        int targetHeight = (int) (otherView.getTop() + otherView.getTranslationY());
+        int targetHeight = (int) (otherView.getTop() + translationY);
         float scale = targetHeight * 1f / height;
         headerView.setScaleY(Math.max(1, scale));
         headerView.setScaleX(Math.max(1, scale));
