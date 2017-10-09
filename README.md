@@ -10,7 +10,7 @@ Usage:
 1.Add dependency.
 ```
 dependencies {
-    compile 'com.github.lsjwzh:MultiRVScrollView:latest-version'
+    compile 'com.github.lsjwzh.MultiRVScrollView:widget.multirvcontainer:latest-version'
 }
 ```
 2.Layout
