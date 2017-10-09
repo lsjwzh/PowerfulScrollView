@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
@@ -12,19 +13,27 @@ import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
 public class PullToZoomContainer extends MultiRVScrollView {
   private static final String TAG = PullToZoomContainer.class.getSimpleName();
   private int mHeaderHeight;
+  private int mTouchSlop;
 
   public PullToZoomContainer(Context context) {
     super(context);
+    init();
   }
 
   public PullToZoomContainer(Context context, AttributeSet attrs) {
     super(context, attrs);
+    init();
   }
 
   public PullToZoomContainer(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+    init();
   }
 
+  private void init() {
+    final ViewConfiguration configuration = ViewConfiguration.get(getContext());
+    mTouchSlop = configuration.getScaledTouchSlop();
+  }
 
   @Override
   public void stopNestedScroll() {
@@ -32,7 +41,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
     Log.d(TAG, "stopNestedScroll:");
     View headerView = findHeaderView();
     View otherView = findOtherView();
-    headerView.animate().scaleY(1).scaleX(1).start();
+    headerView.animate().scaleY(1.01f).scaleX(1.01f).start();
     otherView.animate().translationY(0).start();
   }
 
@@ -40,8 +49,8 @@ public class PullToZoomContainer extends MultiRVScrollView {
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
     super.onNestedPreScroll(target, dx, dy, consumed);
     Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
-    if (dy < -7 && getScrollY() == 0 && consumed[1] == 0) {
-      consumed[1] = 7 + dy;
+    if (dy < -mTouchSlop && getScrollY() == 0 && consumed[1] == 0) {
+      consumed[1] = mTouchSlop + 1 + dy;
     }
   }
 
@@ -53,13 +62,13 @@ public class PullToZoomContainer extends MultiRVScrollView {
       View otherView = findOtherView();
       if (headerView != null) {
         int height = headerView.getHeight();
-        int targetHeight = mHeaderHeight - dyUnconsumed;
+        float translationY = otherView.getTranslationY() - dyUnconsumed;
+        int targetHeight = (int) (otherView.getTop() + otherView.getTranslationY());
         float scale = targetHeight * 1f / height;
         headerView.setScaleY(Math.max(1, scale));
         headerView.setScaleX(Math.max(1, scale));
         headerView.setPivotY(0f);
         mHeaderHeight = targetHeight;
-        float translationY = otherView.getTranslationY() - dyUnconsumed;
         Log.d(TAG, "scaleY:" + scale);
         if (translationY > 0) {
           otherView.setTranslationY(translationY);
@@ -98,13 +107,13 @@ public class PullToZoomContainer extends MultiRVScrollView {
         View otherView = findOtherView();
         if (headerView != null) {
           int height = headerView.getHeight();
-          int targetHeight = Math.max(mHeaderHeight, mHeaderHeight + 6);
+          int targetHeight = Math.max(mHeaderHeight, mHeaderHeight + mTouchSlop);
           float scale = targetHeight * 1f / height;
           headerView.setScaleY(Math.max(1, scale));
           headerView.setScaleX(Math.max(1, scale));
           headerView.setPivotY(0f);
           mHeaderHeight = targetHeight;
-          float translationY = otherView.getTranslationY() + 6;
+          float translationY = otherView.getTranslationY() + mTouchSlop;
           Log.d(TAG, "scaleY:" + scale);
           if (translationY > 0) {
             otherView.setTranslationY(translationY);
