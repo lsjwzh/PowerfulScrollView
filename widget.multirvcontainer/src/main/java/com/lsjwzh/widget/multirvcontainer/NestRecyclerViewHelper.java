@@ -17,8 +17,8 @@ class NestRecyclerViewHelper {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
                                    int oldTop, int oldRight, int oldBottom) {
-          if (mNestedRecyclerView.getHeight() > mHostScrollView.getHeight()) {
-            mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getHeight();
+          if (mNestedRecyclerView.getHeight() > mHostScrollView.getScrollableHeight()) {
+            mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getScrollableHeight();
             mNestedRecyclerView.getLayoutManager().setAutoMeasureEnabled(false);
             // sometimes requestLayout will not cause a layout action, so call forceLayout before
             mNestedRecyclerView.forceLayout();
@@ -49,10 +49,10 @@ class NestRecyclerViewHelper {
 
   void fitRecyclerViewHeight() {
     if (mNestedRecyclerView.getLayoutManager().isAutoMeasureEnabled()) {
-      if (mNestedRecyclerView.getHeight() > mHostScrollView.getHeight()) {
+      if (mNestedRecyclerView.getHeight() > mHostScrollView.getScrollableHeight()) {
         // 如果RecyclerView是automeasurable且自动高度大于ScrollView高度，则需要对齐高度做限制
         // 所以如果RecyclerView的Adapter一开始就有很多数据，最好禁用automeasurable
-        mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getHeight();
+        mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getScrollableHeight();
         mNestedRecyclerView.getLayoutManager().setAutoMeasureEnabled(false);
         mNestedRecyclerView.requestLayout();
       } else if (mNestedRecyclerView.getLayoutParams().height < 0) {
@@ -61,7 +61,7 @@ class NestRecyclerViewHelper {
       }
     } else {
       // 如果RecyclerView不是automeasurable的则需指定其高度
-      mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getHeight();
+      mNestedRecyclerView.getLayoutParams().height = mHostScrollView.getScrollableHeight();
       mNestedRecyclerView.requestLayout();
     }
   }
@@ -98,7 +98,7 @@ class NestRecyclerViewHelper {
                   && velocityY > 0
                   && mHostScrollView.getScrollY() == getRecyclerViewPartTop()
                   && mHostScrollView.getScrollY() < mHostScrollView.getChildAt(0).getHeight()
-                  - mHostScrollView.getHeight()
+                  - mHostScrollView.getScrollableHeight()
                   && !mHostScrollView.mScrollerCompat.isOverScrolled())) {
                 float currentVelocityYAbs = RVScrollViewUtils.getCurrentVelocityY(recyclerView);
                 float currentVelocityY = velocityY > 0 ? currentVelocityYAbs : -currentVelocityYAbs;

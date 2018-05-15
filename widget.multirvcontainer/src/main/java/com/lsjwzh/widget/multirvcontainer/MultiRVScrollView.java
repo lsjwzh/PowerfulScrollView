@@ -146,6 +146,10 @@ public class MultiRVScrollView extends NestedScrollView {
     }
   }
 
+  public int getScrollableHeight() {
+    return getHeight();
+  }
+
   private void fitRecyclerViewHeight() {
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
       helper.fitRecyclerViewHeight();
