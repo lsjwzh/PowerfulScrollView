@@ -1,1 +1,1 @@
-include ':app', 'demo4Zoomable', ':widget.multirvcontainer', ':widget.pulltozoom'
+include ':app', 'demo4Zoomable', 'demo4Instagram', ':widget.multirvcontainer', ':widget.pulltozoom'
