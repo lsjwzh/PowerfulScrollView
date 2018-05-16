@@ -66,6 +66,15 @@ class NestRecyclerViewHelper {
     }
   }
 
+  void startNestedScroll(int axes) {
+    if (mOnScrollListener != null) {
+      mNestedRecyclerView.removeOnScrollListener(mOnScrollListener);
+    }
+    // cancel fling and smoothScrollBy operations
+    mHostScrollView.fling(0);
+    mHostScrollView.smoothScrollBy(0, 0);
+  }
+
   boolean onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
                          int dyUnconsumed) {
     if (isRecyclerViewNestedScrollingEnabled(target)) {
@@ -91,12 +100,12 @@ class NestRecyclerViewHelper {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
               recyclerView.removeOnScrollListener(this);
               if ((RVScrollViewUtils.isTopOverScrolled(recyclerView)
-                  && velocityY < 0 && mHostScrollView.getScrollY() == getRecyclerViewPartTop()
+                  && velocityY < 0 && shouldHandleByRecyclerView()
                   && mHostScrollView.getScrollY() > 0
                   && !mHostScrollView.mScrollerCompat.isOverScrolled())
                   || (RVScrollViewUtils.isBottomOverScrolled(recyclerView)
                   && velocityY > 0
-                  && mHostScrollView.getScrollY() == getRecyclerViewPartTop()
+                  && shouldHandleByRecyclerView()
                   && mHostScrollView.getScrollY() < mHostScrollView.getChildAt(0).getHeight()
                   - mHostScrollView.getScrollableHeight()
                   && !mHostScrollView.mScrollerCompat.isOverScrolled())) {
@@ -140,7 +149,11 @@ class NestRecyclerViewHelper {
   }
 
   boolean shouldHandleByRecyclerView() {
-    return mHostScrollView.getScrollY() == getRecyclerViewPartTop();
+    return mHostScrollView.getScrollY() + getRecyclerViewTopOffset() == getRecyclerViewPartTop();
+  }
+
+  int getRecyclerViewTopOffset() {
+    return mHostScrollView.getHeight() - mHostScrollView.getScrollableHeight();
   }
 
   int getRecyclerViewPartTop() {
@@ -165,4 +178,5 @@ class NestRecyclerViewHelper {
     }
     return parent;
   }
+
 }

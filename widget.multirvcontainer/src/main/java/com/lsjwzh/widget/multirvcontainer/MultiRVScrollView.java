@@ -116,6 +116,15 @@ public class MultiRVScrollView extends NestedScrollView {
   }
 
   @Override
+  public boolean startNestedScroll(int axes) {
+    Log.d(TAG, "startNestedScroll axes:" + axes);
+    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
+      helper.startNestedScroll(axes);
+    }
+    return super.startNestedScroll(axes);
+  }
+
+  @Override
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
                              int dyUnconsumed) {
     Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
