@@ -17,11 +17,15 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
-import com.lsjwzh.widget.multirvcontainer.DragToZoomContainer;
+import com.lsjwzh.widget.InstaContainer;
+
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -37,11 +41,30 @@ public class DemoDetailActivity extends AppCompatActivity {
   }
 
 
-  private void setupRecyclerView(RecyclerView recyclerView) {
+  private void setupRecyclerView(final RecyclerView recyclerView) {
     recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
     recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 30)));
-    ((DragToZoomContainer)findViewById(R.id.main_content)).takeOverScrollBehavior(recyclerView);
+        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 20)));
+    final InstaContainer container = (InstaContainer) findViewById(R.id.main_content);
+    container.takeOverScrollBehavior(recyclerView);
+    recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+      @Override
+      public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+                                 int oldTop, int oldRight, int oldBottom) {
+        View view = findViewById(R.id.recyclerviewBottom);
+        view.getLayoutParams().height = container.getScrollableHeight() - recyclerView.getHeight();
+      }
+    });
+
+    container.addOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+      @Override
+      public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
+                                 int oldScrollX, int oldScrollY) {
+        Log.d("DragToZoomContainer", String.format("onScrollChange:%d,%d,%d,%d",
+            scrollX, scrollY, oldScrollX, oldScrollY));
+      }
+    });
+
   }
 
 

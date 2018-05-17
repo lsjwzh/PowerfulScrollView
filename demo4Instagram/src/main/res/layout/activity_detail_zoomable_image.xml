@@ -15,11 +15,13 @@
   ~ limitations under the License.
 -->
 
-<com.lsjwzh.widget.multirvcontainer.DragToZoomContainer xmlns:android="http://schemas.android.com/apk/res/android"
-                                                        android:id="@+id/main_content"
-                                                        android:layout_width="match_parent"
-                                                        android:layout_height="match_parent"
-                                                        android:fitsSystemWindows="true">
+<com.lsjwzh.widget.InstaContainer xmlns:android="http://schemas.android.com/apk/res/android"
+                                  xmlns:app="http://schemas.android.com/apk/res-auto"
+                                  android:id="@+id/main_content"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="match_parent"
+                                  app:topSpaceHeight="@dimen/detail_bottom_height"
+                                  android:fitsSystemWindows="true">
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -29,7 +31,7 @@
     <ImageView
       android:id="@+id/backdrop"
       android:layout_width="match_parent"
-      android:layout_height="200dp"
+      android:layout_height="400dp"
       android:fitsSystemWindows="true"
       android:scaleType="centerCrop"/>
 
@@ -43,6 +45,12 @@
       android:layout_height="match_parent">
     </com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView>
 
+    <TextView
+      android:id="@+id/recyclerviewBottom"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:text="test"
+      />
   </LinearLayout>
 
-</com.lsjwzh.widget.multirvcontainer.DragToZoomContainer>
+</com.lsjwzh.widget.InstaContainer>

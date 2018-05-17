@@ -115,6 +115,15 @@ public class MultiRVScrollView extends NestedScrollView {
     }
   }
 
+  public boolean hasTakeOver(@NonNull RecyclerView recyclerView) {
+    for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
+      if (next.mNestedRecyclerView == recyclerView) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Override
   public boolean startNestedScroll(int axes) {
     Log.d(TAG, "startNestedScroll axes:" + axes);
