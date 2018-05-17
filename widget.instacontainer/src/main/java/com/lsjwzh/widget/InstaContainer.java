@@ -16,11 +16,11 @@ import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
 
 public class InstaContainer extends MultiRVScrollView {
   private static final String TAG = InstaContainer.class.getSimpleName();
-  private boolean mHasTakeOverRV;
   private Rect mHeaderRect = new Rect();
   private long mLastStopNestedScrollCallTime;
   private ObjectAnimator mScrollAnimation;
-  private int mTopSpaceHeight;
+  protected int mTopSpaceHeight;
+  protected boolean mCanConsumeByScrollView;
 
   public InstaContainer(Context context) {
     this(context, null);
@@ -58,7 +58,7 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public void stopNestedScroll() {
-    mHasTakeOverRV = false;
+    mCanConsumeByScrollView = false;
     super.stopNestedScroll();
     Log.d(TAG, "stopNestedScroll:");
     if (SystemClock.elapsedRealtime() - mLastStopNestedScrollCallTime < 10) {
@@ -94,7 +94,7 @@ public class InstaContainer extends MultiRVScrollView {
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
     super.onNestedPreScroll(target, dx, dy, consumed);
     Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
-    if (mHasTakeOverRV) {
+    if (mCanConsumeByScrollView) {
       smoothScrollBy(0, dy);
       consumed[1] = dy;
     }
@@ -105,7 +105,7 @@ public class InstaContainer extends MultiRVScrollView {
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
       dyUnconsumed) {
     final int oldScrollY = getScrollY();
-    if (!mHasTakeOverRV) {
+    if (!mCanConsumeByScrollView) {
       scrollBy(0, dyUnconsumed);
     }
     final int myConsumed = getScrollY() - oldScrollY;
@@ -115,9 +115,8 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
-    findHeaderView().getGlobalVisibleRect(mHeaderRect);
-    if (mHeaderRect.contains((int) ev.getRawX(), (int) ev.getRawY()) && !mHasTakeOverRV) {
-      mHasTakeOverRV = true;
+    if (!mCanConsumeByScrollView && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
+      mCanConsumeByScrollView = true;
     }
     return super.dispatchTouchEvent(ev);
   }
@@ -133,8 +132,13 @@ public class InstaContainer extends MultiRVScrollView {
     return super.getScrollableHeight() - mTopSpaceHeight;
   }
 
-  View findHeaderView() {
+  protected View findHeaderView() {
     return ((ViewGroup) getChildAt(0)).getChildAt(0);
+  }
+
+  protected boolean canConsumeByScrollView(int x, int y) {
+    findHeaderView().getGlobalVisibleRect(mHeaderRect);
+    return mHeaderRect.contains(x, y);
   }
 
 }
