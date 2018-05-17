@@ -20,7 +20,7 @@ public class InstaContainer extends MultiRVScrollView {
   private long mLastStopNestedScrollCallTime;
   private ObjectAnimator mScrollAnimation;
   protected int mTopSpaceHeight;
-  protected boolean mCanConsumeByScrollView;
+  protected boolean mConsumeByScrollViewFirst;
 
   public InstaContainer(Context context) {
     this(context, null);
@@ -58,7 +58,7 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public void stopNestedScroll() {
-    mCanConsumeByScrollView = false;
+    mConsumeByScrollViewFirst = false;
     super.stopNestedScroll();
     Log.d(TAG, "stopNestedScroll:");
     if (SystemClock.elapsedRealtime() - mLastStopNestedScrollCallTime < 10) {
@@ -94,7 +94,7 @@ public class InstaContainer extends MultiRVScrollView {
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
     super.onNestedPreScroll(target, dx, dy, consumed);
     Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
-    if (mCanConsumeByScrollView) {
+    if (mConsumeByScrollViewFirst) {
       smoothScrollBy(0, dy);
       consumed[1] = dy;
     }
@@ -105,7 +105,7 @@ public class InstaContainer extends MultiRVScrollView {
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
       dyUnconsumed) {
     final int oldScrollY = getScrollY();
-    if (!mCanConsumeByScrollView) {
+    if (!mConsumeByScrollViewFirst) {
       scrollBy(0, dyUnconsumed);
     }
     final int myConsumed = getScrollY() - oldScrollY;
@@ -115,8 +115,8 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
-    if (!mCanConsumeByScrollView && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
-      mCanConsumeByScrollView = true;
+    if (!mConsumeByScrollViewFirst && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
+      mConsumeByScrollViewFirst = true;
     }
     return super.dispatchTouchEvent(ev);
   }
