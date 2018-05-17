@@ -5,11 +5,13 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.ScrollerCompat;
+import android.support.v4.widget.ScrollerWrapper;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.OverScroller;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -18,10 +20,7 @@ import java.util.ListIterator;
 
 public class MultiRVScrollView extends NestedScrollView {
   static final String TAG = MultiRVScrollView.class.getSimpleName();
-  ScrollerCompat mScrollerCompat;
-  List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
   private final List<OnScrollChangeListener> mListeners = new ArrayList<>();
-
   private final OnScrollChangeListener mNestScrollListener = new OnScrollChangeListener() {
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
@@ -31,6 +30,8 @@ public class MultiRVScrollView extends NestedScrollView {
       }
     }
   };
+  ScrollerWrapper mScrollerCompat;
+  List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
 
   public MultiRVScrollView(Context context) {
     this(context, null);
@@ -38,6 +39,11 @@ public class MultiRVScrollView extends NestedScrollView {
 
   public MultiRVScrollView(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
+  }
+
+  public MultiRVScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+    init(context, attrs, defStyleAttr);
   }
 
   public void addOnScrollChangeListener(OnScrollChangeListener listener) {
@@ -48,22 +54,22 @@ public class MultiRVScrollView extends NestedScrollView {
     mListeners.remove(listener);
   }
 
-  public MultiRVScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
-    init(context, attrs, defStyleAttr);
-  }
-
   void init(Context context, AttributeSet attrs, int defStyleAttr) {
     try {
       final Field scrollerField = NestedScrollView.class.getDeclaredField("mScroller");
       scrollerField.setAccessible(true);
-      this.mScrollerCompat = (ScrollerCompat) scrollerField.get(this);
+      Object scrollerObj = scrollerField.get(this);
+      if (scrollerObj instanceof ScrollerCompat) {
+        this.mScrollerCompat = new ScrollerWrapper((ScrollerCompat) scrollerObj);
+      } else {
+        this.mScrollerCompat = new ScrollerWrapper((OverScroller) scrollerObj);
+      }
     } catch (NoSuchFieldException e) {
       e.printStackTrace();
-      this.mScrollerCompat = ScrollerCompat.create(getContext(), null);
+      this.mScrollerCompat = new ScrollerWrapper(ScrollerCompat.create(getContext(), null));
     } catch (IllegalAccessException e) {
       e.printStackTrace();
-      this.mScrollerCompat = ScrollerCompat.create(getContext(), null);
+      this.mScrollerCompat = new ScrollerWrapper(ScrollerCompat.create(getContext(), null));
     }
     setOnScrollChangeListener(mNestScrollListener);
   }
