@@ -69,7 +69,7 @@ public final class ScrollerWrapper {
    * negative.
    */
   public float getCurrVelocity() {
-    return ScrollerCompatIcs.getCurrVelocity(mScroller);
+    return mScroller.getCurrVelocity();
   }
 
   /**
