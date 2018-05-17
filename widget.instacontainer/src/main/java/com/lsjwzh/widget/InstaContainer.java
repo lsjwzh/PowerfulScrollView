@@ -21,6 +21,7 @@ public class InstaContainer extends MultiRVScrollView {
   private ObjectAnimator mScrollAnimation;
   protected int mTopSpaceHeight;
   protected boolean mConsumeByScrollViewFirst;
+  private boolean mTouchFromHeader;
 
   public InstaContainer(Context context) {
     this(context, null);
@@ -58,6 +59,7 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public void stopNestedScroll() {
+    mTouchFromHeader = false;
     mConsumeByScrollViewFirst = false;
     super.stopNestedScroll();
     Log.d(TAG, "stopNestedScroll:");
@@ -115,10 +117,26 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
-    if (!mConsumeByScrollViewFirst && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN
+        && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
+      mTouchFromHeader = true;
+    } else if (ev.getAction() == MotionEvent.ACTION_MOVE
+        && !mTouchFromHeader
+        && !mConsumeByScrollViewFirst
+        && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
       mConsumeByScrollViewFirst = true;
     }
     return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
+  public boolean onTouchEvent(MotionEvent ev) {
+    boolean flag = !mTouchFromHeader && super.onTouchEvent(ev);
+    if (ev.getAction() == MotionEvent.ACTION_UP
+        || ev.getAction() == MotionEvent.ACTION_CANCEL) {
+      mTouchFromHeader = false;
+    }
+    return flag;
   }
 
   @Override
