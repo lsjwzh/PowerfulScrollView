@@ -97,7 +97,8 @@ public class InstaContainer extends MultiRVScrollView {
   @Override
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
     super.onNestedPreScroll(target, dx, dy, consumed);
-    Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
+    Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]
+        + " mTouchFromHeader " + mTouchFromHeader);
     if (mConsumeByScrollViewFirst) {
       smoothScrollBy(0, dy);
       consumed[1] = dy;
@@ -120,6 +121,7 @@ public class InstaContainer extends MultiRVScrollView {
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
     mLastEventAction = ev.getAction();
+    boolean handled = super.dispatchTouchEvent(ev);
     if (ev.getAction() == MotionEvent.ACTION_DOWN
         && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
       mTouchFromHeader = true;
@@ -128,18 +130,16 @@ public class InstaContainer extends MultiRVScrollView {
         && !mConsumeByScrollViewFirst
         && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
       mConsumeByScrollViewFirst = true;
+    } else if (ev.getAction() == MotionEvent.ACTION_UP
+        || ev.getAction() == MotionEvent.ACTION_CANCEL) {
+      mTouchFromHeader = false;
     }
-    return super.dispatchTouchEvent(ev);
+    return handled;
   }
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
-    boolean flag = !mTouchFromHeader && super.onTouchEvent(ev);
-    if (ev.getAction() == MotionEvent.ACTION_UP
-        || ev.getAction() == MotionEvent.ACTION_CANCEL) {
-      mTouchFromHeader = false;
-    }
-    return flag;
+    return !mTouchFromHeader && super.onTouchEvent(ev);
   }
 
   @Override
