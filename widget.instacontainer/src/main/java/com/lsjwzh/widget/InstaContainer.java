@@ -143,6 +143,11 @@ public class InstaContainer extends MultiRVScrollView {
   }
 
   @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    return !mTouchFromHeader && super.onInterceptTouchEvent(ev);
+  }
+
+  @Override
   public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
     Log.d(TAG, "onNestedPreFling:" + velocityY);
     return dispatchNestedPreFling(velocityX, velocityY);
