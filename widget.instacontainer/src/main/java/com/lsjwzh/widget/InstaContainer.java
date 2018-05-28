@@ -123,12 +123,12 @@ public class InstaContainer extends MultiRVScrollView {
     mLastEventAction = ev.getAction();
     boolean handled = super.dispatchTouchEvent(ev);
     if (ev.getAction() == MotionEvent.ACTION_DOWN
-        && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
+        && isInHeaderRect((int) ev.getRawX(), (int) ev.getRawY())) {
       mTouchFromHeader = true;
     } else if (ev.getAction() == MotionEvent.ACTION_MOVE
-        && !mTouchFromHeader
+        && (!mTouchFromHeader || getScrollY() > 0)
         && !mConsumeByScrollViewFirst
-        && canConsumeByScrollView((int) ev.getRawX(), (int) ev.getRawY())) {
+        && isInHeaderRect((int) ev.getRawX(), (int) ev.getRawY())) {
       mConsumeByScrollViewFirst = true;
     } else if (ev.getAction() == MotionEvent.ACTION_UP
         || ev.getAction() == MotionEvent.ACTION_CANCEL) {
@@ -139,12 +139,12 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
-    return !mTouchFromHeader && super.onTouchEvent(ev);
+    return (!mTouchFromHeader || mConsumeByScrollViewFirst) && super.onTouchEvent(ev);
   }
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
-    return !mTouchFromHeader && super.onInterceptTouchEvent(ev);
+    return (!mTouchFromHeader || mConsumeByScrollViewFirst)  && super.onInterceptTouchEvent(ev);
   }
 
   @Override
@@ -162,7 +162,7 @@ public class InstaContainer extends MultiRVScrollView {
     return ((ViewGroup) getChildAt(0)).getChildAt(0);
   }
 
-  protected boolean canConsumeByScrollView(int x, int y) {
+  protected boolean isInHeaderRect(int x, int y) {
     findHeaderView().getGlobalVisibleRect(mHeaderRect);
     return mHeaderRect.contains(x, y);
   }
