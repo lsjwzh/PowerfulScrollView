@@ -18,7 +18,7 @@ public class InstaContainer extends MultiRVScrollView {
   private static final String TAG = InstaContainer.class.getSimpleName();
   private Rect mHeaderRect = new Rect();
   private long mLastStopNestedScrollCallTime;
-  private ObjectAnimator mScrollAnimation;
+  protected ObjectAnimator mScrollAnimation;
   protected int mTopSpaceHeight;
   protected boolean mConsumeByScrollViewFirst;
   private boolean mTouchFromHeader;
@@ -85,7 +85,7 @@ public class InstaContainer extends MultiRVScrollView {
           .setDuration(200);
       mScrollAnimation.start();
 
-    } else {
+    } else if (scrollY != maxScrollY) {
       mScrollAnimation = ObjectAnimator.ofInt(this, "scrollY", maxScrollY)
           .setDuration(200);
       mScrollAnimation.start();
