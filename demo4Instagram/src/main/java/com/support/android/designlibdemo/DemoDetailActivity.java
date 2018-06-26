@@ -19,6 +19,7 @@ package com.support.android.designlibdemo;
 import android.os.Bundle;
 import com.lsjwzh.widget.InstaContainer;
 
+import android.os.Handler;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,7 +31,11 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+
 public class DemoDetailActivity extends AppCompatActivity {
+
+  private SimpleStringRecyclerViewAdapter adapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -42,17 +47,29 @@ public class DemoDetailActivity extends AppCompatActivity {
 
 
   private void setupRecyclerView(final RecyclerView recyclerView) {
-    recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-    recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 20)));
     final InstaContainer container = (InstaContainer) findViewById(R.id.main_content);
+    recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+    adapter = new SimpleStringRecyclerViewAdapter(this, new ArrayList<String>()) {
+      @Override
+      public void onBindViewHolder(ViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        holder.mView.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            container.smoothScrollTo(0, 0);
+          }
+        });
+      }
+    };
+    recyclerView.setAdapter(adapter);
     container.takeOverScrollBehavior(recyclerView);
     recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
                                  int oldTop, int oldRight, int oldBottom) {
         View view = findViewById(R.id.recyclerviewBottom);
-        view.getLayoutParams().height = container.getScrollableHeight() - recyclerView.getHeight();
+        view.getLayoutParams().height
+            = Math.max(0, container.getScrollableHeight() - recyclerView.getHeight());
       }
     });
 
@@ -64,7 +81,14 @@ public class DemoDetailActivity extends AppCompatActivity {
             scrollX, scrollY, oldScrollX, oldScrollY));
       }
     });
-
+    new Handler().postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        adapter.addAll(DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 20));
+        adapter.notifyDataSetChanged();
+//        container.takeOverScrollBehavior(recyclerView);
+      }
+    }, 2000);
   }
 
 

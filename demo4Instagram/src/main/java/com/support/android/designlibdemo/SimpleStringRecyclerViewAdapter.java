@@ -47,6 +47,10 @@ public class SimpleStringRecyclerViewAdapter
     mValues = items;
   }
 
+  public void addAll(List<String> items) {
+    mValues = items;
+  }
+
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View view = LayoutInflater.from(parent.getContext())
