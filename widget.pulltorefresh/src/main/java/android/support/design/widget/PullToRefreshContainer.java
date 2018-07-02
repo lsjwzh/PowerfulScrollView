@@ -13,6 +13,7 @@ import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_UP;
 
 public class PullToRefreshContainer extends MultiRVScrollView {
@@ -20,6 +21,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
   private int mTouchSlop;
   private int mLastEventAction;
   private List<RefreshListener> mRefreshListeners = new ArrayList<>();
+  private boolean mMoveBeforeTouchRelease;
 
   public PullToRefreshContainer(Context context) {
     super(context);
@@ -72,9 +74,13 @@ public class PullToRefreshContainer extends MultiRVScrollView {
   public void stopNestedScroll() {
     super.stopNestedScroll();
     Log.d(TAG, "stopNestedScroll:");
-    if (mLastEventAction == ACTION_UP && isRefreshHeaderExpanded()) {
-      for (RefreshListener listener : mRefreshListeners) {
-        listener.onRefreshing();
+    if (mLastEventAction == ACTION_UP) {
+      if (isRefreshHeaderExpanded()) {
+        for (RefreshListener listener : mRefreshListeners) {
+          listener.onRefreshing();
+        }
+      } else {
+        getRefreshChild().getRefreshHeader().collapse(getRefreshChild().getRefreshTargetView(), null);
       }
     }
   }
@@ -82,6 +88,9 @@ public class PullToRefreshContainer extends MultiRVScrollView {
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
     mLastEventAction = ev.getAction();
+    if (ev.getAction() == ACTION_UP || ev.getAction() == ACTION_CANCEL) {
+      mMoveBeforeTouchRelease = false;
+    }
     Log.d(TAG, "dispatchTouchEvent:" + mLastEventAction);
     return super.dispatchTouchEvent(ev);
   }
@@ -99,11 +108,13 @@ public class PullToRefreshContainer extends MultiRVScrollView {
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
       dyUnconsumed) {
     Log.d(TAG, "dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-    if (dyUnconsumed != 0 && getScrollY() == 0) {
+    if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)) {
       PullToRefreshChild refreshChild = getRefreshChild();
       if (refreshChild != null) {
         float translationY = refreshChild.getRefreshTargetView().getTranslationY();
-        if (translationY < refreshChild.getRefreshHeader().getMaxHeight()) {
+        if (translationY < refreshChild.getRefreshHeader().getMaxHeight()
+            || mMoveBeforeTouchRelease) {
+          mMoveBeforeTouchRelease = true;
           translationY = Math.min(translationY - dyUnconsumed, refreshChild.getRefreshHeader()
               .getMaxHeight());
           Log.d(TAG, "translationY:" + translationY);

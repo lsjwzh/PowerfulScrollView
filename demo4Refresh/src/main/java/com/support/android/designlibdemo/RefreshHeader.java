@@ -79,7 +79,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshContainer
   public void collapse(final View refreshTargetView, final Runnable animationEndCallback) {
     cancelExpandAnim();
     if (mCollapseAnimator == null) {
-      mCollapseAnimator = ObjectAnimator.ofInt(getMaxHeight(), 0);
+      mCollapseAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(), 0);
       mCollapseAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
@@ -116,6 +116,10 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshContainer
   public void setVisibleHeight(int targetHeight) {
     mProgress.setMax(getMaxHeight());
     mProgress.setProgress(targetHeight);
+    float scale = targetHeight * 1f / getMaxHeight();
+    mProgress.setScaleX(scale);
+    mProgress.setScaleY(scale);
+    mProgress.setTranslationY((scale - 1) * mProgress.getHeight() / 2);
   }
 
   private void cancelExpandAnim() {
