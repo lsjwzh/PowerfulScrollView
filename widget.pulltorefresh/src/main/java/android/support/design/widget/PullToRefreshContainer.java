@@ -149,7 +149,6 @@ public class PullToRefreshContainer extends MultiRVScrollView {
             refreshChild.getRefreshHeader().cancelAnimation();
             refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);
             refreshChild.getRefreshTargetView().setTranslationY(translationY);
-            return;
           }
         }
       }
