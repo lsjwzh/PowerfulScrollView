@@ -1,2 +1,5 @@
-include ':app', 'demo4Zoomable', 'demo4Instagram', ':widget.multirvcontainer', ':widget' +
-        '.pulltozoom', ':widget.instacontainer'
+include ':app', 'demo4Zoomable', 'demo4Instagram', 'demo4Refresh',
+        ':widget.multirvcontainer',
+        ':widget.pulltozoom',
+        ':widget.instacontainer',
+        ':widget.pulltorefresh'
