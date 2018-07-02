@@ -17,8 +17,10 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
+import android.support.design.widget.PullToRefreshContainer;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -30,6 +32,15 @@ public class RefreshableDetailActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_detail_refreshable_image);
     loadBackdrop();
+    final PullToRefreshContainer refreshContainer
+        = (PullToRefreshContainer) findViewById(R.id.main_content);
+    final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+    imageView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        refreshContainer.endRefresh();
+      }
+    });
   }
 
   private void loadBackdrop() {

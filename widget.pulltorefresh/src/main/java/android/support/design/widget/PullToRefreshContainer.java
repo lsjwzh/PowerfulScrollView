@@ -107,6 +107,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
           translationY = Math.min(translationY - dyUnconsumed, refreshChild.getRefreshHeader()
               .getMaxHeight());
           Log.d(TAG, "translationY:" + translationY);
+          refreshChild.getRefreshHeader().cancelAnimation();
           refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);
           refreshChild.getRefreshTargetView().setTranslationY(translationY);
           return;
@@ -145,6 +146,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
             translationY = Math.min(translationY + mTouchSlop, refreshChild.getRefreshHeader()
                 .getMaxHeight());
             Log.d(TAG, "translationY:" + translationY);
+            refreshChild.getRefreshHeader().cancelAnimation();
             refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);
             refreshChild.getRefreshTargetView().setTranslationY(translationY);
             return;
@@ -183,6 +185,8 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     void collapse(View refreshTargetView, Runnable animationEndCallback);
 
     int getMaxHeight();
+
+    void cancelAnimation();
 
     void setVisibleHeight(int targetHeight);
   }

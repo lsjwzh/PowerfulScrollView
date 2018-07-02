@@ -107,9 +107,13 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshContainer
   }
 
   @Override
-  public void setVisibleHeight(int targetHeight) {
+  public void cancelAnimation() {
     cancelCollapseAnim();
     cancelExpandAnim();
+  }
+
+  @Override
+  public void setVisibleHeight(int targetHeight) {
     mProgress.setMax(getMaxHeight());
     mProgress.setProgress(targetHeight);
   }
