@@ -79,7 +79,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
         for (RefreshListener listener : mRefreshListeners) {
           listener.onRefreshing();
         }
-      } else {
+      } else if (getRefreshChild().getRefreshTargetView().getTranslationY() > 0) {
         getRefreshChild().getRefreshHeader().collapse(getRefreshChild().getRefreshTargetView(), null);
       }
     }
@@ -117,6 +117,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
           mMoveBeforeTouchRelease = true;
           translationY = Math.min(translationY - dyUnconsumed, refreshChild.getRefreshHeader()
               .getMaxHeight());
+          translationY = Math.max(0, translationY);
           Log.d(TAG, "translationY:" + translationY);
           refreshChild.getRefreshHeader().cancelAnimation();
           refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);

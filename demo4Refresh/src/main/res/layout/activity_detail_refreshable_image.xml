@@ -21,7 +21,8 @@
   android:id="@+id/main_content"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:fitsSystemWindows="true">
+  android:fitsSystemWindows="true"
+  android:overScrollMode="never">
 
   <android.support.design.widget.PullToRefreshChild
     android:layout_width="match_parent"
@@ -40,9 +41,22 @@
         android:fitsSystemWindows="true"
         android:scaleType="centerCrop"/>
 
+      <LinearLayout
+        android:id="@+id/stickyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="100dp">
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/app_name"
+          android:textSize="20sp"/>
+      </LinearLayout>
+
       <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:overScrollMode="never">
 
         <LinearLayout
           android:layout_width="match_parent"
