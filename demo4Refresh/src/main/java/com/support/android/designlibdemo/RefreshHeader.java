@@ -9,14 +9,14 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.PullToRefreshContainer;
+import android.support.design.widget.PullToRefreshHostScrollView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-public class RefreshHeader extends FrameLayout implements PullToRefreshContainer.IRefreshHeader {
+public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrollView.IRefreshHeader {
 
   private ProgressBar mProgress;
   private ValueAnimator mCollapseAnimator;

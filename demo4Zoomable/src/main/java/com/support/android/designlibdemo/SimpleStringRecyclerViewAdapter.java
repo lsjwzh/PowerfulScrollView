@@ -64,7 +64,7 @@ public class SimpleStringRecyclerViewAdapter
       @Override
       public void onClick(View v) {
         Context context = v.getContext();
-        Intent intent = new Intent(context, ZoomableImageDetailActivity.class);
+        Intent intent = new Intent(context, CheeseDetailActivity.class);
         intent.putExtra(CheeseDetailActivity.EXTRA_NAME, holder.mBoundString);
 
         context.startActivity(intent);

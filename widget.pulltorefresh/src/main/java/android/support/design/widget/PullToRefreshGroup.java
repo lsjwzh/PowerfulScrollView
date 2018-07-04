@@ -11,22 +11,22 @@ import android.widget.FrameLayout;
 
 import com.lsjwzh.widget.pulltorefresh.R;
 
-public class PullToRefreshChild extends FrameLayout {
-  public PullToRefreshChild(@NonNull Context context) {
+public class PullToRefreshGroup extends FrameLayout {
+  public PullToRefreshGroup(@NonNull Context context) {
     this(context, null);
   }
 
-  public PullToRefreshChild(@NonNull Context context, @Nullable AttributeSet attrs) {
+  public PullToRefreshGroup(@NonNull Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public PullToRefreshChild(@NonNull Context context, @Nullable AttributeSet attrs, int
+  public PullToRefreshGroup(@NonNull Context context, @Nullable AttributeSet attrs, int
       defStyleAttr) {
     super(context, attrs, defStyleAttr);
     final TypedArray a = context.obtainStyledAttributes(
-        attrs, R.styleable.PullToRefreshChild, defStyleAttr, 0);
+        attrs, R.styleable.PullToRefreshGroup, defStyleAttr, 0);
 
-    int layoutId = a.getResourceId(R.styleable.PullToRefreshChild_headerLayout, 0);
+    int layoutId = a.getResourceId(R.styleable.PullToRefreshGroup_headerLayout, 0);
     if (layoutId != 0) {
       LayoutInflater.from(context).inflate(layoutId, this, true);
     }
@@ -34,8 +34,8 @@ public class PullToRefreshChild extends FrameLayout {
     a.recycle();
   }
 
-  public PullToRefreshContainer.IRefreshHeader getRefreshHeader() {
-    return (PullToRefreshContainer.IRefreshHeader) getChildAt(0);
+  public PullToRefreshHostScrollView.IRefreshHeader getRefreshHeader() {
+    return (PullToRefreshHostScrollView.IRefreshHeader) getChildAt(0);
   }
 
   public View getRefreshTargetView() {

@@ -15,7 +15,7 @@
   ~ limitations under the License.
 -->
 
-<android.support.design.widget.PullToRefreshContainer
+<android.support.design.widget.PullToRefreshHostScrollView
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/main_content"
@@ -24,7 +24,7 @@
   android:fitsSystemWindows="true"
   android:overScrollMode="never">
 
-  <android.support.design.widget.PullToRefreshChild
+  <android.support.design.widget.PullToRefreshGroup
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:headerLayout="@layout/activity_detail_header">
@@ -147,6 +147,21 @@
 
       </android.support.v4.widget.NestedScrollView>
     </LinearLayout>
-  </android.support.design.widget.PullToRefreshChild>
+  </android.support.design.widget.PullToRefreshGroup>
 
-</android.support.design.widget.PullToRefreshContainer>
+  <LinearLayout
+    android:id="@+id/stickyLayout2"
+    app:actionType="sticky"
+    app:stickyCopyView="@+id/stickyLayout"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
+
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/app_name"
+      android:textSize="20sp"/>
+  </LinearLayout>
+
+</android.support.design.widget.PullToRefreshHostScrollView>

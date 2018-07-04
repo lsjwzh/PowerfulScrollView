@@ -17,7 +17,7 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
-import android.support.design.widget.PullToRefreshContainer;
+import android.support.design.widget.PullToRefreshHostScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
@@ -32,8 +32,8 @@ public class RefreshableDetailActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_detail_refreshable_image);
     loadBackdrop();
-    final PullToRefreshContainer refreshContainer
-        = (PullToRefreshContainer) findViewById(R.id.main_content);
+    final PullToRefreshHostScrollView refreshContainer
+        = (PullToRefreshHostScrollView) findViewById(R.id.main_content);
     final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
     imageView.setOnClickListener(new View.OnClickListener() {
       @Override
