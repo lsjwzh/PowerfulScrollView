@@ -60,14 +60,8 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
   @Override
   protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
-    if (sPreserveMarginParamsInLayoutParamConversion) {
-      if (lp instanceof FrameLayout.LayoutParams) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-          return new LayoutParams((FrameLayout.LayoutParams) lp);
-        }
-      } else if (lp instanceof MarginLayoutParams) {
+    if (lp instanceof MarginLayoutParams) {
         return new LayoutParams((MarginLayoutParams) lp);
-      }
     }
     return new LayoutParams(lp);
   }
