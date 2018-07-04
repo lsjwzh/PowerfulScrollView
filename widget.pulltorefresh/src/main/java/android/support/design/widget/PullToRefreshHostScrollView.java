@@ -174,6 +174,8 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     Log.d(TAG, "stopNestedScroll:");
     if (mLastEventAction == ACTION_UP) {
       if (isRefreshHeaderExpanded()) {
+        getRefreshGroup().getRefreshHeader().moveToStableState(
+            getRefreshGroup().getRefreshTargetView(), null);
         for (RefreshListener listener : mRefreshListeners) {
           listener.onRefreshing();
         }
@@ -208,22 +210,8 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
       dyUnconsumed) {
     Log.d(TAG, "dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)) {
-      PullToRefreshGroup refreshChild = getRefreshGroup();
-      if (refreshChild != null) {
-        float translationY = refreshChild.getRefreshTargetView().getTranslationY();
-        float mayTranslationY = translationY - dyUnconsumed;
-        if ((mayTranslationY > 0 && translationY < refreshChild.getRefreshHeader().getMaxHeight())
-            || mMoveBeforeTouchRelease) {
-          mMoveBeforeTouchRelease = true;
-          translationY = Math.min(mayTranslationY, refreshChild.getRefreshHeader()
-              .getMaxHeight());
-          translationY = Math.max(0, translationY);
-          Log.d(TAG, "translationY:" + translationY);
-          refreshChild.getRefreshHeader().cancelAnimation();
-          refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);
-          refreshChild.getRefreshTargetView().setTranslationY(translationY);
-          return;
-        }
+      if (tryConsume(dyUnconsumed)) {
+        return;
       }
     }
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
@@ -251,18 +239,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
     if (clampedY) {
       if (getScrollY() == 0) {
-        PullToRefreshGroup refreshGroup = getRefreshGroup();
-        if (refreshGroup != null) {
-          float translationY = refreshGroup.getRefreshTargetView().getTranslationY();
-          if (translationY < refreshGroup.getRefreshHeader().getMaxHeight()) {
-            translationY = Math.min(translationY + mTouchSlop,
-                refreshGroup.getRefreshHeader().getMaxHeight());
-            Log.d(TAG, "translationY:" + translationY);
-            refreshGroup.getRefreshHeader().cancelAnimation();
-            refreshGroup.getRefreshHeader().setVisibleHeight((int) translationY);
-            refreshGroup.getRefreshTargetView().setTranslationY(translationY);
-          }
-        }
+        tryConsume(-mTouchSlop);
       }
     }
   }
@@ -284,6 +261,25 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     return (PullToRefreshGroup) getChildAt(0);
   }
 
+  private boolean tryConsume(int dyUnconsumed) {
+    PullToRefreshGroup refreshChild = getRefreshGroup();
+    if (refreshChild != null) {
+      float translationY = refreshChild.getRefreshTargetView().getTranslationY();
+      float mayTranslationY = translationY - dyUnconsumed;
+      if ((mayTranslationY > 0 && getScrollY() == 0)
+          || mMoveBeforeTouchRelease) {
+        mMoveBeforeTouchRelease = true;
+        translationY = Math.max(0, mayTranslationY);
+        Log.d(TAG, "translationY:" + translationY);
+        refreshChild.getRefreshHeader().cancelAnimation();
+        refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);
+        refreshChild.getRefreshTargetView().setTranslationY(translationY);
+        return true;
+      }
+    }
+    return false;
+  }
+
   public interface RefreshListener {
     void onRefreshing();
 
@@ -296,11 +292,14 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
     void collapse(View refreshTargetView, Runnable animationEndCallback);
 
+    void moveToStableState(View refreshTargetView, Runnable animationEndCallback);
+
     int getMaxHeight();
 
     void cancelAnimation();
 
     void setVisibleHeight(int targetHeight);
+
   }
 
   public static class LayoutParams extends FrameLayout.LayoutParams {

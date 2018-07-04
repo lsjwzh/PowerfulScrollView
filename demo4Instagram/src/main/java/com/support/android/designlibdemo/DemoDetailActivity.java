@@ -20,7 +20,7 @@ import android.os.Bundle;
 import com.lsjwzh.widget.InstaContainer;
 
 import android.os.Handler;
-import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.NestedScrollViewExtend;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -73,9 +73,9 @@ public class DemoDetailActivity extends AppCompatActivity {
       }
     });
 
-    container.addOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+    container.addOnScrollChangeListener(new NestedScrollViewExtend.OnScrollChangeListener() {
       @Override
-      public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
+      public void onScrollChange(NestedScrollViewExtend v, int scrollX, int scrollY,
                                  int oldScrollX, int oldScrollY) {
         Log.d("DragToZoomContainer", String.format("onScrollChange:%d,%d,%d,%d",
             scrollX, scrollY, oldScrollX, oldScrollY));

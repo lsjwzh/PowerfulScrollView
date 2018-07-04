@@ -33,7 +33,7 @@
       android:fitsSystemWindows="true"
       android:scaleType="centerCrop"/>
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.v4.widget.NestedScrollViewExtend
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
@@ -124,7 +124,7 @@
 
       </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </android.support.v4.widget.NestedScrollViewExtend>
   </LinearLayout>
 
 </android.support.design.widget.PullToZoomContainer>

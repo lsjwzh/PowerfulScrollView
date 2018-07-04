@@ -3,34 +3,30 @@ package com.lsjwzh.widget.multirvcontainer;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v4.widget.ScrollerCompat;
-import android.support.v4.widget.ScrollerWrapper;
+import android.support.v4.widget.NestedScrollViewExtend;
+import android.support.v4.widget.ScrollerCompatExtend;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.OverScroller;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class MultiRVScrollView extends NestedScrollView {
+public class MultiRVScrollView extends NestedScrollViewExtend {
   static final String TAG = MultiRVScrollView.class.getSimpleName();
   private final List<OnScrollChangeListener> mListeners = new ArrayList<>();
   private final OnScrollChangeListener mNestScrollListener = new OnScrollChangeListener() {
     @Override
-    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
-                               int oldScrollY) {
+    public void onScrollChange(NestedScrollViewExtend v, int scrollX, int scrollY, int
+        oldScrollX, int oldScrollY) {
       for (OnScrollChangeListener listener : mListeners) {
         listener.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY);
       }
     }
   };
-  ScrollerWrapper mScrollerCompat;
   List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
 
   public MultiRVScrollView(Context context) {
@@ -55,22 +51,13 @@ public class MultiRVScrollView extends NestedScrollView {
   }
 
   void init(Context context, AttributeSet attrs, int defStyleAttr) {
-    try {
-      final Field scrollerField = NestedScrollView.class.getDeclaredField("mScroller");
-      scrollerField.setAccessible(true);
-      Object scrollerObj = scrollerField.get(this);
-      if (scrollerObj instanceof ScrollerCompat) {
-        this.mScrollerCompat = new ScrollerWrapper((ScrollerCompat) scrollerObj);
-      } else {
-        this.mScrollerCompat = new ScrollerWrapper((OverScroller) scrollerObj);
+    setScroller(new ScrollerCompatExtend(context, null) {
+      @Override
+      public boolean springBack(int startX, int startY, int minX, int maxX, int minY, int maxY) {
+        // do not do springBack
+        return false;
       }
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-      this.mScrollerCompat = new ScrollerWrapper(ScrollerCompat.create(getContext(), null));
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-      this.mScrollerCompat = new ScrollerWrapper(ScrollerCompat.create(getContext(), null));
-    }
+    });
     setOnScrollChangeListener(mNestScrollListener);
   }
 

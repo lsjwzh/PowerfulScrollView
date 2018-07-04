@@ -21,6 +21,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   private ProgressBar mProgress;
   private ValueAnimator mCollapseAnimator;
   private ValueAnimator mExpandAnimator;
+  private ValueAnimator mStableAnimator;
 
   public RefreshHeader(@NonNull Context context) {
     super(context);
@@ -52,6 +53,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   @Override
   public void expand(final View refreshTargetView, final Runnable animationEndCallback) {
     cancelCollapseAnim();
+    cancelStableAnim();
     if (mExpandAnimator == null) {
       mExpandAnimator = ObjectAnimator.ofInt(getMaxHeight(), 0);
       mExpandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -78,6 +80,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   @Override
   public void collapse(final View refreshTargetView, final Runnable animationEndCallback) {
     cancelExpandAnim();
+    cancelStableAnim();
     if (mCollapseAnimator == null) {
       mCollapseAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(), 0);
       mCollapseAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -110,16 +113,53 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   public void cancelAnimation() {
     cancelCollapseAnim();
     cancelExpandAnim();
+    cancelStableAnim();
   }
 
   @Override
   public void setVisibleHeight(int targetHeight) {
+    setTranslationY(Math.max(targetHeight - getMaxHeight(), 0));
+    targetHeight = Math.min(targetHeight, getMaxHeight());
     mProgress.setMax(getMaxHeight());
     mProgress.setProgress(targetHeight);
     float scale = targetHeight * 1f / getMaxHeight();
     mProgress.setScaleX(scale);
     mProgress.setScaleY(scale);
     mProgress.setTranslationY((scale - 1) * mProgress.getHeight() / 2);
+  }
+
+  @Override
+  public void moveToStableState(final View refreshTargetView, final Runnable animationEndCallback) {
+    cancelExpandAnim();
+    cancelCollapseAnim();
+    if (mStableAnimator == null && getMaxHeight() < refreshTargetView.getTranslationY()) {
+      mStableAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(), getMaxHeight());
+      mStableAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+          setVisibleHeight((Integer) animation.getAnimatedValue());
+          refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
+        }
+      });
+      mStableAnimator.addListener(new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+          mStableAnimator = null;
+          refreshTargetView.setTranslationY(getMaxHeight());
+          if (animationEndCallback != null) {
+            animationEndCallback.run();
+          }
+        }
+      });
+      mStableAnimator.start();
+    }
+  }
+
+  private void cancelStableAnim() {
+    if (mStableAnimator != null) {
+      mStableAnimator.cancel();
+      mStableAnimator = null;
+    }
   }
 
   private void cancelExpandAnim() {
