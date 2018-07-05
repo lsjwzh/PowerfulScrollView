@@ -51,6 +51,18 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     });
   }
 
+  public void addRefreshListener(RefreshListener refreshListener) {
+    mRefreshListeners.add(refreshListener);
+  }
+
+  public void removeRefreshListener(RefreshListener refreshListener) {
+    mRefreshListeners.remove(refreshListener);
+  }
+
+  public List<RefreshListener> getRefreshListeners() {
+    return mRefreshListeners;
+  }
+
   @Override
   protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
       scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean

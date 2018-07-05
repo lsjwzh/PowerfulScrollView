@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="PullToZoomContainer">
+    <attr name="scaleViewId" format="reference"/>
+    <attr name="translationViewId" format="reference"/>
+  </declare-styleable>
+
+</resources>
