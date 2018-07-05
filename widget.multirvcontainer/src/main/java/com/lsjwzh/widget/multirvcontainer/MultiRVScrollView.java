@@ -51,13 +51,6 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
   void init(Context context, AttributeSet attrs, int defStyleAttr) {
-    setScroller(new ScrollerCompatExtend(context, null) {
-      @Override
-      public boolean springBack(int startX, int startY, int minX, int maxX, int minY, int maxY) {
-        // do not do springBack
-        return false;
-      }
-    });
     setOnScrollChangeListener(mNestScrollListener);
   }
 
