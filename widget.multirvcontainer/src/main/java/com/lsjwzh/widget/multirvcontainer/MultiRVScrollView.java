@@ -2,13 +2,19 @@ package com.lsjwzh.widget.multirvcontainer;
 
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.widget.NestedScrollViewExtend;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +45,59 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   public MultiRVScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init(context, attrs, defStyleAttr);
+  }
+
+  @Override
+  protected LayoutParams generateDefaultLayoutParams() {
+    return new LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT);
+  }
+
+  @Override
+  protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
+    if (lp instanceof MarginLayoutParams) {
+      return new LayoutParams((MarginLayoutParams) lp);
+    }
+    return new LayoutParams(lp);
+  }
+
+  @Override
+  public LayoutParams generateLayoutParams(AttributeSet attrs) {
+    return new LayoutParams(getContext(), attrs);
+  }
+
+  @Override
+  protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+    super.onScrollChanged(l, t, oldl, oldt);
+    int childCount = getChildCount();
+    if (childCount > 0) {
+      for (int i = 0; i < childCount; i++) {
+        View child = getChildAt(i);
+        if (child == getScrollableCoreChild()) {
+          continue;
+        }
+        LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+        if (layoutParams.actionType == LayoutParams.ACTION_TYPE_STICKY) {
+          if (layoutParams.stickyCopyView != View.NO_ID) {
+            View stickyCopyView = findViewById(layoutParams.stickyCopyView);
+            float copyViewRealY = 0;
+            View parent = stickyCopyView;
+            while (parent != this) {
+              copyViewRealY += parent.getY();
+              parent = (View) parent.getParent();
+            }
+            if (copyViewRealY >= child.getY()) {
+              child.setVisibility(GONE);
+              stickyCopyView.setVisibility(VISIBLE);
+            } else {
+              child.setVisibility(VISIBLE);
+              stickyCopyView.setVisibility(INVISIBLE);
+            }
+          }
+          child.setTranslationY(getScrollY());
+        }
+      }
+    }
   }
 
   public void addOnScrollChangeListener(OnScrollChangeListener listener) {
@@ -156,6 +215,47 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   private void fitRecyclerViewHeight() {
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
       helper.fitRecyclerViewHeight();
+    }
+  }
+
+
+  public static class LayoutParams extends FrameLayout.LayoutParams {
+    public static final int ACTION_TYPE_NONE = 0;
+    public static final int ACTION_TYPE_STICKY = 1;
+    public int actionType = ACTION_TYPE_NONE;
+    public int stickyCopyView = View.NO_ID;
+
+
+    public LayoutParams(int width, int height) {
+      super(width, height);
+    }
+
+    public LayoutParams(int width, int height, int gravity) {
+      super(width, height, gravity);
+    }
+
+    public LayoutParams(@NonNull Context c, @Nullable AttributeSet attrs) {
+      super(c, attrs);
+      final TypedArray a
+          = c.obtainStyledAttributes(attrs, R.styleable.MultiRVScrollView_Layout);
+      actionType
+          = a.getInt(R.styleable.MultiRVScrollView_Layout_actionType, ACTION_TYPE_NONE);
+      stickyCopyView
+          = a.getResourceId(R.styleable.MultiRVScrollView_Layout_stickyCopyView, View.NO_ID);
+      a.recycle();
+    }
+
+    public LayoutParams(@NonNull ViewGroup.LayoutParams source) {
+      super(source);
+    }
+
+    public LayoutParams(@NonNull MarginLayoutParams source) {
+      super(source);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public LayoutParams(@NonNull FrameLayout.LayoutParams source) {
+      super(source);
     }
   }
 

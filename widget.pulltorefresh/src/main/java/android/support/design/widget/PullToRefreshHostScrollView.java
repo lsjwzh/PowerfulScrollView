@@ -1,23 +1,15 @@
 package android.support.design.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.widget.ScrollerCompatExtend;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
-import com.lsjwzh.widget.pulltorefresh.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +54,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   @Override
   protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
       scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean
-      isTouchEvent) {
+                                           isTouchEvent) {
     Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
       tryConsume(deltaY);
@@ -92,61 +84,6 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     }
   }
 
-  @Override
-  protected LayoutParams generateDefaultLayoutParams() {
-    return new LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.MATCH_PARENT);
-  }
-
-  @Override
-  protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {
-    if (lp instanceof MarginLayoutParams) {
-        return new LayoutParams((MarginLayoutParams) lp);
-    }
-    return new LayoutParams(lp);
-  }
-
-  @Override
-  public LayoutParams generateLayoutParams(AttributeSet attrs) {
-    return new LayoutParams(getContext(), attrs);
-  }
-
-  @Override
-  public void scrollBy(int x, int y) {
-    super.scrollBy(x, y);
-
-  }
-
-  @Override
-  protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-    super.onScrollChanged(l, t, oldl, oldt);
-    int childCount = getChildCount();
-    if (childCount > 1) {
-      for (int i = 1; i < childCount; i++) {
-        View child = getChildAt(i);
-        LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
-        if (layoutParams.actionType == LayoutParams.ACTION_TYPE_STICKY) {
-          if (layoutParams.stickyCopyView != View.NO_ID) {
-            View stickyCopyView = findViewById(layoutParams.stickyCopyView);
-            float copyViewRealY = 0;
-            View parent = stickyCopyView;
-            while (parent != this) {
-              copyViewRealY += parent.getY();
-              parent = (View) parent.getParent();
-            }
-            if (copyViewRealY >= child.getY()) {
-              child.setVisibility(GONE);
-              stickyCopyView.setVisibility(VISIBLE);
-            } else {
-              child.setVisibility(VISIBLE);
-              stickyCopyView.setVisibility(INVISIBLE);
-            }
-          }
-          child.setTranslationY(getScrollY());
-        }
-      }
-    }
-  }
 
   public void endRefresh() {
     getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
@@ -299,43 +236,4 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
   }
 
-  public static class LayoutParams extends FrameLayout.LayoutParams {
-    public static final int ACTION_TYPE_NONE = 0;
-    public static final int ACTION_TYPE_STICKY = 1;
-    public int actionType = ACTION_TYPE_NONE;
-    public int stickyCopyView = View.NO_ID;
-
-
-    public LayoutParams(int width, int height) {
-      super(width, height);
-    }
-
-    public LayoutParams(int width, int height, int gravity) {
-      super(width, height, gravity);
-    }
-
-    public LayoutParams(@NonNull Context c, @Nullable AttributeSet attrs) {
-      super(c, attrs);
-      final TypedArray a
-          = c.obtainStyledAttributes(attrs, R.styleable.PullToRefreshHostScrollView_Layout);
-      actionType
-          = a.getInt(R.styleable.PullToRefreshHostScrollView_Layout_actionType, ACTION_TYPE_NONE);
-      stickyCopyView
-          = a.getResourceId(R.styleable.PullToRefreshHostScrollView_Layout_stickyCopyView, View.NO_ID);
-      a.recycle();
-    }
-
-    public LayoutParams(@NonNull ViewGroup.LayoutParams source) {
-      super(source);
-    }
-
-    public LayoutParams(@NonNull MarginLayoutParams source) {
-      super(source);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public LayoutParams(@NonNull FrameLayout.LayoutParams source) {
-      super(source);
-    }
-  }
 }

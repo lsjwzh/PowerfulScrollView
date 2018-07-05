@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <declare-styleable name="MultiRVScrollView_Layout">
+    <attr name="actionType" format="enum">
+      <enum name="none" value="0"/>
+      <enum name="sticky" value="1"/>
+    </attr>
+    <attr name="stickyCopyView" format="reference"/>
+  </declare-styleable>
+</resources>

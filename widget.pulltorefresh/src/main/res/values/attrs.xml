@@ -4,11 +4,4 @@
     <attr name="headerLayout" format="reference"/>
   </declare-styleable>
 
-  <declare-styleable name="PullToRefreshHostScrollView_Layout">
-    <attr name="actionType" format="enum">
-      <enum name="none" value="0"/>
-      <enum name="sticky" value="1"/>
-    </attr>
-    <attr name="stickyCopyView" format="reference"/>
-  </declare-styleable>
 </resources>
