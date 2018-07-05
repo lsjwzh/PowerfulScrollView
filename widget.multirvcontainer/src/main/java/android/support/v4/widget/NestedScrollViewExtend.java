@@ -122,6 +122,25 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   private float mVerticalScrollFactor;
   private OnScrollChangeListener mOnScrollChangeListener;
 
+  // custom added
+  private float mPreFlingVelocity;
+  private Runnable mFlingStopNotifier = new Runnable() {
+    @Override
+    public void run() {
+      Log.d(TAG, String.format("mFlingStopNotifier scrollY %s getCurrVelocity %s finish %s pre %s",
+          getScrollY(),
+          getScroller()
+              .getCurrVelocity(), getScroller().isFinished(), mPreFlingVelocity));
+      if (getScroller().isFinished() || getScroller().getCurrVelocity() == mPreFlingVelocity) {
+        mPreFlingVelocity = 0;
+        onFlingStop();
+      } else if (getScroller().getCurrVelocity() < mPreFlingVelocity || mPreFlingVelocity == 0) {
+        postDelayed(this, 20);
+        mPreFlingVelocity = getScroller().getCurrVelocity();
+      }
+    }
+  };
+
   public NestedScrollViewExtend(Context context) {
     this(context, null);
   }
@@ -935,11 +954,22 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     super.scrollTo(scrollX, scrollY);
   }
 
-  boolean overScrollByCompat(int deltaX, int deltaY,
+  protected void onFlingStop() {
+
+  }
+
+  protected boolean overScrollByCompat(int deltaX, int deltaY,
                              int scrollX, int scrollY,
                              int scrollRangeX, int scrollRangeY,
                              int maxOverScrollX, int maxOverScrollY,
                              boolean isTouchEvent) {
+    // monitor fling stop action start
+    removeCallbacks(mFlingStopNotifier);
+    if (!isTouchEvent) {
+      postDelayed(mFlingStopNotifier, 20);
+    }
+    // monitor fling stop action end
+
     final int overScrollMode = getOverScrollMode();
     final boolean canScrollHorizontal =
         computeHorizontalScrollRange() > computeHorizontalScrollExtent();

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.widget.ScrollerCompatExtend;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -50,6 +51,46 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   private void init() {
     final ViewConfiguration configuration = ViewConfiguration.get(getContext());
     mTouchSlop = configuration.getScaledTouchSlop();
+    setScroller(new ScrollerCompatExtend(getContext(), null) {
+      @Override
+      public boolean springBack(int startX, int startY, int minX, int maxX, int minY, int maxY) {
+        Log.d(TAG, String.format("springBack startY %s maxY %s", startY, maxY));
+        return super.springBack(startX, startY, minX, maxX, minY, maxY);
+      }
+    });
+  }
+
+  @Override
+  protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
+      scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean
+      isTouchEvent) {
+    Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
+    if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
+      tryConsume(deltaY);
+      Log.d(TAG, String.format("overScrollByCompat tryConsume %s", deltaY));
+    }
+    return super.overScrollByCompat(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY,
+        maxOverScrollX, maxOverScrollY, isTouchEvent);
+  }
+
+  @Override
+  protected void onFlingStop() {
+    Log.d(TAG, String.format("onFlingStop scrollY %s", getScrollY()));
+    getScroller().abortAnimation();
+    adjustRefreshViewState();
+  }
+
+  private void adjustRefreshViewState() {
+    if (isRefreshHeaderExpanded()) {
+      getRefreshGroup().getRefreshHeader().moveToStableState(
+          getRefreshGroup().getRefreshTargetView(), null);
+      for (RefreshListener listener : mRefreshListeners) {
+        listener.onRefreshing();
+      }
+    } else if (getRefreshGroup().getRefreshTargetView().getTranslationY() > 0) {
+      getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
+          null);
+    }
   }
 
   @Override
@@ -173,16 +214,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     super.stopNestedScroll();
     Log.d(TAG, "stopNestedScroll:");
     if (mLastEventAction == ACTION_UP) {
-      if (isRefreshHeaderExpanded()) {
-        getRefreshGroup().getRefreshHeader().moveToStableState(
-            getRefreshGroup().getRefreshTargetView(), null);
-        for (RefreshListener listener : mRefreshListeners) {
-          listener.onRefreshing();
-        }
-      } else if (getRefreshGroup().getRefreshTargetView().getTranslationY() > 0) {
-        getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
-            null);
-      }
+      adjustRefreshViewState();
     }
   }
 
@@ -237,10 +269,9 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
     Log.d(TAG, "onOverScrolled scrollY:" + scrollY + " clampedY:" + clampedY);
     super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
-    if (clampedY) {
-      if (getScrollY() == 0) {
-        tryConsume(-mTouchSlop);
-      }
+    if (mMoveBeforeTouchRelease && scrollY != 0) {
+      // 由于super.onOverScrolled会调用scrollTo,会导致在pulltofresh过程中错误的调用scrollTo
+      scrollTo(0, 0);
     }
   }
 
