@@ -1,7 +1,7 @@
 package android.support.v7.widget;
 
 
-import android.support.v4.widget.ScrollerCompatExtend;
+import android.support.v4.widget.ScrollerCompat;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -36,7 +36,7 @@ public class RVScrollViewUtils {
     try {
       Field mScrollerField = recyclerView.mViewFlinger.getClass().getDeclaredField("mScroller");
       mScrollerField.setAccessible(true);
-      ScrollerCompatExtend scrollerCompat = (ScrollerCompatExtend) mScrollerField.get(recyclerView.mViewFlinger);
+      ScrollerCompat scrollerCompat = (ScrollerCompat) mScrollerField.get(recyclerView.mViewFlinger);
       return scrollerCompat.getCurrVelocity();
     } catch (NoSuchFieldException e) {
       e.printStackTrace();
