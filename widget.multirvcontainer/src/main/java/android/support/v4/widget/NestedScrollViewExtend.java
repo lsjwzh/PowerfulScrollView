@@ -352,12 +352,16 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
 
     final int length = getVerticalFadingEdgeLength();
     final int bottomEdge = getHeight() - getPaddingBottom();
-    final int span = getChildAt(0).getBottom() - getScrollY() - bottomEdge;
+    final int span = getScrollableCoreChild().getBottom() - getScrollY() - bottomEdge;
     if (span < length) {
       return span / (float) length;
     }
 
     return 1.0f;
+  }
+
+  public View getScrollableCoreChild() {
+    return getChildAt(0);
   }
 
   /**
@@ -379,42 +383,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
   }
 
-  @Override
-  public void addView(View child) {
-    if (getChildCount() > 0) {
-      throw new IllegalStateException("ScrollView can host only one direct child");
-    }
-
-    super.addView(child);
-  }
-
-  @Override
-  public void addView(View child, int index) {
-    if (getChildCount() > 0) {
-      throw new IllegalStateException("ScrollView can host only one direct child");
-    }
-
-    super.addView(child, index);
-  }
-
-  @Override
-  public void addView(View child, ViewGroup.LayoutParams params) {
-    if (getChildCount() > 0) {
-      throw new IllegalStateException("ScrollView can host only one direct child");
-    }
-
-    super.addView(child, params);
-  }
-
-  @Override
-  public void addView(View child, int index, ViewGroup.LayoutParams params) {
-    if (getChildCount() > 0) {
-      throw new IllegalStateException("ScrollView can host only one direct child");
-    }
-
-    super.addView(child, index, params);
-  }
-
   /**
    * Register a callback to be invoked when the scroll X or Y positions of
    * this view change.
@@ -432,7 +400,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
    * @return Returns true this ScrollView can be scrolled
    */
   private boolean canScroll() {
-    View child = getChildAt(0);
+    View child = getScrollableCoreChild();
     if (child != null) {
       int childHeight = child.getHeight();
       return getHeight() < childHeight + getPaddingTop() + getPaddingBottom();
@@ -503,7 +471,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     }
 
     if (getChildCount() > 0) {
-      final View child = getChildAt(0);
+      final View child = getScrollableCoreChild();
       int height = getMeasuredHeight();
       if (child.getMeasuredHeight() < height) {
         final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -579,7 +547,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   private boolean inChild(int x, int y) {
     if (getChildCount() > 0) {
       final int scrollY = getScrollY();
-      final View child = getChildAt(0);
+      final View child = getScrollableCoreChild();
       return !(y < child.getTop() - scrollY
           || y >= child.getBottom() - scrollY
           || x < child.getLeft()
@@ -1026,7 +994,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   int getScrollRange() {
     int scrollRange = 0;
     if (getChildCount() > 0) {
-      View child = getChildAt(0);
+      View child = getScrollableCoreChild();
       scrollRange = Math.max(0,
           child.getHeight() - (getHeight() - getPaddingBottom() - getPaddingTop()));
     }
@@ -1248,7 +1216,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
         scrollDelta = getScrollY();
       } else if (direction == View.FOCUS_DOWN) {
         if (getChildCount() > 0) {
-          int daBottom = getChildAt(0).getBottom();
+          int daBottom = getScrollableCoreChild().getBottom();
           int screenBottom = getScrollY() + getHeight() - getPaddingBottom();
           if (daBottom - screenBottom < maxJump) {
             scrollDelta = daBottom - screenBottom;
@@ -1325,7 +1293,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     long duration = AnimationUtils.currentAnimationTimeMillis() - mLastScroll;
     if (duration > ANIMATED_SCROLL_GAP) {
       final int height = getHeight() - getPaddingBottom() - getPaddingTop();
-      final int bottom = getChildAt(0).getHeight();
+      final int bottom = getScrollableCoreChild().getHeight();
       final int maxY = Math.max(0, bottom - height);
       final int scrollY = getScrollY();
       dy = Math.max(0, Math.min(scrollY + dy, maxY)) - scrollY;
@@ -1366,7 +1334,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
       return contentHeight;
     }
 
-    int scrollRange = getChildAt(0).getBottom();
+    int scrollRange = getScrollableCoreChild().getBottom();
     final int scrollY = getScrollY();
     final int overscrollBottom = Math.max(0, scrollRange - contentHeight);
     if (scrollY < 0) {
@@ -1544,7 +1512,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     }
 
     // leave room for bottom fading edge as long as rect isn't at very bottom
-    if (rect.bottom < getChildAt(0).getHeight()) {
+    if (rect.bottom < getScrollableCoreChild().getHeight()) {
       screenBottom -= fadingEdge;
     }
 
@@ -1564,7 +1532,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
       }
 
       // make sure we aren't scrolling beyond the end of our content
-      int bottom = getChildAt(0).getBottom();
+      int bottom = getScrollableCoreChild().getBottom();
       int distanceToBottom = bottom - screenBottom;
       scrollYDelta = Math.min(scrollYDelta, distanceToBottom);
 
@@ -1665,7 +1633,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
         mSavedState = null;
       } // mScrollY default value is "0"
 
-      final int childHeight = (getChildCount() > 0) ? getChildAt(0).getMeasuredHeight() : 0;
+      final int childHeight = (getChildCount() > 0) ? getScrollableCoreChild().getMeasuredHeight() : 0;
       final int scrollRange = Math.max(0,
           childHeight - (b - t - getPaddingBottom() - getPaddingTop()));
 
@@ -1719,7 +1687,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   public void fling(int velocityY) {
     if (getChildCount() > 0) {
       int height = getHeight() - getPaddingBottom() - getPaddingTop();
-      int bottom = getChildAt(0).getHeight();
+      int bottom = getScrollableCoreChild().getHeight();
 
       mScroller.fling(getScrollX(), getScrollY(), 0, velocityY, 0, 0, 0,
           Math.max(0, bottom - height), 0, height / 2);
@@ -1761,7 +1729,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   public void scrollTo(int x, int y) {
     // we rely on the fact the View.scrollBy calls scrollTo.
     if (getChildCount() > 0) {
-      View child = getChildAt(0);
+      View child = getScrollableCoreChild();
       x = clamp(x, getWidth() - getPaddingRight() - getPaddingLeft(), child.getWidth());
       y = clamp(y, getHeight() - getPaddingBottom() - getPaddingTop(), child.getHeight());
       if (x != getScrollX() || y != getScrollY()) {

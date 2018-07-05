@@ -41,8 +41,10 @@ public class PullToZoomContainer extends MultiRVScrollView {
     Log.d(TAG, "stopNestedScroll:");
     View headerView = findHeaderView();
     View otherView = findOtherView();
-    headerView.animate().scaleY(1.01f).scaleX(1.01f).start();
-    otherView.animate().translationY(0).start();
+    if (otherView.getTranslationY() > 0) {
+      headerView.animate().scaleY(1.01f).scaleX(1.01f).start();
+      otherView.animate().translationY(0).start();
+    }
   }
 
   @Override
@@ -57,26 +59,33 @@ public class PullToZoomContainer extends MultiRVScrollView {
   @Override
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
     Log.d(TAG, "dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-    if (dyUnconsumed != 0 && getScrollY() == 0) {
-      View headerView = findHeaderView();
-      View otherView = findOtherView();
-      if (headerView != null) {
-        int height = headerView.getHeight();
-        float translationY = otherView.getTranslationY() - dyUnconsumed;
-        int targetHeight = (int) (otherView.getTop() + translationY);
-        float scale = targetHeight * 1f / height;
-        headerView.setScaleY(Math.max(1, scale));
-        headerView.setScaleX(Math.max(1, scale));
-        headerView.setPivotY(0f);
-        mHeaderHeight = targetHeight;
-        Log.d(TAG, "scaleY:" + scale);
-        if (translationY > 0) {
-          otherView.setTranslationY(translationY);
-          return;
-        }
+    if (dyUnconsumed != 0) {
+      if (tryConsume(dyUnconsumed)) {
+        return;
       }
     }
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+  }
+
+  protected boolean tryConsume(int dyUnconsumed) {
+    View headerView = findHeaderView();
+    View otherView = findOtherView();
+    if (headerView != null && getScrollY() == 0) {
+      int height = headerView.getHeight();
+      float translationY = otherView.getTranslationY() - dyUnconsumed;
+      int targetHeight = (int) (otherView.getTop() + translationY);
+      float scale = targetHeight * 1f / height;
+      headerView.setScaleY(Math.max(1, scale));
+      headerView.setScaleX(Math.max(1, scale));
+      headerView.setPivotY(0f);
+      mHeaderHeight = targetHeight;
+      Log.d(TAG, "scaleY:" + scale);
+      if (translationY > 0) {
+        otherView.setTranslationY(translationY);
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -98,28 +107,26 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   @Override
+  protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
+      scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean
+                                           isTouchEvent) {
+    Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
+    boolean clamp = super.overScrollByCompat(deltaX, deltaY, scrollX, scrollY, scrollRangeX,
+        scrollRangeY,
+        maxOverScrollX, maxOverScrollY, isTouchEvent);
+    if(clamp || isTouchEvent) {
+      tryConsume(deltaY);
+    }
+    return clamp;
+  }
+
+  @Override
   protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
     Log.d(TAG, "onOverScrolled scrollY:" + scrollY + " clampedY:" + clampedY);
     super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
-    if (clampedY) {
-      if (getScrollY() == 0) {
-        View headerView = findHeaderView();
-        View otherView = findOtherView();
-        if (headerView != null) {
-          int height = headerView.getHeight();
-          int targetHeight = Math.max(mHeaderHeight, mHeaderHeight + mTouchSlop);
-          float scale = targetHeight * 1f / height;
-          headerView.setScaleY(Math.max(1, scale));
-          headerView.setScaleX(Math.max(1, scale));
-          headerView.setPivotY(0f);
-          mHeaderHeight = targetHeight;
-          float translationY = otherView.getTranslationY() + mTouchSlop;
-          Log.d(TAG, "scaleY:" + scale);
-          if (translationY > 0) {
-            otherView.setTranslationY(translationY);
-          }
-        }
-      }
+    View headerView = findHeaderView();
+    if (!clampedY && scrollY > 0 && headerView != null && headerView.getScaleX()> 1.01f) {
+      scrollTo(0, 0);
     }
   }
 

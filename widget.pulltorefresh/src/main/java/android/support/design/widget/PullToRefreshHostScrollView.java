@@ -31,7 +31,6 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   private int mLastEventAction;
   private List<RefreshListener> mRefreshListeners = new ArrayList<>();
   private boolean mMoveBeforeTouchRelease;
-  private boolean mAddViewHacking;
 
   public PullToRefreshHostScrollView(Context context) {
     super(context);
@@ -149,39 +148,6 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     }
   }
 
-  @Override
-  public int getChildCount() {
-    return mAddViewHacking ? 0 : super.getChildCount();
-  }
-
-  @Override
-  public void addView(View child) {
-    mAddViewHacking = true;
-    super.addView(child);
-    mAddViewHacking = false;
-  }
-
-  @Override
-  public void addView(View child, int index) {
-    mAddViewHacking = true;
-    super.addView(child, index);
-    mAddViewHacking = false;
-  }
-
-  @Override
-  public void addView(View child, ViewGroup.LayoutParams params) {
-    mAddViewHacking = true;
-    super.addView(child, params);
-    mAddViewHacking = false;
-  }
-
-  @Override
-  public void addView(View child, int index, ViewGroup.LayoutParams params) {
-    mAddViewHacking = true;
-    super.addView(child, index, params);
-    mAddViewHacking = false;
-  }
-
   public void endRefresh() {
     getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
         new Runnable() {
@@ -292,7 +258,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     return (PullToRefreshGroup) getChildAt(0);
   }
 
-  private boolean tryConsume(int dyUnconsumed) {
+  protected boolean tryConsume(int dyUnconsumed) {
     PullToRefreshGroup refreshChild = getRefreshGroup();
     if (refreshChild != null) {
       float translationY = refreshChild.getRefreshTargetView().getTranslationY();
