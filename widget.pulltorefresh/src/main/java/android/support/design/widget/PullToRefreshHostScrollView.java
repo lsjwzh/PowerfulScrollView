@@ -83,12 +83,13 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     adjustRefreshViewState();
   }
 
-  private void adjustRefreshViewState() {
+  protected void adjustRefreshViewState() {
     if (isRefreshHeaderExpanded()) {
-      getRefreshGroup().getRefreshHeader().moveToStableState(
-          getRefreshGroup().getRefreshTargetView(), null);
-      for (RefreshListener listener : mRefreshListeners) {
-        listener.onRefreshing();
+      if (getRefreshGroup().getRefreshHeader().moveToStableState(
+          getRefreshGroup().getRefreshTargetView(), null)) {
+        for (RefreshListener listener : mRefreshListeners) {
+          listener.onRefreshing();
+        }
       }
     } else if (getRefreshGroup().getRefreshTargetView().getTranslationY() > 0) {
       getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
@@ -238,7 +239,13 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
     void collapse(View refreshTargetView, Runnable animationEndCallback);
 
-    void moveToStableState(View refreshTargetView, Runnable animationEndCallback);
+    /**
+     *
+     * @param refreshTargetView
+     * @param animationEndCallback
+     * @return if true trigger refreshing, else just do moveToStableState self
+     */
+    boolean moveToStableState(View refreshTargetView, Runnable animationEndCallback);
 
     int getMaxHeight();
 

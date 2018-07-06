@@ -129,7 +129,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   }
 
   @Override
-  public void moveToStableState(final View refreshTargetView, final Runnable animationEndCallback) {
+  public boolean moveToStableState(final View refreshTargetView, final Runnable animationEndCallback) {
     cancelExpandAnim();
     cancelCollapseAnim();
     if (mStableAnimator == null && getMaxHeight() < refreshTargetView.getTranslationY()) {
@@ -153,6 +153,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
       });
       mStableAnimator.start();
     }
+    return true;
   }
 
   private void cancelStableAnim() {
