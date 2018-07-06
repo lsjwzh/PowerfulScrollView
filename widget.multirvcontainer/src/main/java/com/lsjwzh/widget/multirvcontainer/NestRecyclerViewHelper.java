@@ -80,6 +80,24 @@ class NestRecyclerViewHelper {
     mHostScrollView.smoothScrollBy(0, 0);
   }
 
+
+  void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    if (isRecyclerViewNestedScrollingEnabled(target)) {
+      if (canHandleByHostScrollView(dy)) {
+        int oldScrollY = mHostScrollView.getScrollY();
+        Log.d(TAG, "want scrollBy " + dy);
+        mHostScrollView.scrollBy(0, dy);
+        consumed[1] = mHostScrollView.getScrollY() - oldScrollY;
+        Log.d(TAG, "real scrollBy " + consumed[1]);
+      }
+    }
+  }
+
+  boolean canHandleByHostScrollView(int dy) {
+    return !shouldHandleByRecyclerView()
+        || (mNestedRecyclerView.computeVerticalScrollOffset() == 0 && dy < 0);
+  }
+
   boolean onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
                          int dyUnconsumed) {
     if (isRecyclerViewNestedScrollingEnabled(target)) {
@@ -162,23 +180,18 @@ class NestRecyclerViewHelper {
   }
 
   int getRecyclerViewPartTop() {
-    return mChildContainsRecyclerView == null
-        ? mNestedRecyclerView.getTop()
-        : mChildContainsRecyclerView.getTop() + mNestedRecyclerView.getTop();
-  }
-
-  private int getRecyclerViewPartBottom() {
-    return mChildContainsRecyclerView == null
-        ? mNestedRecyclerView.getBottom()
-        : mNestedRecyclerView.getBottom() + mChildContainsRecyclerView.getTop();
+    return (int) (mChildContainsRecyclerView == null
+            ? mNestedRecyclerView.getTop() + mNestedRecyclerView.getTranslationY()
+            : mChildContainsRecyclerView.getTop() + mChildContainsRecyclerView.getTranslationY()
+            + mNestedRecyclerView.getTop() + mNestedRecyclerView.getTranslationY());
   }
 
   private View findDirectChildContainsRecyclerView() {
     View parent = (View) mNestedRecyclerView.getParent();
-    if (parent == mHostScrollView.getChildAt(0)) {
+    if (parent == mHostScrollView.getScrollableCoreChild()) {
       return null;
     }
-    while (parent.getParent() != mHostScrollView.getChildAt(0)) {
+    while (parent.getParent() != mHostScrollView.getScrollableCoreChild()) {
       parent = (View) parent.getParent();
     }
     return parent;
