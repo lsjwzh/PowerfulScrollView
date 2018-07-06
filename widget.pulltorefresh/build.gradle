@@ -23,5 +23,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(path: ':widget.multirvcontainer')
+    compile 'com.github.lsjwzh.MultiRVScrollView:widget.multirvcontainer:v0.5.5'
+//    compile project(path: ':widget.multirvcontainer')
 }

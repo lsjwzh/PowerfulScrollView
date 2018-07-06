@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.view.MotionEvent.ACTION_CANCEL;
+import static android.view.MotionEvent.ACTION_OUTSIDE;
 import static android.view.MotionEvent.ACTION_UP;
 
 public class PullToRefreshHostScrollView extends MultiRVScrollView {
   private static final String TAG = PullToRefreshHostScrollView.class.getSimpleName();
   private int mTouchSlop;
-  private int mLastEventAction;
+  private int mLastEventAction = ACTION_OUTSIDE;
   private List<RefreshListener> mRefreshListeners = new ArrayList<>();
   private boolean mMoveBeforeTouchRelease;
 
@@ -129,8 +130,9 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   public void stopNestedScroll() {
     super.stopNestedScroll();
     Log.d(TAG, "stopNestedScroll:");
-    if (mLastEventAction == ACTION_UP) {
+    if (mLastEventAction == ACTION_UP || mLastEventAction == ACTION_CANCEL) {
       adjustRefreshViewState();
+      mLastEventAction = ACTION_OUTSIDE;
     }
   }
 
