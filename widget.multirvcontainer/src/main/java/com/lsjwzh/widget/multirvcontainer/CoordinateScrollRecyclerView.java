@@ -38,9 +38,9 @@ public class CoordinateScrollRecyclerView extends RecyclerView {
         && getChildCount() > 0) {
       ViewHolder childViewHolder = getChildViewHolder(getChildAt(getChildCount() - 1));
       if (childViewHolder != null) {
-        int coordinatedTop = multiRVScrollView.getCoordinatedTop(this);
+        float coordinatedTop = multiRVScrollView.getCoordinatedTop(this);
         if (childViewHolder.getAdapterPosition() < position) {
-          multiRVScrollView.scrollTo(0, coordinatedTop);
+          multiRVScrollView.scrollTo(0, (int) coordinatedTop);
           rvScrollToPosition(position, isSmooth);
         } else {
           ViewHolder targetViewHolder = findViewHolderForAdapterPosition(position);
@@ -48,7 +48,7 @@ public class CoordinateScrollRecyclerView extends RecyclerView {
               targetViewHolder.itemView.getBottom()
                   + coordinatedTop
                   - multiRVScrollView.getScrollY() > multiRVScrollView.getHeight()) {
-            multiRVScrollView.scrollTo(0, coordinatedTop);
+            multiRVScrollView.scrollTo(0, (int) coordinatedTop);
           }
           rvScrollToPosition(position, isSmooth);
         }

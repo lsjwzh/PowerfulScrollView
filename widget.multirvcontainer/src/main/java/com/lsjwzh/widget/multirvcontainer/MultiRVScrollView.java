@@ -112,6 +112,15 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     setOnScrollChangeListener(mNestScrollListener);
   }
 
+  protected boolean canHandleByHostScrollView(int dy) {
+    for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
+      if (next.canHandleByHostScrollView(dy)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean isCoordinatedWith(@NonNull RecyclerView recyclerView) {
     for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
       if (next.mNestedRecyclerView == recyclerView) {
@@ -175,6 +184,15 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
       helper.startNestedScroll(axes);
     }
     return super.startNestedScroll(axes);
+  }
+
+  @Override
+  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
+    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
+      helper.onNestedPreScroll(target, dx, dy, consumed);
+    }
+    super.onNestedPreScroll(target, dx, dy, consumed);
   }
 
   @Override
