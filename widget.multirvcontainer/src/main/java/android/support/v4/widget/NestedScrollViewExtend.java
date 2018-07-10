@@ -1323,7 +1323,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
    * <p>The scroll range of a scroll view is the overall height of all of its
    * children.</p>
    *
-   * @hide
    */
   @RestrictTo(LIBRARY_GROUP)
   @Override
@@ -1347,7 +1346,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   /**
-   * @hide
    */
   @RestrictTo(LIBRARY_GROUP)
   @Override
@@ -1356,7 +1354,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   /**
-   * @hide
    */
   @RestrictTo(LIBRARY_GROUP)
   @Override
@@ -1365,7 +1362,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   /**
-   * @hide
    */
   @RestrictTo(LIBRARY_GROUP)
   @Override
@@ -1374,7 +1370,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   /**
-   * @hide
    */
   @RestrictTo(LIBRARY_GROUP)
   @Override
@@ -1383,7 +1378,6 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   /**
-   * @hide
    */
   @RestrictTo(LIBRARY_GROUP)
   @Override

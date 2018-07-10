@@ -33,6 +33,8 @@ public class ScrollerCompatExtend {
   /**
    * Package protected constructor that allows to specify if API version is newer than ICS.
    * It is useful for unit testing.
+   * @param context
+   * @param interpolator
    */
   public ScrollerCompatExtend(Context context, Interpolator interpolator) {
     mScroller = interpolator != null ?
