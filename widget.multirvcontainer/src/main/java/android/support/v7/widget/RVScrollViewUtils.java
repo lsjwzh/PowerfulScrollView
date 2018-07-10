@@ -3,7 +3,6 @@ package android.support.v7.widget;
 
 import android.support.v4.widget.ScrollerCompat;
 import android.view.View;
-import android.widget.OverScroller;
 
 import java.lang.reflect.Field;
 
@@ -37,10 +36,8 @@ public class RVScrollViewUtils {
     try {
       Field mScrollerField = recyclerView.mViewFlinger.getClass().getDeclaredField("mScroller");
       mScrollerField.setAccessible(true);
-      Object scroller = mScrollerField.get(recyclerView.mViewFlinger);
-      return (scroller instanceof ScrollerCompat)
-          ? ((ScrollerCompat) scroller).getCurrVelocity()
-          : ((OverScroller) scroller).getCurrVelocity();
+      ScrollerCompat scrollerCompat = (ScrollerCompat) mScrollerField.get(recyclerView.mViewFlinger);
+      return scrollerCompat.getCurrVelocity();
     } catch (NoSuchFieldException e) {
       e.printStackTrace();
       return 0;

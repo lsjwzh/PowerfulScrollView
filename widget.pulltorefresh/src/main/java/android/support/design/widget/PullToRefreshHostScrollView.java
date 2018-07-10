@@ -19,11 +19,12 @@ import static android.view.MotionEvent.ACTION_OUTSIDE;
 import static android.view.MotionEvent.ACTION_UP;
 
 public class PullToRefreshHostScrollView extends MultiRVScrollView {
-  private static final String TAG = PullToRefreshHostScrollView.class.getSimpleName();
-  private int mTouchSlop;
-  private int mLastEventAction = ACTION_OUTSIDE;
-  private List<RefreshListener> mRefreshListeners = new ArrayList<>();
-  private boolean mMoveBeforeTouchRelease;
+  static final String TAG = PullToRefreshHostScrollView.class.getSimpleName();
+  int mTouchSlop;
+  int mLastEventAction = ACTION_OUTSIDE;
+  List<RefreshListener> mRefreshListeners = new ArrayList<>();
+  boolean mMoveBeforeTouchRelease;
+  boolean mIsRefreshing = false;
 
   public PullToRefreshHostScrollView(Context context) {
     super(context);
@@ -85,19 +86,32 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   }
 
   protected void adjustRefreshViewState() {
-    if (isRefreshHeaderExpanded()) {
+    if (canTryMoveToStable()) {
       if (getRefreshGroup().getRefreshHeader().moveToStableState(
           getRefreshGroup().getRefreshTargetView(), null)) {
-        for (RefreshListener listener : mRefreshListeners) {
-          listener.onRefreshing();
-        }
+        notifyOnRefreshing();
       }
-    } else if (getRefreshGroup().getRefreshTargetView().getTranslationY() > 0) {
+    } else if (getRefreshGroup().getRefreshTargetView().getTranslationY() > 0
+        && !mIsRefreshing) {
       getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
           null);
     }
   }
 
+  void notifyOnRefreshing() {
+    if (mIsRefreshing) {
+      return;
+    }
+    mIsRefreshing = true;
+    for (RefreshListener listener : mRefreshListeners) {
+      listener.onRefreshing();
+    }
+  }
+
+
+  public boolean isRefreshing() {
+    return mIsRefreshing;
+  }
 
   public void endRefresh() {
     getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
@@ -105,6 +119,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
           @Override
           public void run() {
+            mIsRefreshing = false;
             for (RefreshListener listener : mRefreshListeners) {
               listener.onRefreshAnimationEnd();
             }
@@ -118,9 +133,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
           @Override
           public void run() {
-            for (RefreshListener listener : mRefreshListeners) {
-              listener.onRefreshing();
-            }
+            notifyOnRefreshing();
           }
         });
   }
@@ -174,10 +187,10 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
   }
 
-  private boolean isRefreshHeaderExpanded() {
+  private boolean canTryMoveToStable() {
     PullToRefreshGroup refreshChild = getRefreshGroup();
     float translationY = refreshChild.getRefreshTargetView().getTranslationY();
-    return translationY >= refreshChild.getRefreshHeader().getMaxHeight();
+    return translationY >= refreshChild.getRefreshHeader().getRefreshTriggerHeight();
   }
 
   @Override
@@ -256,7 +269,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
      */
     boolean moveToStableState(View refreshTargetView, Runnable animationEndCallback);
 
-    int getMaxHeight();
+    int getRefreshTriggerHeight();
 
     void cancelAnimation();
 
