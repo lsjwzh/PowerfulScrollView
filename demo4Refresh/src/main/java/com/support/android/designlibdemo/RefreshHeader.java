@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.PullToRefreshHostScrollView;
-import android.support.v7.widget.ViewUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +66,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
       mExpandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight((Integer) animation.getAnimatedValue());
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue());
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -95,7 +94,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
       mCollapseAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight((Integer) animation.getAnimatedValue());
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue());
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -135,7 +134,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   }
 
   @Override
-  public void setVisibleHeight(int targetHeight) {
+  public void setVisibleHeight(View refreshTargetView, int targetHeight) {
     if (mState != STATE_REFRESING) {
       setTranslationY(Math.max(targetHeight - getRefreshHeight(), 0));
       int baseOffset = -DemoUtils.dip2px(getContext(), 200);
@@ -176,7 +175,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
       mStableAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight((Integer) animation.getAnimatedValue());
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue());
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -184,7 +183,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
         @Override
         public void onAnimationEnd(Animator animation) {
           mStableAnimator = null;
-          setVisibleHeight(targetY);
+          setVisibleHeight(refreshTargetView, targetY);
           refreshTargetView.setTranslationY(targetY);
           if (animationEndCallback != null) {
             animationEndCallback.run();

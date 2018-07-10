@@ -243,7 +243,8 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
         translationY = Math.max(0, mayTranslationY);
         Log.d(TAG, "translationY:" + translationY);
         refreshChild.getRefreshHeader().cancelAnimation();
-        refreshChild.getRefreshHeader().setVisibleHeight((int) translationY);
+        refreshChild.getRefreshHeader().setVisibleHeight(refreshChild.getRefreshTargetView(),
+            (int) translationY);
         refreshChild.getRefreshTargetView().setTranslationY(translationY);
         return true;
       }
@@ -275,7 +276,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
     void cancelAnimation();
 
-    void setVisibleHeight(int targetHeight);
+    void setVisibleHeight(View refreshTargetView, int targetHeight);
 
   }
 
