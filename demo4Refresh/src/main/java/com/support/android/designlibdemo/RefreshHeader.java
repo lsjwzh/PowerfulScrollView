@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.PullToRefreshHostScrollView;
+import android.support.v7.widget.ViewUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,17 @@ import android.widget.ProgressBar;
 
 public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrollView.IRefreshHeader {
 
+  public static final int STATE_NONE = 0;
+  public static final int STATE_REFRESING = 1;
+  public static final int STATE_EXPANDED = 2;
+
   private ProgressBar mProgress;
   private ValueAnimator mCollapseAnimator;
   private ValueAnimator mExpandAnimator;
   private ValueAnimator mStableAnimator;
+
+  private int actionType;
+  int mState = STATE_NONE;
 
   public RefreshHeader(@NonNull Context context) {
     super(context);
@@ -55,7 +63,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
     cancelCollapseAnim();
     cancelStableAnim();
     if (mExpandAnimator == null) {
-      mExpandAnimator = ObjectAnimator.ofInt(getMaxHeight(), 0);
+      mExpandAnimator = ObjectAnimator.ofInt(0, getRefreshHeight());
       mExpandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
@@ -81,6 +89,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   public void collapse(final View refreshTargetView, final Runnable animationEndCallback) {
     cancelExpandAnim();
     cancelStableAnim();
+    mState = STATE_NONE;
     if (mCollapseAnimator == null) {
       mCollapseAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(), 0);
       mCollapseAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -104,9 +113,18 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
     }
   }
 
+  public int getPullToExpandTriggerHeight() {
+    return DemoUtils.dip2px(getContext(), 200);
+  }
+
+
   @Override
-  public int getMaxHeight() {
-    return getHeight();
+  public int getRefreshTriggerHeight() {
+    return DemoUtils.dip2px(getContext(), 100);
+  }
+
+  public int getRefreshHeight(){
+    return DemoUtils.dip2px(getContext(), 100);
   }
 
   @Override
@@ -118,22 +136,43 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
 
   @Override
   public void setVisibleHeight(int targetHeight) {
-    setTranslationY(Math.max(targetHeight - getMaxHeight(), 0));
-    targetHeight = Math.min(targetHeight, getMaxHeight());
-    mProgress.setMax(getMaxHeight());
-    mProgress.setProgress(targetHeight);
-    float scale = targetHeight * 1f / getMaxHeight();
-    mProgress.setScaleX(scale);
-    mProgress.setScaleY(scale);
-    mProgress.setTranslationY((scale - 1) * mProgress.getHeight() / 2);
+    if (mState != STATE_REFRESING) {
+      setTranslationY(Math.max(targetHeight - getRefreshHeight(), 0));
+      int baseOffset = -DemoUtils.dip2px(getContext(), 200);
+      findViewById(R.id.fragment_container)
+          .setTranslationY((getScrollViewHeight() - targetHeight) * baseOffset
+              / getScrollViewHeight() - getTranslationY());
+      targetHeight = Math.min(targetHeight, getRefreshHeight());
+      mProgress.setMax(getRefreshHeight());
+      mProgress.setProgress(targetHeight);
+      float scale = targetHeight * 1f / getRefreshHeight();
+      mProgress.setScaleX(scale);
+      mProgress.setScaleY(scale);
+      mProgress.setTranslationY((scale - 1) * mProgress.getHeight() / 2);
+    } else {
+      setTranslationY(targetHeight - getRefreshHeight());
+    }
   }
 
   @Override
   public boolean moveToStableState(final View refreshTargetView, final Runnable animationEndCallback) {
     cancelExpandAnim();
     cancelCollapseAnim();
-    if (mStableAnimator == null && getMaxHeight() < refreshTargetView.getTranslationY()) {
-      mStableAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(), getMaxHeight());
+    if (mStableAnimator == null) {
+      final int targetY;
+      if (mState == STATE_NONE
+          && refreshTargetView.getTranslationY() >= getPullToExpandTriggerHeight()) {
+        targetY = getScrollViewHeight();
+        mState = STATE_EXPANDED;
+      } else if (mState == STATE_EXPANDED) {
+        targetY = 0;
+        mState = STATE_NONE;
+      } else {
+        targetY = getRefreshHeight();
+        mState = STATE_REFRESING;
+      }
+      mStableAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(),
+          targetY);
       mStableAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
@@ -145,7 +184,8 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
         @Override
         public void onAnimationEnd(Animator animation) {
           mStableAnimator = null;
-          refreshTargetView.setTranslationY(getMaxHeight());
+          setVisibleHeight(targetY);
+          refreshTargetView.setTranslationY(targetY);
           if (animationEndCallback != null) {
             animationEndCallback.run();
           }
@@ -153,7 +193,11 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
       });
       mStableAnimator.start();
     }
-    return true;
+    return mState == STATE_REFRESING;
+  }
+
+  private int getScrollViewHeight() {
+    return ((View) getParent().getParent()).getHeight();
   }
 
   private void cancelStableAnim() {
@@ -176,4 +220,6 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
       mCollapseAnimator = null;
     }
   }
+
+
 }

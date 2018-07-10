@@ -34,372 +34,41 @@
       android:layout_height="match_parent"
       android:orientation="vertical">
 
-      <ImageView
-        android:id="@+id/backdrop"
+      <!--<ImageView-->
+        <!--android:id="@+id/backdrop"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="200dp"-->
+        <!--android:fitsSystemWindows="true"-->
+        <!--android:scaleType="centerCrop"/>-->
+
+      <!--<LinearLayout-->
+        <!--android:id="@+id/stickyLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="100dp">-->
+
+        <!--<TextView-->
+          <!--android:layout_width="match_parent"-->
+          <!--android:layout_height="wrap_content"-->
+          <!--android:text="@string/app_name"-->
+          <!--android:textSize="20sp"/>-->
+      <!--</LinearLayout>-->
+
+
+      <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
+        android:id="@+id/recyclerview"
+        android:background="@color/cardview_dark_background"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:fitsSystemWindows="true"
-        android:scaleType="centerCrop"/>
-
-      <LinearLayout
-        android:id="@+id/stickyLayout"
-        android:layout_width="match_parent"
-        android:layout_height="100dp">
-
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:text="@string/app_name"
-          android:textSize="20sp"/>
-      </LinearLayout>
-
-      <android.support.v4.widget.NestedScrollViewExtend
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:overScrollMode="never">
-
-        <LinearLayout
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:orientation="vertical"
-          android:paddingTop="24dp">
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Info"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Friends"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-          <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/card_margin"
-            android:layout_marginLeft="@dimen/card_margin"
-            android:layout_marginRight="@dimen/card_margin">
-
-            <LinearLayout
-              style="@style/Widget.CardContent"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-              <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cheese_ipsum"/>
-
-            </LinearLayout>
-
-          </android.support.v7.widget.CardView>
-
-
-        </LinearLayout>
-
-      </android.support.v4.widget.NestedScrollViewExtend>
+        android:layout_height="match_parent"/>
     </LinearLayout>
   </android.support.design.widget.PullToRefreshGroup>
 
   <LinearLayout
     android:id="@+id/stickyLayout2"
-    app:actionType="sticky"
-    app:stickyCopyView="@+id/stickyLayout"
-    android:visibility="gone"
     android:layout_width="match_parent"
-    android:layout_height="100dp">
+    android:layout_height="100dp"
+    android:visibility="gone"
+    app:actionType="sticky"
+    app:stickyCopyView="@+id/stickyLayout">
 
     <TextView
       android:layout_width="match_parent"

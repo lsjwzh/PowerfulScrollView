@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-class NestRecyclerViewHelper {
+public class NestRecyclerViewHelper {
   private static final String TAG = NestRecyclerViewHelper.class.getSimpleName();
   final MultiRVScrollView mHostScrollView;
   RecyclerView mNestedRecyclerView;
@@ -98,7 +98,16 @@ class NestRecyclerViewHelper {
         || (mNestedRecyclerView.computeVerticalScrollOffset() == 0 && dy < 0);
   }
 
-  boolean onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+  public boolean tryConsumeScroll(int dyConsumed) {
+    if (shouldHandleByRecyclerView()) {
+      RVScrollViewUtils.scrollVerticallyBy(mNestedRecyclerView, dyConsumed);
+      Log.d(TAG, "scrollVerticallyBy " + dyConsumed);
+      return true;
+    }
+    return false;
+  }
+
+ public boolean onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
                          int dyUnconsumed) {
     if (isRecyclerViewNestedScrollingEnabled(target)) {
       if (!shouldHandleByRecyclerView()) {
@@ -153,15 +162,14 @@ class NestRecyclerViewHelper {
     return false;
   }
 
-  boolean onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+  boolean onFlingStop(int scrollY, boolean clampedY) {
     float currVelocity = mHostScrollView.getScroller().getCurrVelocity();
     if (clampedY && shouldHandleByRecyclerView()
-        && mNestedRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE
         && !Float.isNaN(currVelocity)) {
       currVelocity = scrollY == 0 ? -currVelocity : currVelocity;
       mNestedRecyclerView.stopScroll();
       mNestedRecyclerView.fling(0, (int) currVelocity);
-      Log.d(TAG, mNestedRecyclerView.getId() + " fling onOverScrolled" + currVelocity + " scrollY" + scrollY);
+      Log.d(TAG, mNestedRecyclerView.getId() + " fling onFlingStop" + currVelocity + " scrollY" + scrollY);
       return true;
     }
     return false;

@@ -19,6 +19,8 @@ package com.support.android.designlibdemo;
 import android.os.Bundle;
 import android.support.design.widget.PullToRefreshHostScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,16 +33,20 @@ public class RefreshableDetailActivity extends AppCompatActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_detail_refreshable_image);
-    loadBackdrop();
+//    loadBackdrop();
     final PullToRefreshHostScrollView refreshContainer
         = (PullToRefreshHostScrollView) findViewById(R.id.main_content);
-    final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
-    imageView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        refreshContainer.endRefresh();
-      }
-    });
+//    final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+//    imageView.setOnClickListener(new View.OnClickListener() {
+//      @Override
+//      public void onClick(View v) {
+//        refreshContainer.endRefresh();
+//      }
+//    });
+
+    RecyclerView rv = (RecyclerView) findViewById(R.id.recyclerview);
+    refreshContainer.takeOverScrollBehavior(rv);
+    setupRecyclerView(rv);
   }
 
   private void loadBackdrop() {
@@ -52,5 +58,17 @@ public class RefreshableDetailActivity extends AppCompatActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.sample_actions, menu);
     return true;
+  }
+
+  private void setupRecyclerView(RecyclerView recyclerView) {
+    recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+    recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
+        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 30)) {
+      @Override
+      public void onBindViewHolder(ViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        holder.itemView.setOnClickListener(null);
+      }
+    });
   }
 }

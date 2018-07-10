@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
+import com.lsjwzh.widget.multirvcontainer.NestRecyclerViewHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,17 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
                                            isTouchEvent) {
     Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
-      tryConsume(deltaY);
+      if (!tryConsume(deltaY) && mMoveBeforeTouchRelease) {
+        PullToRefreshGroup refreshChild = getRefreshGroup();
+        float translationY = refreshChild.getRefreshTargetView().getTranslationY();
+        float mayTranslationY = translationY - deltaY;
+        if (mayTranslationY < 0) {
+          for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
+            helper.tryConsumeScroll(deltaY);
+          }
+          return true;
+        }
+      }
       Log.d(TAG, String.format("overScrollByCompat tryConsume %s", deltaY));
     }
     return super.overScrollByCompat(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY,
@@ -194,16 +205,6 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   }
 
   @Override
-  protected void dispatchDraw(Canvas canvas) {
-    super.dispatchDraw(canvas);
-  }
-
-  @Override
-  protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
-  }
-
-  @Override
   protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
     Log.d(TAG, "onOverScrolled scrollY:" + scrollY + " clampedY:" + clampedY);
     super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
@@ -235,9 +236,10 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     if (refreshChild != null) {
       float translationY = refreshChild.getRefreshTargetView().getTranslationY();
       float mayTranslationY = translationY - dyUnconsumed;
-      if ((mayTranslationY > 0 && getScrollY() == 0)
-          || mMoveBeforeTouchRelease) {
+      if (mayTranslationY > 0 && getScrollY() == 0) {
         mMoveBeforeTouchRelease = true;
+      }
+      if (mMoveBeforeTouchRelease) {
         translationY = Math.max(0, mayTranslationY);
         Log.d(TAG, "translationY:" + translationY);
         refreshChild.getRefreshHeader().cancelAnimation();

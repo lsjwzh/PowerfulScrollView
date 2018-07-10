@@ -32,7 +32,7 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
       }
     }
   };
-  List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
+  protected List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
 
   public MultiRVScrollView(Context context) {
     this(context, null);
@@ -216,14 +216,14 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
   @Override
-  protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-    super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
-    Log.d(TAG, "onOverScrolled: scrollY " + scrollY + " clampedY " + clampedY);
+  protected void onFlingStop() {
+    Log.d(TAG, "onFlingStop: scrollY " + getScrollY());
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      if (helper.onOverScrolled(scrollX, scrollY, clampedX, clampedY)) {
+      if (helper.onFlingStop(getScrollY(), getScrollY() >= computeVerticalScrollRange())) {
         break;
       }
     }
+    super.onFlingStop();
   }
 
   public int getScrollableHeight() {

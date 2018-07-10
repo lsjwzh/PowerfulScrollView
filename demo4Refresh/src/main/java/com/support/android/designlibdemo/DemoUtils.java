@@ -1,5 +1,7 @@
 package com.support.android.designlibdemo;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,5 +18,10 @@ public class DemoUtils {
       list.add(array[random.nextInt(array.length)]);
     }
     return list;
+  }
+
+  public static int dip2px(Context context, float dpValue) {
+    final float scale = context.getResources().getDisplayMetrics().density;
+    return (int) (dpValue * scale + 0.5f);
   }
 }
