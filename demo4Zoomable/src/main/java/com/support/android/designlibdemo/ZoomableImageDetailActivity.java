@@ -17,7 +17,11 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
+import android.support.design.widget.PullToRefreshHostScrollView;
+import android.support.design.widget.PullToZoomContainer;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.widget.ImageView;
 
@@ -29,6 +33,12 @@ public class ZoomableImageDetailActivity extends AppCompatActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_detail_zoomable_image);
+
+    final PullToZoomContainer refreshContainer
+        = (PullToZoomContainer) findViewById(R.id.main_content);
+    RecyclerView rv = (RecyclerView) findViewById(R.id.recyclerview);
+    refreshContainer.takeOverScrollBehavior(rv);
+    setupRecyclerView(rv);
     loadBackdrop();
   }
 
@@ -41,5 +51,17 @@ public class ZoomableImageDetailActivity extends AppCompatActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.sample_actions, menu);
     return true;
+  }
+
+  private void setupRecyclerView(RecyclerView recyclerView) {
+    recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+    recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
+        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 30)) {
+      @Override
+      public void onBindViewHolder(ViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        holder.itemView.setOnClickListener(null);
+      }
+    });
   }
 }

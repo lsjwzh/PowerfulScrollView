@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <declare-styleable name="PullToZoomContainer">
-    <attr name="scaleViewId" format="reference"/>
-    <attr name="translationViewId" format="reference"/>
-  </declare-styleable>
 
+  <declare-styleable name="PullToZoomCoreChild_Layout">
+    <attr name="actionWhenOverScroll" format="enum">
+      <enum name="translation" value="0" />
+      <enum name="scale" value="1" />
+    </attr>
+  </declare-styleable>
 </resources>

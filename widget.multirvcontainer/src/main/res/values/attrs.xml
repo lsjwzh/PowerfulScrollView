@@ -5,6 +5,7 @@
     <attr name="actionType" format="enum">
       <enum name="none" value="0"/>
       <enum name="sticky" value="1"/>
+      <enum name="core" value="2"/>
     </attr>
     <attr name="stickyCopyView" format="reference"/>
   </declare-styleable>

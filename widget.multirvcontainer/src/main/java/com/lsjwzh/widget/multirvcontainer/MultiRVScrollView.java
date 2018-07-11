@@ -130,6 +130,21 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     return false;
   }
 
+  @Override
+  public View getScrollableCoreChild() {
+    int childCount = getChildCount();
+    if (childCount > 0) {
+      for (int i = 0; i < childCount; i++) {
+        View child = getChildAt(i);
+        LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+        if (layoutParams.actionType == LayoutParams.ACTION_TYPE_SCROLL_CORE) {
+          return child;
+        }
+      }
+    }
+    return super.getScrollableCoreChild();
+  }
+
   public int getCoordinatedTop(@NonNull RecyclerView recyclerView) {
     for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
       if (next.mNestedRecyclerView == recyclerView) {
@@ -240,6 +255,8 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   public static class LayoutParams extends FrameLayout.LayoutParams {
     public static final int ACTION_TYPE_NONE = 0;
     public static final int ACTION_TYPE_STICKY = 1;
+    public static final int ACTION_TYPE_SCROLL_CORE = 2;
+
     public int actionType = ACTION_TYPE_NONE;
     public int stickyCopyView = View.NO_ID;
 

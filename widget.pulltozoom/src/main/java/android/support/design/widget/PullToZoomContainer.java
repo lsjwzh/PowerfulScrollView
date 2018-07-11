@@ -2,28 +2,25 @@ package android.support.design.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
-import com.lsjwzh.widget.pulltozoom.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PullToZoomContainer extends MultiRVScrollView {
   private static final String TAG = PullToZoomContainer.class.getSimpleName();
-  private int mHeaderHeight;
   private int mTouchSlop;
-  private int mScaleViewId;
-  private int mTranslationViewId;
   private List<RefreshListener> mRefreshListeners = new ArrayList<>();
+  private float mPullTranslationY;
+  private ValueAnimator mRollbackAnimator;
 
   public PullToZoomContainer(Context context) {
     super(context);
@@ -43,12 +40,6 @@ public class PullToZoomContainer extends MultiRVScrollView {
   void init(Context context, AttributeSet attrs, int defStyleAttr) {
     final ViewConfiguration configuration = ViewConfiguration.get(getContext());
     mTouchSlop = configuration.getScaledTouchSlop();
-
-    final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PullToZoomContainer);
-    mScaleViewId = a.getResourceId(R.styleable.PullToZoomContainer_scaleViewId, View.NO_ID);
-    mTranslationViewId
-        = a.getResourceId(R.styleable.PullToZoomContainer_translationViewId, View.NO_ID);
-    a.recycle();
   }
 
   public void addRefreshListener(RefreshListener refreshListener) {
@@ -99,45 +90,30 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   protected boolean tryConsume(int dyUnconsumed) {
-    View headerView = findScaleView();
-    View otherView = findTranslationView();
-    if (headerView != null && otherView != null && getScrollY() == 0) {
-      int height = headerView.getHeight();
-      float translationY = otherView.getTranslationY() - dyUnconsumed;
-      int targetHeight = (int) (otherView.getTop() + translationY);
-      float scale = targetHeight * 1f / height;
-      headerView.setScaleY(Math.max(1, scale));
-      headerView.setScaleX(Math.max(1, scale));
-      headerView.setPivotY(0f);
-      mHeaderHeight = targetHeight;
-      Log.d(TAG, "scaleY:" + scale);
-      if (translationY > 0) {
+    List<View> headerViews = findScaleViews();
+    List<View> otherViews = findTranslationViews();
+    if (!headerViews.isEmpty() && !otherViews.isEmpty() && getScrollY() == 0) {
+      mPullTranslationY -= dyUnconsumed;
+      for (View scaleView : headerViews) {
+        int height = scaleView.getHeight();
+        int targetHeight = (int) (height + mPullTranslationY);
+        float scale = targetHeight * 1f / height;
+        scaleView.setScaleY(Math.max(1, scale));
+        scaleView.setScaleX(Math.max(1, scale));
+        scaleView.setPivotY(0f);
+        Log.d(TAG, "scaleY:" + scale);
+      }
+      if (mPullTranslationY > 0) {
         for (RefreshListener listener : mRefreshListeners) {
-          listener.onPullOffset(translationY);
+          listener.onPullOffset(mPullTranslationY);
         }
-        otherView.setTranslationY(translationY);
+        for (View view : otherViews) {
+          view.setTranslationY(mPullTranslationY);
+        }
         return true;
       }
     }
     return false;
-  }
-
-  @Override
-  protected void dispatchDraw(Canvas canvas) {
-    Log.d(TAG, "dispatchDraw:");
-    super.dispatchDraw(canvas);
-  }
-
-  @Override
-  protected void onDraw(Canvas canvas) {
-    Log.d(TAG, "onDraw:");
-    super.onDraw(canvas);
-  }
-
-  @Override
-  public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-    Log.d(TAG, "onNestedPreFling:" + velocityY);
-    return super.onNestedPreFling(target, velocityX, velocityY);
   }
 
   @Override
@@ -158,18 +134,19 @@ public class PullToZoomContainer extends MultiRVScrollView {
   protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
     Log.d(TAG, "onOverScrolled scrollY:" + scrollY + " clampedY:" + clampedY);
     super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
-    View headerView = findScaleView();
-    if (!clampedY && scrollY > 0 && headerView != null && headerView.getScaleX() > 1.01f) {
+    if (!clampedY && scrollY > 0 && mPullTranslationY > 0) {
       scrollTo(0, 0);
     }
   }
 
   @Override
   public boolean startNestedScroll(int axes) {
-    View headerView = findScaleView();
-    mHeaderHeight = headerView.getHeight();
     boolean b = super.startNestedScroll(axes);
     Log.d(TAG, "startNestedScroll:" + b);
+    if (mRollbackAnimator != null) {
+      mRollbackAnimator.cancel();
+      mRollbackAnimator = null;
+    }
     return b;
   }
 
@@ -179,40 +156,74 @@ public class PullToZoomContainer extends MultiRVScrollView {
     super.onStopNestedScroll(target);
   }
 
-  protected View findScaleView() {
-    if (mScaleViewId != View.NO_ID) {
-      return findViewById(mScaleViewId);
+  protected List<View> findScaleViews() {
+    List<View> scaleViews = new ArrayList<>();
+    View coreChild = getScrollableCoreChild();
+    if (coreChild instanceof PullToZoomCoreChild) {
+      PullToZoomCoreChild pullToZoomCoreChild = (PullToZoomCoreChild) coreChild;
+      for (int i = 0; i < pullToZoomCoreChild.getChildCount(); i++) {
+        View view = pullToZoomCoreChild.getChildAt(i);
+        int actionWhenOverScroll
+            = ((PullToZoomCoreChild.LayoutParams) view.getLayoutParams()).actionWhenOverScroll;
+        if (actionWhenOverScroll == PullToZoomCoreChild.LayoutParams.ACTION_SCALE) {
+          scaleViews.add(view);
+        }
+      }
     }
-    return ((ViewGroup) getChildAt(0)).getChildAt(0);
+    return scaleViews;
   }
 
-
-  protected View findTranslationView() {
-    if (mTranslationViewId != View.NO_ID) {
-      return findViewById(mTranslationViewId);
+  protected List<View> findTranslationViews() {
+    List<View> translationViews = new ArrayList<>();
+    View coreChild = getScrollableCoreChild();
+    if (coreChild instanceof PullToZoomCoreChild) {
+      PullToZoomCoreChild pullToZoomCoreChild = (PullToZoomCoreChild) coreChild;
+      for (int i = 0; i < pullToZoomCoreChild.getChildCount(); i++) {
+        View view = pullToZoomCoreChild.getChildAt(i);
+        int actionWhenOverScroll
+            = ((PullToZoomCoreChild.LayoutParams) view.getLayoutParams()).actionWhenOverScroll;
+        if (actionWhenOverScroll == PullToZoomCoreChild.LayoutParams.ACTION_TRANSLATION) {
+          translationViews.add(view);
+        }
+      }
     }
-    return ((ViewGroup) getChildAt(0)).getChildAt(1);
+    return translationViews;
   }
 
-  private void rollbackIfNeed() {
-    View headerView = findScaleView();
-    View otherView = findTranslationView();
-    if (otherView.getTranslationY() > 0) {
-      headerView.animate().scaleY(1.01f).scaleX(1.01f).start();
-      otherView.animate().translationY(0).setListener(new AnimatorListenerAdapter() {
+  void rollbackIfNeed() {
+    if (mPullTranslationY > 0) {
+      for (View view : findScaleViews()) {
+        view.animate().scaleY(1.01f).scaleX(1.01f).start();
+      }
+      mRollbackAnimator = ObjectAnimator.ofFloat(mPullTranslationY, 0);
+      mRollbackAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
-        public void onAnimationEnd(Animator animation) {
-          for (RefreshListener listener : mRefreshListeners) {
-            listener.onRollbaclAnimationEnd();
+        public void onAnimationUpdate(ValueAnimator animation) {
+          mPullTranslationY = (float) animation.getAnimatedValue();
+          for (View view : findTranslationViews()) {
+            view.setTranslationY(mPullTranslationY);
           }
         }
-      }).start();
+      });
+      mRollbackAnimator.addListener(new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+          mPullTranslationY = 0;
+          for (View view : findTranslationViews()) {
+            view.setTranslationY(mPullTranslationY);
+          }
+          for (RefreshListener listener : mRefreshListeners) {
+            listener.onRollbackAnimationEnd();
+          }
+        }
+      });
+      mRollbackAnimator.start();
     }
   }
 
   public interface RefreshListener {
     void onPullOffset(float offset);
 
-    void onRollbaclAnimationEnd();
+    void onRollbackAnimationEnd();
   }
 }

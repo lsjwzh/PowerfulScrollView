@@ -21,11 +21,9 @@
   android:id="@+id/main_content"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:fitsSystemWindows="true"
-  app:scaleViewId="@id/backdrop"
-  app:translationViewId="@id/scrollView">
+  android:fitsSystemWindows="true">
 
-  <LinearLayout
+  <android.support.design.widget.PullToZoomCoreChild
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -35,101 +33,24 @@
       android:layout_width="match_parent"
       android:layout_height="200dp"
       android:fitsSystemWindows="true"
-      android:scaleType="centerCrop"/>
+      android:scaleType="centerCrop"
+      app:actionWhenOverScroll="scale"/>
 
-    <android.support.v4.widget.NestedScrollViewExtend
-      android:id="@+id/scrollView"
+    <TextView
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="wrap_content"
+      android:text="Info"
+      android:textAppearance="@style/TextAppearance.AppCompat.Title"
+      app:actionWhenOverScroll="translation"/>
 
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="24dp">
+    <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
+      android:id="@+id/recyclerview"
 
-        <android.support.v7.widget.CardView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_margin="@dimen/card_margin">
-
-          <LinearLayout
-            style="@style/Widget.CardContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="Info"
-              android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-            <TextView
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="@string/cheese_ipsum"/>
-
-          </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/card_margin"
-          android:layout_marginLeft="@dimen/card_margin"
-          android:layout_marginRight="@dimen/card_margin">
-
-          <LinearLayout
-            style="@style/Widget.CardContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="Friends"
-              android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-            <TextView
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="@string/cheese_ipsum"/>
-
-          </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/card_margin"
-          android:layout_marginLeft="@dimen/card_margin"
-          android:layout_marginRight="@dimen/card_margin">
-
-          <LinearLayout
-            style="@style/Widget.CardContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="Related"
-              android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-
-            <TextView
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="@string/cheese_ipsum"/>
-
-          </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-      </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollViewExtend>
-  </LinearLayout>
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_below="@+id/backdrop"
+      android:background="@color/cardview_dark_background"
+      app:actionWhenOverScroll="translation"/>
+  </android.support.design.widget.PullToZoomCoreChild>
 
 </android.support.design.widget.PullToZoomContainer>
