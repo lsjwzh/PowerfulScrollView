@@ -80,6 +80,10 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
         if (layoutParams.actionType == LayoutParams.ACTION_TYPE_STICKY) {
           if (layoutParams.stickyCopyView != View.NO_ID) {
             View stickyCopyView = findViewById(layoutParams.stickyCopyView);
+            if (stickyCopyView.getVisibility() == GONE) {
+              child.setVisibility(GONE);
+              continue;
+            }
             float copyViewRealY = 0;
             View parent = stickyCopyView;
             while (parent != this) {
