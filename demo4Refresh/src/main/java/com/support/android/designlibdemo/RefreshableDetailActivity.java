@@ -36,17 +36,18 @@ public class RefreshableDetailActivity extends AppCompatActivity {
 //    loadBackdrop();
     final PullToRefreshHostScrollView refreshContainer
         = (PullToRefreshHostScrollView) findViewById(R.id.main_content);
-//    final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
-//    imageView.setOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(View v) {
-//        refreshContainer.endRefresh();
-//      }
-//    });
+    final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+    imageView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        refreshContainer.endRefresh();
+      }
+    });
 
     RecyclerView rv = (RecyclerView) findViewById(R.id.recyclerview);
     refreshContainer.takeOverScrollBehavior(rv);
     setupRecyclerView(rv);
+    loadBackdrop();
   }
 
   private void loadBackdrop() {

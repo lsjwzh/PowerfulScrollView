@@ -72,7 +72,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
                                            isTouchEvent) {
     Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
-      if (!tryConsume(deltaY) && mMoveBeforeTouchRelease) {
+      if (tryConsume(deltaY) == 0 && mMoveBeforeTouchRelease) {
         PullToRefreshGroup refreshChild = getRefreshGroup();
         float translationY = refreshChild.getRefreshTargetView().getTranslationY();
         float mayTranslationY = translationY - deltaY;
@@ -172,16 +172,16 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
   @Override
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-    super.onNestedPreScroll(target, dx, dy, consumed);
-    Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
-    if (dy < -mTouchSlop && getScrollY() == 0 && consumed[1] == 0) {
-      consumed[1] = mTouchSlop + 1 + dy;
-    }
     int dyUnconsumed = dy - consumed[1];
     Log.d(TAG, " onNestedPreScroll dyConsumed:" + consumed[1] + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)
         && canHandleByHostScrollView(dyUnconsumed)) {
-      tryConsume(dyUnconsumed);
+      consumed[1] = dyUnconsumed - tryConsume(dyUnconsumed);
+    }
+    super.onNestedPreScroll(target, dx, dy, consumed);
+    Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
+    if (dy < -mTouchSlop && getScrollY() == 0 && consumed[1] == 0) {
+      consumed[1] = mTouchSlop + 1 + dy;
     }
   }
 
@@ -191,9 +191,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease) &&
         canHandleByHostScrollView(dyUnconsumed)) {
-      if (tryConsume(dyUnconsumed)) {
-        return;
-      }
+      dyUnconsumed = tryConsume(dyUnconsumed);
     }
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
   }
@@ -231,7 +229,12 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     return (PullToRefreshGroup) getChildAt(0);
   }
 
-  protected boolean tryConsume(int dyUnconsumed) {
+  /**
+   *
+   * @param dyUnconsumed
+   * @return dyUnconsumed
+   */
+  protected int tryConsume(int dyUnconsumed) {
     PullToRefreshGroup refreshChild = getRefreshGroup();
     if (refreshChild != null) {
       float translationY = refreshChild.getRefreshTargetView().getTranslationY();
@@ -246,10 +249,10 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
         refreshChild.getRefreshHeader().setVisibleHeight(refreshChild.getRefreshTargetView(),
             (int) translationY);
         refreshChild.getRefreshTargetView().setTranslationY(translationY);
-        return true;
+        return (int) (translationY - mayTranslationY);
       }
     }
-    return false;
+    return dyUnconsumed;
   }
 
   public interface RefreshListener {

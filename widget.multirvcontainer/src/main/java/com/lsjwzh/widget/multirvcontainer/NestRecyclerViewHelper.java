@@ -83,11 +83,12 @@ public class NestRecyclerViewHelper {
 
   void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
     if (isRecyclerViewNestedScrollingEnabled(target)) {
-      if (canHandleByHostScrollView(dy)) {
+      int unconsumed = dy - consumed[1];
+      if (canHandleByHostScrollView(unconsumed)) {
         int oldScrollY = mHostScrollView.getScrollY();
-        Log.d(TAG, "want scrollBy " + dy);
-        mHostScrollView.scrollBy(0, dy);
-        consumed[1] = mHostScrollView.getScrollY() - oldScrollY;
+        Log.d(TAG, "want scrollBy " + unconsumed);
+        mHostScrollView.scrollBy(0, unconsumed);
+        consumed[1] += mHostScrollView.getScrollY() - oldScrollY;
         Log.d(TAG, "real scrollBy " + consumed[1]);
       }
     }
