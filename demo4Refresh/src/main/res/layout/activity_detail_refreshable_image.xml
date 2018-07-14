@@ -34,12 +34,17 @@
       android:layout_height="match_parent"
       android:orientation="vertical">
 
-      <ImageView
-        android:id="@+id/backdrop"
+      <RelativeLayout
+        android:id="@+id/imageWrapper"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:fitsSystemWindows="true"
-        android:scaleType="centerCrop"/>
+        android:layout_height="wrap_content">
+        <ImageView
+          android:id="@+id/backdrop"
+          android:layout_width="match_parent"
+          android:layout_height="200dp"
+          android:fitsSystemWindows="true"
+          android:scaleType="centerCrop"/>
+      </RelativeLayout>
 
       <LinearLayout
         android:id="@+id/stickyLayout"

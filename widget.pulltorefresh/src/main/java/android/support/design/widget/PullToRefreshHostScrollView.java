@@ -72,7 +72,8 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
                                            isTouchEvent) {
     Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
-      if (tryConsume(deltaY) == 0 && mMoveBeforeTouchRelease) {
+      deltaY = tryConsume(deltaY);
+      if (deltaY != 0 && mMoveBeforeTouchRelease) {
         PullToRefreshGroup refreshChild = getRefreshGroup();
         float translationY = refreshChild.getRefreshTargetView().getTranslationY();
         float mayTranslationY = translationY - deltaY;
@@ -243,6 +244,14 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
         mMoveBeforeTouchRelease = true;
       }
       if (mMoveBeforeTouchRelease) {
+        if (getScrollY() > 0) {
+          int oldScroll = getScrollY();
+          scrollBy(0, dyUnconsumed);
+          int scroll = getScrollY();
+          dyUnconsumed -= scroll - oldScroll;
+          mayTranslationY = translationY - dyUnconsumed;
+          Log.d(TAG, "scrollBy BeforeTouchRelease:" + (scroll - oldScroll));
+        }
         translationY = Math.max(0, mayTranslationY);
         Log.d(TAG, "translationY:" + translationY);
         refreshChild.getRefreshHeader().cancelAnimation();

@@ -18,6 +18,7 @@ package com.support.android.designlibdemo;
 
 import android.os.Bundle;
 import android.support.design.widget.PullToRefreshHostScrollView;
+import android.support.v4.widget.NestedScrollViewExtend;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -48,6 +49,19 @@ public class RefreshableDetailActivity extends AppCompatActivity {
     refreshContainer.takeOverScrollBehavior(rv);
     setupRecyclerView(rv);
     loadBackdrop();
+    refreshContainer.addOnScrollChangeListener(new NestedScrollViewExtend.OnScrollChangeListener() {
+      @Override
+      public void onScrollChange(NestedScrollViewExtend v, int scrollX, int scrollY, int
+          oldScrollX, int oldScrollY) {
+        View view = findViewById(R.id.imageWrapper);
+        ImageView imageView = findViewById(R.id.backdrop);
+        float progress = scrollY * 1f / view.getHeight();
+        float scale = Math.max(1 - progress, 0);
+        imageView.setScaleX(scale);
+        imageView.setScaleY(scale);
+        imageView.setPivotY(view.getHeight());
+      }
+    });
   }
 
   private void loadBackdrop() {
