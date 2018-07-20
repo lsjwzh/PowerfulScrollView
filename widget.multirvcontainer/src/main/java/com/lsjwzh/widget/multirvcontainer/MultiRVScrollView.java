@@ -23,15 +23,6 @@ import java.util.ListIterator;
 public class MultiRVScrollView extends NestedScrollViewExtend {
   static final String TAG = MultiRVScrollView.class.getSimpleName();
   private final List<OnScrollChangeListener> mListeners = new ArrayList<>();
-  private final OnScrollChangeListener mNestScrollListener = new OnScrollChangeListener() {
-    @Override
-    public void onScrollChange(NestedScrollViewExtend v, int scrollX, int scrollY, int
-        oldScrollX, int oldScrollY) {
-      for (OnScrollChangeListener listener : mListeners) {
-        listener.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY);
-      }
-    }
-  };
   protected List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
 
   public MultiRVScrollView(Context context) {
@@ -44,7 +35,6 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
 
   public MultiRVScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
-    init(context, attrs, defStyleAttr);
   }
 
   @Override
@@ -102,6 +92,9 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
         }
       }
     }
+    for (OnScrollChangeListener listener : mListeners) {
+      listener.onScrollChange(this, l, t, oldl, oldt);
+    }
   }
 
   public void addOnScrollChangeListener(OnScrollChangeListener listener) {
@@ -110,10 +103,6 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
 
   public void removeOnScrollChangeListener(OnScrollChangeListener listener) {
     mListeners.remove(listener);
-  }
-
-  void init(Context context, AttributeSet attrs, int defStyleAttr) {
-    setOnScrollChangeListener(mNestScrollListener);
   }
 
   protected boolean canHandleByHostScrollView(int dy) {
