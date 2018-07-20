@@ -1409,8 +1409,16 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
         getPaddingLeft() + getPaddingRight() + lp.leftMargin + lp.rightMargin
             + widthUsed, lp.width);
-    final int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-        lp.topMargin + lp.bottomMargin, MeasureSpec.UNSPECIFIED);
+    // modified
+    int childHeightMeasureSpec = 0;
+    if (child == getScrollableCoreChild()) {
+      childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+          lp.topMargin + lp.bottomMargin, MeasureSpec.UNSPECIFIED);
+    } else {
+      childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+          getPaddingTop() + getPaddingBottom() + lp.topMargin + lp.bottomMargin
+              + heightUsed, lp.height);
+    }
 
     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
   }
