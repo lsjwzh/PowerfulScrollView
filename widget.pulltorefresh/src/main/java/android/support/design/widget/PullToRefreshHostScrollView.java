@@ -181,9 +181,6 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     }
     super.onNestedPreScroll(target, dx, dy, consumed);
     Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
-    if (dy < -mTouchSlop && getScrollY() == 0 && consumed[1] == 0) {
-      consumed[1] = mTouchSlop + 1 + dy;
-    }
   }
 
   @Override
