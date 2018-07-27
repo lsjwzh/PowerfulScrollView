@@ -9,9 +9,9 @@ import java.lang.reflect.Field;
 
 public class RVScrollViewUtils {
 
-  public static void scrollVerticallyBy(RecyclerView recyclerView, int scroll) {
-    recyclerView.getLayoutManager().scrollVerticallyBy(scroll, recyclerView.mRecycler,
-        recyclerView.mState);
+  public static int scrollVerticallyBy(RecyclerView recyclerView, int scroll) {
+    return recyclerView.getLayoutManager()
+        .scrollVerticallyBy(scroll, recyclerView.mRecycler, recyclerView.mState);
   }
 
   public static boolean isTopOverScrolled(RecyclerView recyclerView) {

@@ -11,6 +11,7 @@ import android.support.v4.widget.NestedScrollViewExtend;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -186,6 +187,38 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
   @Override
+  protected void onBottomEdgePull(float x, float deltaY) {
+    if (!canHandleByHostScrollView((int) deltaY)) {
+      return;
+    }
+    super.onBottomEdgePull(x, deltaY);
+  }
+
+  @Override
+  protected void onTopEdgePull(float x, float deltaY) {
+    if (!canHandleByHostScrollView((int) deltaY)) {
+      return;
+    }
+    super.onTopEdgePull(x, deltaY);
+  }
+
+  @Override
+  protected boolean onTopFlingOverScrollAbsorb(int velocity) {
+    if (!canHandleByHostScrollView(velocity > 0 ? 1 : -1)) {
+      return false;
+    }
+    return super.onTopFlingOverScrollAbsorb(velocity);
+  }
+
+  @Override
+  protected boolean onBottomFlingOverScrollAbsorb(int velocity) {
+    if (!canHandleByHostScrollView(velocity > 0 ? 1 : -1)) {
+      return false;
+    }
+    return super.onBottomFlingOverScrollAbsorb(velocity);
+  }
+
+  @Override
   public boolean startNestedScroll(int axes) {
     Log.d(TAG, "startNestedScroll axes:" + axes);
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
@@ -211,6 +244,10 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
       helper.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
     }
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+    if (dyConsumed == 0 && dyUnconsumed > 0) {
+      onBottomEdgePull(getWidth() / 2, dyUnconsumed);
+      postInvalidate();
+    }
   }
 
   @Override

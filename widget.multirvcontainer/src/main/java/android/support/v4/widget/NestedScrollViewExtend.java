@@ -71,9 +71,9 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   private final NestedScrollingParentHelper mParentHelper;
   private final NestedScrollingChildHelper mChildHelper;
   private long mLastScroll;
-  private ScrollerCompatExtend mScroller;
-  private EdgeEffectCompat mEdgeGlowTop;
-  private EdgeEffectCompat mEdgeGlowBottom;
+  protected ScrollerCompatExtend mScroller;
+  protected EdgeEffectCompat mEdgeGlowTop;
+  protected EdgeEffectCompat mEdgeGlowBottom;
   /**
    * Position of the last motion event.
    */
@@ -789,18 +789,9 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
             ensureGlows();
             final int pulledToY = oldY + deltaY;
             if (pulledToY < 0) {
-              mEdgeGlowTop.onPull((float) deltaY / getHeight(),
-                  ev.getX(activePointerIndex) / getWidth());
-              if (!mEdgeGlowBottom.isFinished()) {
-                mEdgeGlowBottom.onRelease();
-              }
+              onTopEdgePull(ev.getX(activePointerIndex), deltaY);
             } else if (pulledToY > range) {
-              mEdgeGlowBottom.onPull((float) deltaY / getHeight(),
-                  1.f - ev.getX(activePointerIndex)
-                      / getWidth());
-              if (!mEdgeGlowTop.isFinished()) {
-                mEdgeGlowTop.onRelease();
-              }
+              onBottomEdgePull(ev.getX(activePointerIndex), deltaY);
             }
             if (mEdgeGlowTop != null
                 && (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished())) {
@@ -853,6 +844,28 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     }
     vtev.recycle();
     return true;
+  }
+
+  protected void onBottomEdgePull(float x, float deltaY) {
+    ensureGlows();
+    if (mEdgeGlowBottom == null) {
+      return;
+    }
+    mEdgeGlowBottom.onPull(deltaY / getHeight(), 1.f - x / getWidth());
+    if (mEdgeGlowTop != null && !mEdgeGlowTop.isFinished()) {
+      mEdgeGlowTop.onRelease();
+    }
+  }
+
+  protected void onTopEdgePull(float x, float deltaY) {
+    ensureGlows();
+    if (mEdgeGlowTop == null) {
+      return;
+    }
+    mEdgeGlowTop.onPull(deltaY / getHeight(), x / getWidth());
+    if (mEdgeGlowBottom != null && !mEdgeGlowBottom.isFinished()) {
+      mEdgeGlowBottom.onRelease();
+    }
   }
 
   private void onSecondaryPointerUp(MotionEvent ev) {
@@ -1443,13 +1456,21 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
         if (canOverscroll) {
           ensureGlows();
           if (y <= 0 && oldY > 0) {
-            mEdgeGlowTop.onAbsorb((int) mScroller.getCurrVelocity());
+            onTopFlingOverScrollAbsorb((int) mScroller.getCurrVelocity());
           } else if (y >= range && oldY < range) {
-            mEdgeGlowBottom.onAbsorb((int) mScroller.getCurrVelocity());
+            onBottomFlingOverScrollAbsorb((int) mScroller.getCurrVelocity());
           }
         }
       }
     }
+  }
+
+  protected boolean onTopFlingOverScrollAbsorb(int velocity) {
+    return mEdgeGlowTop.onAbsorb(velocity);
+  }
+
+  protected boolean onBottomFlingOverScrollAbsorb(int velocity) {
+    return mEdgeGlowBottom.onAbsorb(velocity);
   }
 
   /**

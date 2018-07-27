@@ -66,6 +66,17 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     return mRefreshListeners;
   }
 
+
+  @Override
+  protected void onTopEdgePull(float x, float deltaY) {
+    // donothing
+  }
+
+  @Override
+  protected boolean onTopFlingOverScrollAbsorb(int velocity) {
+    return false;
+  }
+
   @Override
   protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
       scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean
