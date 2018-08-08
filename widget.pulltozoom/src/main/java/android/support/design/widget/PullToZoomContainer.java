@@ -55,6 +55,16 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   @Override
+  protected void onTopEdgePull(float x, float deltaY) {
+    // donothing
+  }
+
+  @Override
+  protected boolean onTopFlingOverScrollAbsorb(int velocity) {
+    return false;
+  }
+
+  @Override
   protected void onFlingStop() {
     Log.d(TAG, "onFlingStop:");
     super.onFlingStop();

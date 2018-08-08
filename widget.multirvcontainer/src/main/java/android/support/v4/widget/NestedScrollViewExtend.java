@@ -135,7 +135,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
         mPreFlingVelocity = 0;
         onFlingStop();
       } else if (getScroller().getCurrVelocity() < mPreFlingVelocity || mPreFlingVelocity == 0) {
-        postDelayed(this, 20);
+        postDelayed(this, 10);
         mPreFlingVelocity = getScroller().getCurrVelocity();
       }
     }
@@ -947,7 +947,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     // monitor fling stop action start
     removeCallbacks(mFlingStopNotifier);
     if (!isTouchEvent) {
-      postDelayed(mFlingStopNotifier, 20);
+      postDelayed(mFlingStopNotifier, 10);
     }
     // monitor fling stop action end
 

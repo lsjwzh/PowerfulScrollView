@@ -11,7 +11,6 @@ import android.support.v4.widget.NestedScrollViewExtend;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -264,7 +263,8 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   protected void onFlingStop() {
     Log.d(TAG, "onFlingStop: scrollY " + getScrollY());
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      if (helper.onFlingStop(getScrollY(), getScrollY() >= computeVerticalScrollRange())) {
+      if (helper.onFlingStop(getScrollY(), getScrollY() >=
+          computeVerticalScrollRange() - computeVerticalScrollExtent())) {
         break;
       }
     }
