@@ -81,9 +81,9 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
       scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean
                                            isTouchEvent) {
-    Log.d(TAG, String.format("overScrollByCompat getScrollY() %s", getScrollY()));
+    Log.d(TAG, String.format("overScrollByCompat getScrollY() %s deltaY: %s", getScrollY(), deltaY));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
-      deltaY = tryConsume(deltaY);
+      deltaY = tryConsume(deltaY, true);
       if (deltaY != 0 && mMoveBeforeTouchRelease) {
         PullToRefreshGroup refreshChild = getRefreshGroup();
         float translationY = refreshChild.getRefreshTargetView().getTranslationY();
@@ -244,10 +244,23 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
    * @return dyUnconsumed
    */
   protected int tryConsume(int dyUnconsumed) {
+    return tryConsume(dyUnconsumed, false);
+  }
+
+  /**
+   *
+   * @param dyUnconsumed
+   * @return dyUnconsumed
+   */
+  protected int tryConsume(int dyUnconsumed, boolean limitMaxTranslationY) {
     PullToRefreshGroup refreshChild = getRefreshGroup();
     if (refreshChild != null) {
       float translationY = refreshChild.getRefreshTargetView().getTranslationY();
       float mayTranslationY = translationY - dyUnconsumed;
+      if (limitMaxTranslationY
+          && translationY >= refreshChild.getRefreshHeader().getRefreshTriggerHeight()) {
+        mayTranslationY = translationY;
+      }
       if (mayTranslationY > 0 && getScrollY() == 0) {
         mMoveBeforeTouchRelease = true;
       }
