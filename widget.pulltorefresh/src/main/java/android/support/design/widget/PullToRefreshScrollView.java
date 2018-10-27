@@ -1,7 +1,6 @@
 package android.support.design.widget;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.support.v4.widget.ScrollerCompatExtend;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -11,6 +10,7 @@ import android.view.ViewConfiguration;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
 import com.lsjwzh.widget.multirvcontainer.NestRecyclerViewHelper;
+import com.lsjwzh.widget.pulltorefresh.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,25 +19,25 @@ import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_OUTSIDE;
 import static android.view.MotionEvent.ACTION_UP;
 
-public class PullToRefreshHostScrollView extends MultiRVScrollView {
-  static final String TAG = PullToRefreshHostScrollView.class.getSimpleName();
+public class PullToRefreshScrollView extends MultiRVScrollView {
+  static final String TAG = PullToRefreshScrollView.class.getSimpleName();
   int mTouchSlop;
   int mLastEventAction = ACTION_OUTSIDE;
   List<RefreshListener> mRefreshListeners = new ArrayList<>();
-  boolean mMoveBeforeTouchRelease;
-  boolean mIsRefreshing = false;
+  protected boolean mMoveBeforeTouchRelease;
+  protected boolean mIsRefreshing = false;
 
-  public PullToRefreshHostScrollView(Context context) {
+  public PullToRefreshScrollView(Context context) {
     super(context);
     init();
   }
 
-  public PullToRefreshHostScrollView(Context context, AttributeSet attrs) {
+  public PullToRefreshScrollView(Context context, AttributeSet attrs) {
     super(context, attrs);
     init();
   }
 
-  public PullToRefreshHostScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public PullToRefreshScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init();
   }
@@ -81,12 +81,12 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   protected boolean overScrollByCompat(int deltaX, int deltaY, int scrollX, int scrollY, int
       scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean
                                            isTouchEvent) {
-    Log.d(TAG, String.format("overScrollByCompat getScrollY() %s deltaY: %s", getScrollY(), deltaY));
+    Log.d(TAG, String.format("overScrollByCompat getScrollY() %s deltaY: %s", getScrollY(),
+        deltaY));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
       deltaY = tryConsume(deltaY, true);
       if (deltaY != 0 && mMoveBeforeTouchRelease) {
-        PullToRefreshGroup refreshChild = getRefreshGroup();
-        float translationY = refreshChild.getRefreshTargetView().getTranslationY();
+        float translationY = getRefreshTargetView().getTranslationY();
         float mayTranslationY = translationY - deltaY;
         if (mayTranslationY < 0) {
           for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
@@ -110,14 +110,13 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
 
   protected void adjustRefreshViewState() {
     if (canTryMoveToStable()) {
-      if (getRefreshGroup().getRefreshHeader().moveToStableState(
-          getRefreshGroup().getRefreshTargetView(), null)) {
+      if (getRefreshLoadingView().moveToStableState(
+          getRefreshTargetView(), null)) {
         notifyOnRefreshing();
       }
-    } else if (getRefreshGroup().getRefreshTargetView().getTranslationY() > 0
+    } else if (getRefreshTargetView().getTranslationY() > 0
         && !mIsRefreshing) {
-      getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
-          null);
+      getRefreshLoadingView().collapse(getRefreshTargetView(), null);
     }
   }
 
@@ -137,7 +136,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   }
 
   public void endRefresh() {
-    getRefreshGroup().getRefreshHeader().collapse(getRefreshGroup().getRefreshTargetView(),
+    getRefreshLoadingView().collapse(getRefreshTargetView(),
         new Runnable() {
 
           @Override
@@ -151,7 +150,7 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   }
 
   public void startRefresh() {
-    getRefreshGroup().getRefreshHeader().expand(getRefreshGroup().getRefreshTargetView(),
+    getRefreshLoadingView().expand(getRefreshTargetView(),
         new Runnable() {
 
           @Override
@@ -206,9 +205,8 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   }
 
   private boolean canTryMoveToStable() {
-    PullToRefreshGroup refreshChild = getRefreshGroup();
-    float translationY = refreshChild.getRefreshTargetView().getTranslationY();
-    return translationY >= refreshChild.getRefreshHeader().getRefreshTriggerHeight();
+    float translationY = getRefreshTargetView().getTranslationY();
+    return translationY >= getRefreshLoadingView().getRefreshTriggerHeight();
   }
 
   @Override
@@ -234,12 +232,15 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     super.onStopNestedScroll(target);
   }
 
-  PullToRefreshGroup getRefreshGroup() {
-    return (PullToRefreshGroup) getChildAt(0);
+  public View getRefreshTargetView() {
+    return findViewById(R.id.ptr_refreshTargetView);
+  }
+
+  public IRefreshLoadingView getRefreshLoadingView() {
+    return findViewById(R.id.ptr_refreshLoadingView);
   }
 
   /**
-   *
    * @param dyUnconsumed
    * @return dyUnconsumed
    */
@@ -248,39 +249,34 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
   }
 
   /**
-   *
    * @param dyUnconsumed
    * @return dyUnconsumed
    */
   protected int tryConsume(int dyUnconsumed, boolean limitMaxTranslationY) {
-    PullToRefreshGroup refreshChild = getRefreshGroup();
-    if (refreshChild != null) {
-      float translationY = refreshChild.getRefreshTargetView().getTranslationY();
-      float mayTranslationY = translationY - dyUnconsumed;
-      if (limitMaxTranslationY
-          && translationY >= refreshChild.getRefreshHeader().getRefreshTriggerHeight()) {
-        mayTranslationY = translationY;
+    float translationY = getRefreshTargetView().getTranslationY();
+    float mayTranslationY = translationY - dyUnconsumed;
+    if (limitMaxTranslationY
+        && translationY >= getRefreshLoadingView().getRefreshTriggerHeight()) {
+      mayTranslationY = translationY;
+    }
+    if (mayTranslationY > 0 && getScrollY() == 0) {
+      mMoveBeforeTouchRelease = true;
+    }
+    if (mMoveBeforeTouchRelease) {
+      if (getScrollY() > 0) {
+        int oldScroll = getScrollY();
+        scrollBy(0, dyUnconsumed);
+        int scroll = getScrollY();
+        dyUnconsumed -= scroll - oldScroll;
+        mayTranslationY = translationY - dyUnconsumed;
+        Log.d(TAG, "scrollBy BeforeTouchRelease:" + (scroll - oldScroll));
       }
-      if (mayTranslationY > 0 && getScrollY() == 0) {
-        mMoveBeforeTouchRelease = true;
-      }
-      if (mMoveBeforeTouchRelease) {
-        if (getScrollY() > 0) {
-          int oldScroll = getScrollY();
-          scrollBy(0, dyUnconsumed);
-          int scroll = getScrollY();
-          dyUnconsumed -= scroll - oldScroll;
-          mayTranslationY = translationY - dyUnconsumed;
-          Log.d(TAG, "scrollBy BeforeTouchRelease:" + (scroll - oldScroll));
-        }
-        translationY = Math.max(0, mayTranslationY);
-        Log.d(TAG, "translationY:" + translationY);
-        refreshChild.getRefreshHeader().cancelAnimation();
-        refreshChild.getRefreshHeader().setVisibleHeight(refreshChild.getRefreshTargetView(),
-            (int) translationY);
-        refreshChild.getRefreshTargetView().setTranslationY(translationY);
-        return (int) (translationY - mayTranslationY);
-      }
+      translationY = Math.max(0, mayTranslationY);
+      Log.d(TAG, "translationY:" + translationY);
+      getRefreshLoadingView().cancelAnimation();
+      getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) translationY);
+      getRefreshTargetView().setTranslationY(translationY);
+      return (int) (translationY - mayTranslationY);
     }
     return dyUnconsumed;
   }
@@ -291,14 +287,13 @@ public class PullToRefreshHostScrollView extends MultiRVScrollView {
     void onRefreshAnimationEnd();
   }
 
-  public interface IRefreshHeader {
+  public interface IRefreshLoadingView {
 
     void expand(View refreshTargetView, Runnable animationEndCallback);
 
     void collapse(View refreshTargetView, Runnable animationEndCallback);
 
     /**
-     *
      * @param refreshTargetView
      * @param animationEndCallback
      * @return if true trigger refreshing, else just do moveToStableState self

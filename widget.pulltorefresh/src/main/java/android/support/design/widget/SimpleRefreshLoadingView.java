@@ -15,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-public class SimpleRefreshHeader extends FrameLayout
-    implements PullToRefreshHostScrollView.IRefreshHeader {
+public class SimpleRefreshLoadingView extends FrameLayout
+    implements PullToRefreshScrollView.IRefreshLoadingView {
 
   public static final int STATE_NONE = 0;
   public static final int STATE_REFRESING = 1;
@@ -27,26 +27,26 @@ public class SimpleRefreshHeader extends FrameLayout
   private ValueAnimator mExpandAnimator;
   private ValueAnimator mStableAnimator;
 
-  public SimpleRefreshHeader(@NonNull Context context) {
+  public SimpleRefreshLoadingView(@NonNull Context context) {
     super(context);
     init();
   }
 
-  public SimpleRefreshHeader(@NonNull Context context, @Nullable AttributeSet attrs) {
+  public SimpleRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     init();
   }
 
-  public SimpleRefreshHeader(@NonNull Context context, @Nullable AttributeSet attrs, int
+  public SimpleRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs, int
       defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init();
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public SimpleRefreshHeader(@NonNull Context context, @Nullable AttributeSet attrs, int
+  public SimpleRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs, int
       defStyleAttr,
-                             int defStyleRes) {
+                                  int defStyleRes) {
     super(context, attrs, defStyleAttr, defStyleRes);
     init();
   }

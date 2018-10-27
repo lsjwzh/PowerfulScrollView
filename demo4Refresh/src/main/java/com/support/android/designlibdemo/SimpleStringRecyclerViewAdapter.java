@@ -19,7 +19,7 @@ public class SimpleStringRecyclerViewAdapter
 
   private final TypedValue mTypedValue = new TypedValue();
   private int mBackground;
-  private List<String> mValues;
+  List<String> mValues;
 
   public static class ViewHolder extends RecyclerView.ViewHolder {
     public String mBoundString;

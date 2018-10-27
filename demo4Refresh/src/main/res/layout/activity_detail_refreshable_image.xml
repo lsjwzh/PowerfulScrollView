@@ -15,7 +15,7 @@
   ~ limitations under the License.
 -->
 
-<android.support.design.widget.PullToRefreshHostScrollView
+<android.support.design.widget.PullToRefreshScrollView
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/main_content"
@@ -24,33 +24,49 @@
   android:fitsSystemWindows="true"
   android:overScrollMode="never">
 
-  <android.support.design.widget.PullToRefreshGroup
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:headerLayout="@layout/activity_detail_header">
+    android:layout_height="match_parent">
+
+    <com.support.android.designlibdemo.RefreshHeader
+      android:id="@id/ptr_refreshLoadingView"
+      android:layout_width="match_parent"
+      android:layout_height="100dp">
+    </com.support.android.designlibdemo.RefreshHeader>
 
     <LinearLayout
+      android:id="@id/ptr_refreshTargetView"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:orientation="vertical">
 
       <RelativeLayout
         android:id="@+id/imageWrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <ImageView
+          android:id="@id/ptr_refreshLoadingView"
+          android:layout_width="match_parent"
+          android:layout_height="100dp"
+          android:fitsSystemWindows="true"
+          android:scaleType="centerCrop"
+          android:src="@drawable/ic_dashboard"/>
+
         <ImageView
           android:id="@+id/backdrop"
           android:layout_width="match_parent"
           android:layout_height="200dp"
           android:fitsSystemWindows="true"
           android:scaleType="centerCrop"/>
+
       </RelativeLayout>
 
       <LinearLayout
         android:id="@+id/stickyLayout"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="100dp">
+        android:layout_height="100dp"
+        android:visibility="gone">
 
         <TextView
           android:layout_width="match_parent"
@@ -59,14 +75,17 @@
           android:textSize="20sp"/>
       </LinearLayout>
 
-
       <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
         android:id="@+id/recyclerview"
-        android:background="@color/cardview_dark_background"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="@color/cardview_dark_background"
+        android:clipToPadding="false"
+        android:paddingBottom="20dp"/>
+
     </LinearLayout>
-  </android.support.design.widget.PullToRefreshGroup>
+
+  </FrameLayout>
 
   <LinearLayout
     android:id="@+id/stickyLayout2"
@@ -83,4 +102,13 @@
       android:textSize="20sp"/>
   </LinearLayout>
 
-</android.support.design.widget.PullToRefreshHostScrollView>
+  <TextView
+    android:id="@+id/loadingMore"
+    android:layout_width="match_parent"
+    android:layout_height="20dp"
+    android:layout_gravity="bottom"
+    android:text="loading more"
+    android:textSize="20sp"
+    app:actionType="sticky"/>
+
+</android.support.design.widget.PullToRefreshScrollView>

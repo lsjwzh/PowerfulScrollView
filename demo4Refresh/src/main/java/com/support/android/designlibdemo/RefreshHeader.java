@@ -9,14 +9,14 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.PullToRefreshHostScrollView;
+import android.support.design.widget.PullToRefreshScrollView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrollView.IRefreshHeader {
+public class RefreshHeader extends FrameLayout implements PullToRefreshScrollView.IRefreshLoadingView {
 
   public static final int STATE_NONE = 0;
   public static final int STATE_REFRESING = 1;
@@ -113,7 +113,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshHostScrol
   }
 
   public int getPullToExpandTriggerHeight() {
-    return DemoUtils.dip2px(getContext(), 200);
+    return Integer.MAX_VALUE;
   }
 
 

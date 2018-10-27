@@ -17,7 +17,7 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
-import android.support.design.widget.PullToRefreshHostScrollView;
+import android.support.design.widget.PullToRefreshScrollView;
 import android.support.v4.widget.NestedScrollViewExtend;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,15 +28,19 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.Random;
+
 public class RefreshableDetailActivity extends AppCompatActivity {
+
+  private SimpleStringRecyclerViewAdapter adapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_detail_refreshable_image);
 //    loadBackdrop();
-    final PullToRefreshHostScrollView refreshContainer
-        = (PullToRefreshHostScrollView) findViewById(R.id.main_content);
+    final PullToRefreshScrollView refreshContainer
+        = findViewById(R.id.main_content);
     final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
     imageView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -45,7 +49,7 @@ public class RefreshableDetailActivity extends AppCompatActivity {
       }
     });
 
-    RecyclerView rv = (RecyclerView) findViewById(R.id.recyclerview);
+    RecyclerView rv = findViewById(R.id.recyclerview);
     refreshContainer.takeOverScrollBehavior(rv);
     setupRecyclerView(rv);
     loadBackdrop();
@@ -60,6 +64,39 @@ public class RefreshableDetailActivity extends AppCompatActivity {
         imageView.setScaleX(scale);
         imageView.setScaleY(scale);
         imageView.setPivotY(view.getHeight());
+      }
+    });
+    rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+      @Override
+      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        super.onScrolled(recyclerView, dx, dy);
+        final View loadingMore = findViewById(R.id.loadingMore);
+        int offset = recyclerView.computeVerticalScrollRange() -
+            recyclerView.computeVerticalScrollExtent() -
+            recyclerView.computeVerticalScrollOffset();
+        loadingMore.setScrollY(-offset);
+        if (!recyclerView.canScrollVertically(1)) {
+          new Thread(new Runnable() {
+            @Override
+            public void run() {
+              try {
+                Thread.sleep(5000);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+              final int beforeUpdateCount = adapter.mValues.size();
+              for (int i = 0; i < 10; i++) {
+                adapter.mValues.add(String.valueOf(new Random().nextLong()));
+              }
+              loadingMore.post(new Runnable() {
+                @Override
+                public void run() {
+                  adapter.notifyItemRangeInserted(beforeUpdateCount , 10);
+                }
+              });
+            }
+          }).start();
+        }
       }
     });
   }
@@ -77,13 +114,14 @@ public class RefreshableDetailActivity extends AppCompatActivity {
 
   private void setupRecyclerView(RecyclerView recyclerView) {
     recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-    recyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
+    adapter = new SimpleStringRecyclerViewAdapter(this,
         DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 30)) {
       @Override
       public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         holder.itemView.setOnClickListener(null);
       }
-    });
+    };
+    recyclerView.setAdapter(adapter);
   }
 }
