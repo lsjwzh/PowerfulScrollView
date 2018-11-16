@@ -66,7 +66,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshScrollVie
       mExpandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue());
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue(), MoveType.ANIMATION);
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -94,7 +94,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshScrollVie
       mCollapseAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue());
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue(), MoveType.ANIMATION);
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -134,7 +134,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshScrollVie
   }
 
   @Override
-  public void setVisibleHeight(View refreshTargetView, int targetHeight) {
+  public void setVisibleHeight(View refreshTargetView, int targetHeight, MoveType moveType) {
     if (mState != STATE_REFRESING) {
       setTranslationY(Math.max(targetHeight - getRefreshHeight(), 0));
       int baseOffset = -DemoUtils.dip2px(getContext(), 200);
@@ -175,7 +175,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshScrollVie
       mStableAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue());
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue(), MoveType.ANIMATION);
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -183,7 +183,7 @@ public class RefreshHeader extends FrameLayout implements PullToRefreshScrollVie
         @Override
         public void onAnimationEnd(Animator animation) {
           mStableAnimator = null;
-          setVisibleHeight(refreshTargetView, targetY);
+          setVisibleHeight(refreshTargetView, targetY, MoveType.ANIMATION);
           refreshTargetView.setTranslationY(targetY);
           if (animationEndCallback != null) {
             animationEndCallback.run();

@@ -8,7 +8,7 @@ Application Scene
 
 Usage:
 1.Add dependency.
-latest-version = 0.7.0
+latest-version = 0.7.1
 ```
 dependencies {
     compile 'com.github.lsjwzh.MultiRVScrollView:widget.multirvcontainer:latest-version'

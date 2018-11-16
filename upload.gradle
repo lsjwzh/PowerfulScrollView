@@ -10,7 +10,7 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 ext {
     siteUrl = properties.getProperty("siteUrl")
     gitUrl = properties.getProperty("gitUrl")
-    libVersion = '0.7.0'
+    libVersion = '0.7.1'
     projectName = projName
     projectGroupId = projGroupId
     mavenName = mavenName

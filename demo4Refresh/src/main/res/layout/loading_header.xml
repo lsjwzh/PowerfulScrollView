@@ -13,20 +13,14 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
--->
+  -->
 
-<resources>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.DesignDemo" parent="Base.Theme.DesignDemo">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>
-
-    <style name="Widget.CardContent2" parent="android:Widget.ProgressBar">
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">24dp</item>
-        <item name="android:paddingBottom">24dp</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-</resources>
+  <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+    android:id="@+id/progress"
+    android:layout_width="30dp"
+    android:layout_height="30dp"
+    android:layout_gravity="center_horizontal|top"
+    android:indeterminateOnly="false"/>
+</merge>

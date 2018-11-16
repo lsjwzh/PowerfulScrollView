@@ -21,11 +21,11 @@ import static android.view.MotionEvent.ACTION_UP;
 
 public class PullToRefreshScrollView extends MultiRVScrollView {
   static final String TAG = PullToRefreshScrollView.class.getSimpleName();
+  protected boolean mMoveBeforeTouchRelease;
+  protected boolean mIsRefreshing = false;
   int mTouchSlop;
   int mLastEventAction = ACTION_OUTSIDE;
   List<RefreshListener> mRefreshListeners = new ArrayList<>();
-  protected boolean mMoveBeforeTouchRelease;
-  protected boolean mIsRefreshing = false;
 
   public PullToRefreshScrollView(Context context) {
     super(context);
@@ -274,7 +274,7 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
       translationY = Math.max(0, mayTranslationY);
       Log.d(TAG, "translationY:" + translationY);
       getRefreshLoadingView().cancelAnimation();
-      getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) translationY);
+      getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) translationY, IRefreshLoadingView.MoveType.TOUCH);
       getRefreshTargetView().setTranslationY(translationY);
       return (int) (translationY - mayTranslationY);
     }
@@ -288,7 +288,6 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
   }
 
   public interface IRefreshLoadingView {
-
     void expand(View refreshTargetView, Runnable animationEndCallback);
 
     void collapse(View refreshTargetView, Runnable animationEndCallback);
@@ -304,7 +303,11 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
 
     void cancelAnimation();
 
-    void setVisibleHeight(View refreshTargetView, int targetHeight);
+    void setVisibleHeight(View refreshTargetView, int targetHeight, MoveType moveType);
+
+    enum MoveType {
+      TOUCH, ANIMATION
+    }
 
   }
 

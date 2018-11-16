@@ -1,63 +1,76 @@
-package android.support.design.widget;
+package com.support.android.designlibdemo;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.PullToRefreshScrollView;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
-public class SimpleRefreshLoadingView extends FrameLayout
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import me.zhanghai.android.materialprogressbar.RoundCapCircularProgressDrawable;
+import me.zhanghai.android.materialprogressbar.RoundCapIndeterminateCircularProgressDrawable;
+
+public class AppRefreshLoadingView extends FrameLayout
     implements PullToRefreshScrollView.IRefreshLoadingView {
 
   public static final int STATE_NONE = 0;
-  public static final int STATE_REFRESING = 1;
+  public static final int STATE_REFRESHING = 1;
   public static final int STATE_EXPANDED = 2;
   int mState = STATE_NONE;
-  private ProgressBar mProgress;
+  private MaterialProgressBar mProgress;
   private ValueAnimator mCollapseAnimator;
   private ValueAnimator mExpandAnimator;
   private ValueAnimator mStableAnimator;
 
-  public SimpleRefreshLoadingView(@NonNull Context context) {
+  public AppRefreshLoadingView(@NonNull Context context) {
     super(context);
     init();
   }
 
-  public SimpleRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs) {
+  public AppRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     init();
   }
 
-  public SimpleRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs, int
+  public AppRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs, int
       defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init();
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public SimpleRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs, int
+  public AppRefreshLoadingView(@NonNull Context context, @Nullable AttributeSet attrs, int
       defStyleAttr,
-                                  int defStyleRes) {
+                               int defStyleRes) {
     super(context, attrs, defStyleAttr, defStyleRes);
     init();
   }
 
   private void init() {
-    mProgress = new ProgressBar(getContext());
-    LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-        ViewGroup.LayoutParams.WRAP_CONTENT);
-    params.gravity = Gravity.CENTER;
-    addView(mProgress, params);
+    LayoutInflater.from(getContext()).inflate(R.layout.loading_header, this, true);
+    mProgress = findViewById(R.id.progress);
+    RoundCapIndeterminateCircularProgressDrawable d1 = new
+        RoundCapIndeterminateCircularProgressDrawable(getContext());
+
+    mProgress.setIndeterminateDrawable(d1);
+    mProgress.setIndeterminateTintList(ColorStateList.valueOf(Color.WHITE));
+    RoundCapCircularProgressDrawable d = new RoundCapCircularProgressDrawable(0, getContext());
+    d.setShowBackground(false);
+    mProgress.setProgressDrawable(d);
+    mProgress.setIndeterminate(false);
+
+    mProgress.setMax(100);
   }
 
   @Override
@@ -69,8 +82,7 @@ public class SimpleRefreshLoadingView extends FrameLayout
       mExpandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue(),
-              MoveType.ANIMATION);
+          setVisibleHeight(refreshTargetView, (Integer) animation.getAnimatedValue(), MoveType.ANIMATION);
           refreshTargetView.setTranslationY((Integer) animation.getAnimatedValue());
         }
       });
@@ -139,15 +151,15 @@ public class SimpleRefreshLoadingView extends FrameLayout
 
   @Override
   public void setVisibleHeight(View refreshTargetView, int targetHeight, MoveType moveType) {
-    if (mState != STATE_REFRESING) {
+    mProgress.setIndeterminate(moveType == MoveType.ANIMATION);
+
+    if (mState != STATE_REFRESHING) {
       setTranslationY(Math.max(targetHeight - getRefreshHeight(), 0));
       targetHeight = Math.min(targetHeight, getRefreshHeight());
       mProgress.setMax(getRefreshHeight());
       mProgress.setProgress(targetHeight);
-      float scale = targetHeight * 1f / getRefreshHeight();
-      mProgress.setScaleX(scale);
-      mProgress.setScaleY(scale);
-      mProgress.setTranslationY((scale - 1) * mProgress.getHeight() / 2);
+      float progressVisiblePercentage = targetHeight * 1f / mProgress.getHeight();
+      mProgress.setTranslationY((progressVisiblePercentage - 1) * mProgress.getHeight() / 2);
     } else {
       setTranslationY(targetHeight - getRefreshHeight());
     }
@@ -169,7 +181,7 @@ public class SimpleRefreshLoadingView extends FrameLayout
         mState = STATE_NONE;
       } else {
         targetY = getRefreshHeight();
-        mState = STATE_REFRESING;
+        mState = STATE_REFRESHING;
       }
       mStableAnimator = ObjectAnimator.ofInt((int) refreshTargetView.getTranslationY(),
           targetY);
@@ -193,7 +205,7 @@ public class SimpleRefreshLoadingView extends FrameLayout
       });
       mStableAnimator.start();
     }
-    return mState == STATE_REFRESING;
+    return mState == STATE_REFRESHING;
   }
 
   private int getScrollViewHeight() {

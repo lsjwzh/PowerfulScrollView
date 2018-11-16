@@ -1,1 +1,6 @@
 apply from: rootProject.file('app.gradle')
+
+
+dependencies {
+    compile 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+}
