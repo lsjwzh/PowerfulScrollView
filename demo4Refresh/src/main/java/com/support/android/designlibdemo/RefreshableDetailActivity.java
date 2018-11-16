@@ -113,9 +113,11 @@ public class RefreshableDetailActivity extends AppCompatActivity {
   }
 
   private void setupRecyclerView(RecyclerView recyclerView) {
-    recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+    LinearLayoutManager layout = new LinearLayoutManager(recyclerView.getContext());
+    layout.setAutoMeasureEnabled(false);
+    recyclerView.setLayoutManager(layout);
     adapter = new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 30)) {
+        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 1)) {
       @Override
       public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
