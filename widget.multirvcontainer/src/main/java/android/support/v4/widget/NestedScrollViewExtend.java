@@ -7,12 +7,15 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.NestedScrollingChild2;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
+import android.support.v4.view.NestedScrollingParent2;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
@@ -43,7 +46,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
  * as both a nested scrolling parent and child on both new and old versions of Android.
  * Nested scrolling is enabled by default.
  */
-public class NestedScrollViewExtend extends FrameLayout implements NestedScrollingParent,
+public class NestedScrollViewExtend extends FrameLayout implements NestedScrollingParent2,
     NestedScrollingChild2, ScrollingView {
   static final int ANIMATED_SCROLL_GAP = 250;
 
@@ -298,26 +301,48 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
   }
 
+  // custom modify
   @Override
-  public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+  public final boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+  }
+
+  @Override
+  public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes, int type) {
     return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
   }
 
   @Override
-  public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+  public final void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+    onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+  }
+
+  @Override
+  public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {
     mParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
     startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
   }
 
   @Override
-  public void onStopNestedScroll(View target) {
+  public final void onStopNestedScroll(View target) {
+    onStopNestedScroll(target, ViewCompat.TYPE_TOUCH);
+  }
+
+  @Override
+  public void onStopNestedScroll(@NonNull View target, int type) {
     mParentHelper.onStopNestedScroll(target);
     stopNestedScroll();
   }
 
   @Override
-  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+  public final void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
                              int dyUnconsumed) {
+    onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, ViewCompat.TYPE_TOUCH);
+  }
+
+  @Override
+  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                             int dyUnconsumed, int type) {
     final int oldScrollY = getScrollY();
     scrollBy(0, dyUnconsumed);
     final int myConsumed = getScrollY() - oldScrollY;
@@ -326,9 +351,15 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-    dispatchNestedPreScroll(dx, dy, consumed, null);
+  public final void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
   }
+
+  @Override
+  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
+    dispatchNestedPreScroll(dx, dy, consumed, null, type);
+  }
+  // custom modify end
 
   @Override
   public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
