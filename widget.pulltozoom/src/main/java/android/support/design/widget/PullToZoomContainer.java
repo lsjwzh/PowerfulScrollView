@@ -72,15 +72,15 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   @Override
-  public void stopNestedScroll() {
-    super.stopNestedScroll();
-    Log.d(TAG, "stopNestedScroll:");
+  public void stopNestedScroll(int type) {
+    super.stopNestedScroll(type);
+    Log.d(TAG, "stopNestedScroll:" + type);
     rollbackIfNeed();
   }
 
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-    super.onNestedPreScroll(target, dx, dy, consumed);
+  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
+    super.onNestedPreScroll(target, dx, dy, consumed, type);
     Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
     if (dy < -mTouchSlop && getScrollY() == 0 && consumed[1] == 0) {
       consumed[1] = mTouchSlop + 1 + dy;
@@ -89,14 +89,14 @@ public class PullToZoomContainer extends MultiRVScrollView {
 
   @Override
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
-      dyUnconsumed) {
+      dyUnconsumed, int type) {
     Log.d(TAG, "dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0) {
       if (tryConsume(dyUnconsumed)) {
         return;
       }
     }
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
   }
 
   protected boolean tryConsume(int dyUnconsumed) {
@@ -150,9 +150,9 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   @Override
-  public boolean startNestedScroll(int axes) {
-    boolean b = super.startNestedScroll(axes);
-    Log.d(TAG, "startNestedScroll:" + b);
+  public boolean startNestedScroll(int axes, int type) {
+    boolean b = super.startNestedScroll(axes, type);
+    Log.d(TAG, "startNestedScroll:" + b + " type " + type);
     if (mRollbackAnimator != null) {
       mRollbackAnimator.cancel();
       mRollbackAnimator = null;
@@ -161,9 +161,9 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   @Override
-  public void onStopNestedScroll(View target) {
-    Log.d(TAG, "onStopNestedScroll");
-    super.onStopNestedScroll(target);
+  public void onStopNestedScroll(View target, int type) {
+    Log.d(TAG, "onStopNestedScroll type " + type);
+    super.onStopNestedScroll(target, type);
   }
 
   protected List<View> findScaleViews() {

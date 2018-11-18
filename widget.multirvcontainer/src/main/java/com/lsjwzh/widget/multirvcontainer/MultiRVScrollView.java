@@ -237,7 +237,7 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
       helper.onNestedPreScroll(target, dx, dy, consumed);

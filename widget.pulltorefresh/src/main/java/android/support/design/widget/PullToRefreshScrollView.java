@@ -162,9 +162,9 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
 
 
   @Override
-  public void stopNestedScroll() {
-    super.stopNestedScroll();
-    Log.d(TAG, "stopNestedScroll:");
+  public void stopNestedScroll(int type) {
+    super.stopNestedScroll(type);
+    Log.d(TAG, "stopNestedScroll:" + type);
     if (mLastEventAction == ACTION_UP || mLastEventAction == ACTION_CANCEL) {
       adjustRefreshViewState();
       mLastEventAction = ACTION_OUTSIDE;
@@ -182,7 +182,7 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
   }
 
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     int dyUnconsumed = dy - consumed[1];
     Log.d(TAG, " onNestedPreScroll dyConsumed:" + consumed[1] + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)
@@ -195,7 +195,7 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
 
   @Override
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
-      dyUnconsumed) {
+      dyUnconsumed, int type) {
     Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease) &&
         canHandleByHostScrollView(dyUnconsumed)) {
@@ -220,14 +220,14 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
   }
 
   @Override
-  public boolean startNestedScroll(int axes) {
-    boolean b = super.startNestedScroll(axes);
+  public boolean startNestedScroll(int axes, int type) {
+    boolean b = super.startNestedScroll(axes, type);
     Log.d(TAG, "startNestedScroll:" + b);
     return b;
   }
 
   @Override
-  public void onStopNestedScroll(View target) {
+  public void onStopNestedScroll(View target, int type) {
     Log.d(TAG, "onStopNestedScroll");
     super.onStopNestedScroll(target);
   }

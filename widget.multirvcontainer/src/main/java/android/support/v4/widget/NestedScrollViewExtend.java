@@ -235,7 +235,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   @Override
-  public boolean startNestedScroll(int axes) {
+  public final boolean startNestedScroll(int axes) {
     return mChildHelper.startNestedScroll(axes);
   }
 
@@ -245,7 +245,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   @Override
-  public void stopNestedScroll() {
+  public final void stopNestedScroll() {
     mChildHelper.stopNestedScroll();
   }
 
@@ -255,7 +255,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   @Override
-  public boolean hasNestedScrollingParent() {
+  public final boolean hasNestedScrollingParent() {
     return mChildHelper.hasNestedScrollingParent();
   }
 
@@ -265,7 +265,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   @Override
-  public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+  public final boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                                       int dyUnconsumed, int[] offsetInWindow) {
     return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
         offsetInWindow);
@@ -279,7 +279,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   @Override
-  public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+  public final boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
     return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
   }
 
