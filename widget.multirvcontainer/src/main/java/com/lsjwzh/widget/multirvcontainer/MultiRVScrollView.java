@@ -221,9 +221,9 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   public boolean startNestedScroll(int axes, int type) {
     Log.d(TAG, "startNestedScroll axes:" + axes + " type" + type);
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.startNestedScroll(axes);
+      helper.startNestedScroll(axes, type);
     }
-    return super.startNestedScroll(axes);
+    return super.startNestedScroll(axes, type);
   }
 
   @Override
@@ -240,9 +240,9 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.onNestedPreScroll(target, dx, dy, consumed);
+      helper.onNestedPreScroll(target, dx, dy, consumed, type);
     }
-    super.onNestedPreScroll(target, dx, dy, consumed);
+    super.onNestedPreScroll(target, dx, dy, consumed, type);
   }
 
   @Override
@@ -250,9 +250,9 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
                              int dyUnconsumed, int type) {
     Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+      helper.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
     }
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
     if (dyConsumed == 0 && dyUnconsumed > 0) {
       onBottomEdgePull(getWidth() / 2, dyUnconsumed);
       postInvalidate();

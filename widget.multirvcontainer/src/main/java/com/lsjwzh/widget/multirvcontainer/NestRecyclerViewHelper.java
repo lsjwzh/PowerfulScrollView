@@ -1,6 +1,7 @@
 package com.lsjwzh.widget.multirvcontainer;
 
 
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RVScrollViewUtils;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -71,7 +72,10 @@ public class NestRecyclerViewHelper {
     }
   }
 
-  void startNestedScroll(int axes) {
+  void startNestedScroll(int axes, int type) {
+    if (type == ViewCompat.TYPE_NON_TOUCH) {
+      return;
+    }
     if (mOnScrollListener != null) {
       mNestedRecyclerView.removeOnScrollListener(mOnScrollListener);
     }
@@ -81,7 +85,7 @@ public class NestRecyclerViewHelper {
   }
 
 
-  void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+  void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     if (isRecyclerViewNestedScrollingEnabled(target)) {
       int unconsumed = dy - consumed[1];
       if (!isRecyclerViewActive() && unconsumed != 0) {
@@ -111,7 +115,7 @@ public class NestRecyclerViewHelper {
   }
 
  public boolean onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
-                         int dyUnconsumed) {
+                         int dyUnconsumed, int type) {
     if (isRecyclerViewNestedScrollingEnabled(target)) {
       if (!isRecyclerViewActive()) {
 //        RVScrollViewUtils.scrollVerticallyBy(mNestedRecyclerView, -dyConsumed);

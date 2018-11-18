@@ -189,7 +189,7 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
         && canHandleByHostScrollView(dyUnconsumed)) {
       consumed[1] = dyUnconsumed - tryConsume(dyUnconsumed);
     }
-    super.onNestedPreScroll(target, dx, dy, consumed);
+    super.onNestedPreScroll(target, dx, dy, consumed, type);
     Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
   }
 
@@ -201,7 +201,7 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
         canHandleByHostScrollView(dyUnconsumed)) {
       dyUnconsumed = tryConsume(dyUnconsumed);
     }
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
   }
 
   private boolean canTryMoveToStable() {
@@ -229,7 +229,7 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
   @Override
   public void onStopNestedScroll(View target, int type) {
     Log.d(TAG, "onStopNestedScroll");
-    super.onStopNestedScroll(target);
+    super.onStopNestedScroll(target, type);
   }
 
   public View getRefreshTargetView() {

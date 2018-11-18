@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -234,6 +235,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     mChildHelper.setNestedScrollingEnabled(enabled);
   }
 
+  @Deprecated
   @Override
   public final boolean startNestedScroll(int axes) {
     return mChildHelper.startNestedScroll(axes);
@@ -244,6 +246,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     return mChildHelper.startNestedScroll(axes, type);
   }
 
+  @Deprecated
   @Override
   public final void stopNestedScroll() {
     mChildHelper.stopNestedScroll();
@@ -254,6 +257,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     mChildHelper.stopNestedScroll(type);
   }
 
+  @Deprecated
   @Override
   public final boolean hasNestedScrollingParent() {
     return mChildHelper.hasNestedScrollingParent();
@@ -264,6 +268,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     return mChildHelper.hasNestedScrollingParent(type);
   }
 
+  @Deprecated
   @Override
   public final boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                                       int dyUnconsumed, int[] offsetInWindow) {
@@ -278,6 +283,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
         offsetInWindow, type);
   }
 
+  @Deprecated
   @Override
   public final boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
     return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
@@ -302,6 +308,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
   }
 
   // custom modify
+  @Deprecated
   @Override
   public final boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
     return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
@@ -312,6 +319,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
   }
 
+  @Deprecated
   @Override
   public final void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
     onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
@@ -319,10 +327,11 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
 
   @Override
   public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {
-    mParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
-    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
+    mParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes, type);
+    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, type);
   }
 
+  @Deprecated
   @Override
   public final void onStopNestedScroll(View target) {
     onStopNestedScroll(target, ViewCompat.TYPE_TOUCH);
@@ -330,10 +339,11 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
 
   @Override
   public void onStopNestedScroll(@NonNull View target, int type) {
-    mParentHelper.onStopNestedScroll(target);
-    stopNestedScroll();
+    mParentHelper.onStopNestedScroll(target, type);
+    stopNestedScroll(type);
   }
 
+  @Deprecated
   @Override
   public final void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
                              int dyUnconsumed) {
@@ -347,9 +357,10 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     scrollBy(0, dyUnconsumed);
     final int myConsumed = getScrollY() - oldScrollY;
     final int myUnconsumed = dyUnconsumed - myConsumed;
-    dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null);
+    dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null, type);
   }
 
+  @Deprecated
   @Override
   public final void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
     onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);

@@ -96,7 +96,7 @@ public class InstaContainer extends MultiRVScrollView {
 
   @Override
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
-    super.onNestedPreScroll(target, dx, dy, consumed);
+    super.onNestedPreScroll(target, dx, dy, consumed, type);
     Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]
         + " mTouchFromHeader " + mTouchFromHeader);
     if (mConsumeByScrollViewFirst) {
@@ -115,7 +115,7 @@ public class InstaContainer extends MultiRVScrollView {
     }
     final int myConsumed = getScrollY() - oldScrollY;
     final int myUnconsumed = dyUnconsumed - myConsumed;
-    dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null);
+    dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null, type);
   }
 
   @Override
