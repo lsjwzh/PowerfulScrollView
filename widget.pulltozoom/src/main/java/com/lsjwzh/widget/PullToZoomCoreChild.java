@@ -1,4 +1,4 @@
-package android.support.design.widget;
+package com.lsjwzh.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;

@@ -32,6 +32,19 @@ public class CoordinateScrollRecyclerView extends RecyclerView {
     scrollToPositionInternal(position, true);
   }
 
+  @Override
+  protected void onMeasure(int widthSpec, int heightSpec) {
+    MultiRVScrollView multiRVScrollView = findMultiRVScrollView();
+    super.onMeasure(widthSpec, heightSpec);
+    if (multiRVScrollView != null && multiRVScrollView.getHeight() > 0
+        && getMeasuredHeight() > multiRVScrollView.getHeight()) {
+      getLayoutManager().setAutoMeasureEnabled(false);
+      getLayoutParams().height = multiRVScrollView.getHeight();
+      heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getHeight(), MeasureSpec.EXACTLY);
+      super.onMeasure(widthSpec, heightSpec);
+    }
+  }
+
   private void scrollToPositionInternal(int position, boolean isSmooth) {
     MultiRVScrollView multiRVScrollView = findMultiRVScrollView();
     if (multiRVScrollView != null && multiRVScrollView.isCoordinatedWith(this)

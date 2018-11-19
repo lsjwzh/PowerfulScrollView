@@ -1,4 +1,4 @@
-package com.support.android.designlibdemo;
+package com.support.android.designlibdemo.zoom;
 
 import android.content.Context;
 import android.content.Intent;

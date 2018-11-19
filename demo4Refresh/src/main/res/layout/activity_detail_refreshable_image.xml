@@ -15,7 +15,7 @@
   ~ limitations under the License.
 -->
 
-<android.support.design.widget.PullToRefreshScrollView
+<com.lsjwzh.widget.PullToRefreshContainer
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/main_content"
@@ -112,4 +112,4 @@
     android:textSize="20sp"
     app:actionType="sticky"/>
 
-</android.support.design.widget.PullToRefreshScrollView>
+</com.lsjwzh.widget.PullToRefreshContainer>

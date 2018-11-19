@@ -1105,7 +1105,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     return clampedX || clampedY;
   }
 
-  int getScrollRange() {
+  public int getScrollRange() {
     int scrollRange = 0;
     if (getChildCount() > 0) {
       // custom modify

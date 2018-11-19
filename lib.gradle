@@ -24,3 +24,8 @@ android {
         abortOnError false
     }
 }
+
+dependencies {
+    compile 'com.android.support:recyclerview-v7:27.0.1'
+
+}

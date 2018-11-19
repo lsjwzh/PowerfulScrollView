@@ -4,31 +4,25 @@
                                                       android:id="@+id/main_content"
                                                       android:layout_width="match_parent"
                                                       android:layout_height="match_parent"
-                                                      android:overScrollMode="never"
-                                                      android:fitsSystemWindows="true">
+                                                      android:fitsSystemWindows="true"
+                                                      android:overScrollMode="never">
 
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!--<FrameLayout-->
-      <!--android:layout_width="match_parent"-->
-      <!--android:layout_height="wrap_content">-->
-
-      <!--<com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView-->
-        <!--android:id="@+id/recyclerview"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:overScrollMode="never">-->
-      <!--</com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView>-->
-    <!--</FrameLayout>-->
-
-    <ImageView
-      android:id="@+id/backdrop"
+    <FrameLayout
       android:layout_width="match_parent"
-      android:layout_height="@dimen/detail_backdrop_height"
-      android:scaleType="centerCrop"/>
+      android:layout_height="wrap_content">
+
+      <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never">
+      </com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView>
+    </FrameLayout>
 
     <FrameLayout
       android:layout_width="match_parent"

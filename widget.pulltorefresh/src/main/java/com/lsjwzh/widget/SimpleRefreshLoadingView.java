@@ -1,4 +1,4 @@
-package android.support.design.widget;
+package com.lsjwzh.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,7 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 public class SimpleRefreshLoadingView extends FrameLayout
-    implements PullToRefreshScrollView.IRefreshLoadingView {
+    implements PullToRefreshContainer.IRefreshLoadingView {
 
   public static final int STATE_NONE = 0;
   public static final int STATE_REFRESING = 1;

@@ -1,4 +1,4 @@
-package com.support.android.designlibdemo;
+package com.support.android.designlibdemo.zoom;
 
 import java.util.ArrayList;
 import java.util.List;

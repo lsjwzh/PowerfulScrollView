@@ -10,10 +10,14 @@ import java.util.Random;
 public class DemoUtils {
 
   public static List<String> getRandomSublist(String[] array, int amount) {
+    return getRandomSublist("", array, amount);
+  }
+
+  public static List<String> getRandomSublist(String prefix, String[] array, int amount) {
     ArrayList<String> list = new ArrayList<>(amount);
     Random random = new Random();
     while (list.size() < amount) {
-      list.add(array[random.nextInt(array.length)]);
+      list.add(prefix + array[random.nextInt(array.length)]);
     }
     return list;
   }
