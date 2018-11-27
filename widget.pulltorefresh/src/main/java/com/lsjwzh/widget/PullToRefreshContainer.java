@@ -175,19 +175,17 @@ public class PullToRefreshContainer extends MultiRVScrollView {
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     int dyUnconsumed = dy - consumed[1];
     Log.d(TAG, " onNestedPreScroll dyConsumed:" + consumed[1] + " dyUnconsumed:" + dyUnconsumed);
-    if (isRefreshing()) {
-      consumed[1] = dy;
-      Log.d(TAG, " onNestedPreScroll eat scroll when refreshing");
-      return;
-    }
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)
-        && canHandleByHostScrollView(dyUnconsumed) && type == ViewCompat.TYPE_NON_TOUCH) {
+        && canHandleByHostScrollView(dyUnconsumed)) {
       float translationY = getRefreshTargetView().getTranslationY();
-      if (translationY > getLoadingMaxOffsetY()) {
+      if (type == ViewCompat.TYPE_NON_TOUCH && translationY > getLoadingMaxOffsetY()) {
         consumed[1] = dy;
         // 强制停止fling
         ((RecyclerView)target).stopScroll();
         Log.d(TAG, " onNestedPreScroll stop fling");
+      } else if (type == ViewCompat.TYPE_TOUCH && translationY > 0) {
+        tryConsume(dyUnconsumed);
+        consumed[1] = dy;
       }
     }
     super.onNestedPreScroll(target, dx, dy, consumed, type);
