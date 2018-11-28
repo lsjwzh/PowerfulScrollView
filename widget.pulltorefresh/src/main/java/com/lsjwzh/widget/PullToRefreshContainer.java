@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
+import com.lsjwzh.widget.multirvcontainer.ScrollBlock;
 import com.lsjwzh.widget.pulltorefresh.R;
 
 import java.util.ArrayList;
@@ -172,21 +173,35 @@ public class PullToRefreshContainer extends MultiRVScrollView {
   }
 
   @Override
+  protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
+    if (mScrollBlocks.indexOf(scrollBlock) == 0) {
+      // 第一个block就意味着处理pulltorefresh的最佳时机
+      float translationY = getRefreshTargetView().getTranslationY();
+      if (type == ViewCompat.TYPE_NON_TOUCH && translationY > getLoadingMaxOffsetY()) {
+        // 强制停止fling
+        ((RecyclerView) target).stopScroll();
+        Log.d(TAG, " onNestedPreScroll stop fling");
+        unconsumed = 0;
+      } else if (type == ViewCompat.TYPE_TOUCH) {
+        unconsumed = unconsumed - tryConsume(unconsumed);
+      }
+    }
+    return super.consumeSelfBlock(target, scrollBlock, unconsumed, type);
+  }
+
+  @Override
+  protected void rebuildScrollBlocks() {
+    super.rebuildScrollBlocks();
+    mScrollBlocks.add(0, new ScrollBlock());
+  }
+
+  @Override
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     int dyUnconsumed = dy - consumed[1];
     Log.d(TAG, " onNestedPreScroll dyConsumed:" + consumed[1] + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)
         && canHandleByHostScrollView(dyUnconsumed)) {
-      float translationY = getRefreshTargetView().getTranslationY();
-      if (type == ViewCompat.TYPE_NON_TOUCH && translationY > getLoadingMaxOffsetY()) {
-        consumed[1] = dy;
-        // 强制停止fling
-        ((RecyclerView)target).stopScroll();
-        Log.d(TAG, " onNestedPreScroll stop fling");
-      } else if (type == ViewCompat.TYPE_TOUCH && translationY > 0) {
-        tryConsume(dyUnconsumed);
-        consumed[1] = dy;
-      }
+
     }
     super.onNestedPreScroll(target, dx, dy, consumed, type);
     Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
@@ -198,7 +213,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
     if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease) &&
         canHandleByHostScrollView(dyUnconsumed)) {
-      dyUnconsumed = tryConsume(dyUnconsumed);
+//      dyUnconsumed = tryConsume(dyUnconsumed);
     }
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
   }

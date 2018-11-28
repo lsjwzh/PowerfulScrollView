@@ -7,12 +7,12 @@ public class ScrollBlock {
   public final BlockType type;
   public final RecyclerView recyclerView;
 
-  ScrollBlock(RecyclerView recyclerView) {
+  public ScrollBlock(RecyclerView recyclerView) {
     this.type = BlockType.RecyclerView;
     this.recyclerView = recyclerView;
   }
 
-  ScrollBlock() {
+  public ScrollBlock() {
     this.type = BlockType.Self;
     this.recyclerView = null;
   }

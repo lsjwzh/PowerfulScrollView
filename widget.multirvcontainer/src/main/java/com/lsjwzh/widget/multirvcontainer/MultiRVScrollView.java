@@ -352,7 +352,7 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     consumed[1] -= reverseScroll;
     unconsumed[1] += reverseScroll;
     // 按照顺序消费 Scroll
-    drainScrollY(consumed, unconsumed);
+    drainScrollY(target, consumed, unconsumed, type);
     super.onNestedScroll(target, consumed[0], consumed[1], unconsumed[0], unconsumed[1], type);
     if (consumed[1] == 0 && unconsumed[1] > 0) {
       onBottomEdgePull(getWidth() / 2, dyUnconsumed);
@@ -360,35 +360,28 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     }
   }
 
-  private void drainScrollY(int[] consumed, int[] unconsumed) {
+  private void drainScrollY(View target, int[] consumed, int[] unconsumed, int type) {
     if (unconsumed[1] > 0) {
       for (int i = 0; i < mScrollBlocks.size(); i++) {
-        if (doDrain(consumed, unconsumed, i)) break;
+        if (doDrain(target, consumed, unconsumed, i, type)) break;
       }
     } else if (unconsumed[1] < 0) {
       for (int i = mScrollBlocks.size() - 1; i >= 0; i--) {
-        if (doDrain(consumed, unconsumed, i)) break;
+        if (doDrain(target, consumed, unconsumed, i, type)) break;
       }
     }
   }
 
-  private boolean doDrain(int[] consumed, int[] unconsumed, int i) {
+  private boolean doDrain(View target, int[] consumed, int[] unconsumed, int i, int type) {
     ScrollBlock scrollBlock = mScrollBlocks.get(i);
     if (scrollBlock.type == ScrollBlock.BlockType.Self) {
-      Log.d(TAG, "try consume " + unconsumed[1] + "by self");
-      int oldScrollY = getScrollY();
-      scrollBy(0, unconsumed[1]);
-      int realScroll = getScrollY() - oldScrollY;
-      Log.d(TAG, "self consume" + realScroll);
+      int realScroll = consumeSelfBlock(target, scrollBlock, unconsumed[1], type);
       consumed[1] += realScroll;
       unconsumed[1] -= realScroll;
       return unconsumed[1] == 0;
     } else if (scrollBlock.type == ScrollBlock.BlockType.RecyclerView) {
       if (scrollBlock.recyclerView.isNestedScrollingEnabled()) {
-        Log.d(TAG, "try consume" + unconsumed[1] + " by recyclerView" + scrollBlock.recyclerView);
-        int scroll = RVScrollViewUtils.scrollVerticallyBy(scrollBlock.recyclerView,
-            unconsumed[1]);
-        Log.d(TAG, "recyclerView consume " + scroll);
+        int scroll = consumeRecyclerViewBlock(target, scrollBlock, unconsumed[1], type);
         consumed[1] += scroll;
         unconsumed[1] -= scroll;
         return unconsumed[1] == 0;
@@ -397,6 +390,33 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
 
     return false;
   }
+
+  /**
+   * @param unconsumed
+   * @return consumed by current block
+   */
+  protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
+    Log.d(TAG, "try consume " + unconsumed + "by self");
+    int oldScrollY = getScrollY();
+    scrollBy(0, unconsumed);
+    int realScroll = getScrollY() - oldScrollY;
+    Log.d(TAG, "self consume" + realScroll);
+    return realScroll;
+  }
+
+  /**
+   * @param unconsumed
+   * @return consumed by current block
+   */
+  protected int consumeRecyclerViewBlock(View target, ScrollBlock scrollBlock, int unconsumed,
+                                         int type) {
+    Log.d(TAG, "try consume" + unconsumed + " by recyclerView" + scrollBlock.recyclerView);
+    int scroll = RVScrollViewUtils.scrollVerticallyBy(scrollBlock.recyclerView,
+        unconsumed);
+    Log.d(TAG, "recyclerView consume " + scroll);
+    return scroll;
+  }
+
 
   @Override
   protected void onFlingStop() {
@@ -409,7 +429,7 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
 
-  private void rebuildScrollBlocks() {
+  protected void rebuildScrollBlocks() {
     mScrollBlocks.clear();
     int blockOffsetCursor = 0;
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {

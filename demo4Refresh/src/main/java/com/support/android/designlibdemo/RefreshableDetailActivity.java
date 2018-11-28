@@ -49,8 +49,24 @@ public class RefreshableDetailActivity extends AppCompatActivity {
       }
     });
 
-    RecyclerView rv = findViewById(R.id.recyclerview);
+    final RecyclerView rv = findViewById(R.id.recyclerview);
     refreshContainer.takeOverScrollBehavior(rv);
+    refreshContainer.addRefreshListener(new PullToRefreshContainer.RefreshListener() {
+      @Override
+      public void onRefreshing() {
+        rv.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            refreshContainer.endRefresh();
+          }
+        }, 2000);
+      }
+
+      @Override
+      public void onRefreshAnimationEnd() {
+
+      }
+    });
     setupRecyclerView(rv);
     loadBackdrop();
 //    refreshContainer.addOnScrollChangeListener(new NestedScrollViewExtend.OnScrollChangeListener() {
@@ -80,7 +96,7 @@ public class RefreshableDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
               try {
-                Thread.sleep(5000);
+                Thread.sleep(1000);
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
