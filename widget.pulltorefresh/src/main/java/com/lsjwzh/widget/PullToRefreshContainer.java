@@ -86,7 +86,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     Log.d(TAG, String.format("overScrollByCompat getScrollY() %s deltaY: %s", getScrollY(),
         deltaY));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
-      deltaY = tryConsume(deltaY, true);
+      deltaY = tryConsume(deltaY, ViewCompat.TYPE_NON_TOUCH);
       if (deltaY != 0 && mMoveBeforeTouchRelease) {
         float translationY = getRefreshTargetView().getTranslationY();
         float mayTranslationY = translationY - deltaY;
@@ -174,19 +174,22 @@ public class PullToRefreshContainer extends MultiRVScrollView {
 
   @Override
   protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
+    int realConsumed = 0;
     if (mScrollBlocks.indexOf(scrollBlock) == 0) {
       // 第一个block就意味着处理pulltorefresh的最佳时机
       float translationY = getRefreshTargetView().getTranslationY();
-      if (type == ViewCompat.TYPE_NON_TOUCH && translationY > getLoadingMaxOffsetY()) {
+      if (type == ViewCompat.TYPE_NON_TOUCH && translationY >= getLoadingMaxOffsetY()) {
         // 强制停止fling
         ((RecyclerView) target).stopScroll();
         Log.d(TAG, " onNestedPreScroll stop fling");
+        realConsumed = unconsumed;
         unconsumed = 0;
-      } else if (type == ViewCompat.TYPE_TOUCH) {
-        unconsumed = unconsumed - tryConsume(unconsumed);
+      } else {
+        realConsumed = tryConsume(unconsumed, type);
+        unconsumed = unconsumed - realConsumed;
       }
     }
-    return super.consumeSelfBlock(target, scrollBlock, unconsumed, type);
+    return realConsumed + super.consumeSelfBlock(target, scrollBlock, unconsumed, type);
   }
 
   @Override
@@ -195,28 +198,6 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     mScrollBlocks.add(0, new ScrollBlock());
   }
 
-  @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
-    int dyUnconsumed = dy - consumed[1];
-    Log.d(TAG, " onNestedPreScroll dyConsumed:" + consumed[1] + " dyUnconsumed:" + dyUnconsumed);
-    if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)
-        && canHandleByHostScrollView(dyUnconsumed)) {
-
-    }
-    super.onNestedPreScroll(target, dx, dy, consumed, type);
-    Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
-  }
-
-  @Override
-  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
-      dyUnconsumed, int type) {
-    Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-    if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease) &&
-        canHandleByHostScrollView(dyUnconsumed)) {
-//      dyUnconsumed = tryConsume(dyUnconsumed);
-    }
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
-  }
 
   private boolean canTryMoveToStable() {
     float translationY = getRefreshTargetView().getTranslationY();
@@ -261,61 +242,43 @@ public class PullToRefreshContainer extends MultiRVScrollView {
 
   /**
    * @param dyUnconsumed
-   * @return dyUnconsumed
+   * @return consumed
    */
-  protected int tryConsume(int dyUnconsumed) {
-    return tryConsume(dyUnconsumed, false);
-  }
-
-  /**
-   * @param dyUnconsumed
-   * @return dyUnconsumed
-   */
-  protected int tryConsume(int dyUnconsumed, boolean limitMaxTranslationY) {
-    dyUnconsumed = dampUnconsumed(dyUnconsumed);
+  protected int tryConsume(int dyUnconsumed, int type) {
+    // 刷新状态下,优先滚动整个ScrollView
+    if (isRefreshing()) {
+      return dyUnconsumed;
+    }
+    int dampConsumed = dampConsume(dyUnconsumed);
+    dyUnconsumed = dyUnconsumed - dampConsumed;
+    // dyUnconsumed和translationY的方向是相反的
     float translationY = getRefreshTargetView().getTranslationY();
     float mayTranslationY = translationY - dyUnconsumed;
-    if (limitMaxTranslationY
-        && translationY >= getRefreshLoadingView().getRefreshTriggerHeight()) {
-      mayTranslationY = translationY;
+    if (translationY - dyUnconsumed >= getLoadingMaxOffsetY()) {
+      mayTranslationY = getLoadingMaxOffsetY();
     }
-    if (mayTranslationY > 0 && getScrollY() == 0) {
-      mMoveBeforeTouchRelease = true;
-    }
-    if (mMoveBeforeTouchRelease) {
-      if (getScrollY() > 0) {
-        int oldScroll = getScrollY();
-        scrollBy(0, dyUnconsumed);
-        int scroll = getScrollY();
-        dyUnconsumed -= scroll - oldScroll;
-        mayTranslationY = translationY - dyUnconsumed;
-        Log.d(TAG, "scrollBy BeforeTouchRelease:" + (scroll - oldScroll));
-      }
-      translationY = Math.max(0, mayTranslationY);
-      Log.d(TAG, "translationY:" + translationY);
-      getRefreshLoadingView().cancelAnimation();
-      getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) translationY,
-          IRefreshLoadingView.MoveType.TOUCH);
-      getRefreshTargetView().setTranslationY(translationY);
-      return (int) (translationY - mayTranslationY);
-    }
-    return dyUnconsumed;
+    mayTranslationY = Math.max(0, mayTranslationY);
+    Log.d(TAG, "translationY:" + translationY);
+    getRefreshLoadingView().cancelAnimation();
+    getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) mayTranslationY,
+        IRefreshLoadingView.MoveType.TOUCH);
+    getRefreshTargetView().setTranslationY(mayTranslationY);
+    return dampConsumed + (int) (translationY - getRefreshTargetView().getTranslationY());
   }
 
   /**
    * You can custom damp logic here
    *
    * @param dyUnconsumed
-   * @return dampUnconsumed
+   * @return dampConsumed
    */
-  protected int dampUnconsumed(int dyUnconsumed) {
+  protected int dampConsume(int dyUnconsumed) {
     if (dyUnconsumed > 0) {
-      return dyUnconsumed;
+      return 0;
     }
     float translationY = getRefreshTargetView().getTranslationY();
     int maxTranslationY = getLoadingMaxOffsetY();
-    float dampRatio = 1 - Math.abs(translationY / maxTranslationY);
-    dampRatio = Math.max(0.05f, dampRatio);
+    float dampRatio = Math.abs(translationY / maxTranslationY);
     return (int) (dampRatio * dyUnconsumed);
   }
 

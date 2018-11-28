@@ -54,12 +54,12 @@ public class RefreshableDetailActivity extends AppCompatActivity {
     refreshContainer.addRefreshListener(new PullToRefreshContainer.RefreshListener() {
       @Override
       public void onRefreshing() {
-        rv.postDelayed(new Runnable() {
-          @Override
-          public void run() {
-            refreshContainer.endRefresh();
-          }
-        }, 2000);
+//        rv.postDelayed(new Runnable() {
+//          @Override
+//          public void run() {
+//            refreshContainer.endRefresh();
+//          }
+//        }, 2000);
       }
 
       @Override
