@@ -178,7 +178,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     if (mScrollBlocks.indexOf(scrollBlock) == 0) {
       // 第一个block就意味着处理pulltorefresh的最佳时机
       float translationY = getRefreshTargetView().getTranslationY();
-      if (type == ViewCompat.TYPE_NON_TOUCH && translationY >= getLoadingMaxOffsetY()) {
+      if (isRefreshing() || translationY >= getLoadingMaxOffsetY()) {
         // 强制停止fling
         ((RecyclerView) target).stopScroll();
         Log.d(TAG, " onNestedPreScroll stop fling");
