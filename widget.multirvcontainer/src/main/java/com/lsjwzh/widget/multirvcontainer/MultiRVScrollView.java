@@ -13,7 +13,6 @@ import android.support.v7.widget.RVScrollViewUtils;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -236,17 +235,6 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
   @Override
-  public boolean dispatchTouchEvent(MotionEvent ev) {
-//    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-//      if (mNonTouchScrollStarted) {
-//        stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
-//        return true;
-//      }
-//    }
-    return super.dispatchTouchEvent(ev);
-  }
-
-  @Override
   public boolean startNestedScroll(int axes, int type) {
     Log.d(TAG, "startNestedScroll axes:" + axes + " type" + type);
     return super.startNestedScroll(axes, type);
@@ -255,7 +243,6 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   @Override
   public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes, int type) {
     if (!getScroller().isFinished()) {
-//      fling(0);
       Log.d(TAG, "onStartNestedScroll scroll not finished");
     }
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
@@ -302,22 +289,17 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   @Override
   public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
     Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
-//    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-//      // 如果scrollViewConsumed为0,说明上个RecyclerView存在没有消费完的offset,且ScrollView也没有消费完
-//      helper.onNestedPreScroll(target, dx, dy, consumed, type);
-//    }
-//    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-//      // 如果unConsumed=0,说明上个RecyclerView存在没有消费完的offset,且ScrollView也没有消费完
-//      helper.onScrollViewDrained(target, dx, dy, consumed, type);
-//    }
     super.onNestedPreScroll(target, dx, dy, consumed, type);
   }
 
   @Override
   public void fling(int velocityY) {
     Log.d(TAG, "srcollView self fling");
-    // super.fling(velocityY);
-    mNestRecyclerViewHelpers.get(0).mNestedRecyclerView.fling(0, velocityY);
+    if (mNestRecyclerViewHelpers.size() > 0) {
+      mNestRecyclerViewHelpers.get(0).mNestedRecyclerView.fling(0, velocityY);
+    } else {
+      super.fling(velocityY);
+    }
   }
 
   @Override

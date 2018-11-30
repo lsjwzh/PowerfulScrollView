@@ -102,11 +102,6 @@ public class PullToZoomContainer extends MultiRVScrollView {
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
       dyUnconsumed, int type) {
     Log.d(TAG, "dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-//    if (dyUnconsumed != 0) {
-//      if (tryConsume(dyUnconsumed)) {
-//        return;
-//      }
-//    }
     super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
   }
 
