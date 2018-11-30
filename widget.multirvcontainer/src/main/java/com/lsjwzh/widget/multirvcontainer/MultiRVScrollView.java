@@ -179,6 +179,8 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
               rebuildScrollBlocks();
             }
           });
+    } else {
+      rebuildScrollBlocks();
     }
   }
 
