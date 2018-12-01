@@ -88,10 +88,13 @@ public class PullToZoomContainer extends MultiRVScrollView {
     if (dyUnconsumed != 0) {
       int tryConsume = tryConsume(dyUnconsumed);
       consumed[1] += tryConsume;
-      Log.d(TAG, "after tryConsume remain consumed:" + consumed[1]);
-      if (tryConsume == 0 && type == ViewCompat.TYPE_NON_TOUCH) {
+      Log.d(TAG, "after tryConsume remain consumed:" + consumed[1] + " " + mPullTranslationY);
+      if (type == ViewCompat.TYPE_NON_TOUCH
+          && tryConsume == 0
+          && mPullTranslationY >= getMaxTranslationY()) {
         // 强制停止fling
         ((RecyclerView) target).stopScroll();
+        post(mRollbackRunnable);
         Log.d(TAG, " onNestedPreScroll stop fling");
       }
     }
@@ -181,11 +184,11 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   @Override
-  public boolean startNestedScroll(int axes, int type) {
+  public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes, int type) {
     mLastStartNestedScrollType = type;
-    boolean b = super.startNestedScroll(axes, type);
+    boolean b = super.onStartNestedScroll(child, target, nestedScrollAxes, type);
     removeCallbacks(mRollbackRunnable);
-    Log.d(TAG, "startNestedScroll:" + b + " type " + type);
+    Log.d(TAG, "onStartNestedScroll:" + b + " type " + type);
     if (mRollbackAnimator != null) {
       mRollbackAnimator.cancel();
       mRollbackAnimator = null;
