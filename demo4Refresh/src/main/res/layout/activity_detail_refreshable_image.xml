@@ -15,7 +15,7 @@
   ~ limitations under the License.
 -->
 
-<com.lsjwzh.widget.PullToRefreshContainer
+<com.support.android.designlibdemo.AppPullToRefreshContainer
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/main_content"
@@ -113,4 +113,4 @@
     android:textSize="20sp"
     app:actionType="sticky"/>
 
-</com.lsjwzh.widget.PullToRefreshContainer>
+</com.support.android.designlibdemo.AppPullToRefreshContainer>

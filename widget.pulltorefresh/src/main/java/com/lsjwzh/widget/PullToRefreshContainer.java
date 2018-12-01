@@ -177,8 +177,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     int realConsumed = 0;
     if (mScrollBlocks.indexOf(scrollBlock) == 0) {
       // 第一个block就意味着处理pulltorefresh的最佳时机
-      float translationY = getRefreshTargetView().getTranslationY();
-      if (isRefreshing() || translationY >= getLoadingMaxOffsetY()) {
+      if (isRefreshing()) {
         // 强制停止fling
         ((RecyclerView) target).stopScroll();
         Log.d(TAG, " onNestedPreScroll stop fling");
@@ -187,6 +186,11 @@ public class PullToRefreshContainer extends MultiRVScrollView {
       } else {
         realConsumed = tryConsume(unconsumed, type);
         unconsumed = unconsumed - realConsumed;
+        if (type == ViewCompat.TYPE_NON_TOUCH && unconsumed == 0) {
+          // 强制停止fling
+          ((RecyclerView) target).stopScroll();
+          Log.d(TAG, " onNestedPreScroll stop fling");
+        }
       }
     }
     return realConsumed + super.consumeSelfBlock(target, scrollBlock, unconsumed, type);
@@ -249,7 +253,7 @@ public class PullToRefreshContainer extends MultiRVScrollView {
     if (isRefreshing()) {
       return dyUnconsumed;
     }
-    int dampConsumed = dampConsume(dyUnconsumed);
+    int dampConsumed = dampConsume(dyUnconsumed, type);
     dyUnconsumed = dyUnconsumed - dampConsumed;
     // dyUnconsumed和translationY的方向是相反的
     float translationY = getRefreshTargetView().getTranslationY();
@@ -270,15 +274,19 @@ public class PullToRefreshContainer extends MultiRVScrollView {
    * You can custom damp logic here
    *
    * @param dyUnconsumed
+   * @param type Touch Type
    * @return dampConsumed
    */
-  protected int dampConsume(int dyUnconsumed) {
+  protected int dampConsume(int dyUnconsumed, int type) {
     if (dyUnconsumed > 0) {
       return 0;
     }
     float translationY = getRefreshTargetView().getTranslationY();
     int maxTranslationY = getLoadingMaxOffsetY();
-    float dampRatio = Math.abs(translationY / maxTranslationY);
+    float dampRatio = Math.abs(translationY * 1f / maxTranslationY);
+    if (type == ViewCompat.TYPE_NON_TOUCH) {
+      dampRatio = Math.min(dampRatio * 2, 1);
+    }
     return (int) (dampRatio * dyUnconsumed);
   }
 
