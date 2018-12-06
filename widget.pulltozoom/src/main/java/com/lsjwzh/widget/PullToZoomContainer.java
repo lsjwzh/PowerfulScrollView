@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
+import com.lsjwzh.widget.multirvcontainer.ScrollBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,41 +81,41 @@ public class PullToZoomContainer extends MultiRVScrollView {
     rollbackIfNeed();
   }
 
-
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
-    Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
-    int dyUnconsumed = dy - consumed[1];
-    if (dyUnconsumed != 0) {
-      int tryConsume = tryConsume(dyUnconsumed, type);
-      consumed[1] += tryConsume;
-      Log.d(TAG, "after tryConsume remain consumed:" + consumed[1] + " " + mPullTranslationY);
-      if (type == ViewCompat.TYPE_NON_TOUCH
-          && consumed[1] == dy) {
+  protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
+    int realConsumed = 0;
+    if (mScrollBlocks.indexOf(scrollBlock) == 0) {
+      // 第一个block就意味着处理pulltozoom的最佳时机
+      if (mRollbackAnimator != null && mRollbackAnimator.isRunning()) {
         // 强制停止fling
         ((RecyclerView) target).stopScroll();
-        removeCallbacks(mRollbackRunnable);
-        post(mRollbackRunnable);
+        restartRollbackAnim();
         Log.d(TAG, " onNestedPreScroll stop fling");
+        realConsumed = unconsumed;
+        unconsumed = 0;
+      } else {
+        realConsumed = tryConsume(unconsumed, type);
+        unconsumed = unconsumed - realConsumed;
+        if (type == ViewCompat.TYPE_NON_TOUCH && unconsumed == 0) {
+          // 强制停止fling
+          ((RecyclerView) target).stopScroll();
+          restartRollbackAnim();
+          Log.d(TAG, " onNestedPreScroll stop fling");
+        }
       }
     }
-    super.onNestedPreScroll(target, dx, dy, consumed, type);
-  }
-
-  @Override
-  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
-      dyUnconsumed, int type) {
-    Log.d(TAG, "dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type);
+    return realConsumed + super.consumeSelfBlock(target, scrollBlock, unconsumed, type);
   }
 
   protected int tryConsume(int dyUnconsumed, int type) {
     float translationYBefore = mPullTranslationY;
-    int dampConsumed = dampConsume(dyUnconsumed, type);
-    dyUnconsumed = dyUnconsumed - dampConsumed;
+    int dampConsumed = 0;
     List<View> headerViews = findScaleViews();
     List<View> otherViews = findTranslationViews();
     if (!headerViews.isEmpty() && !otherViews.isEmpty() && getScrollY() == 0) {
+      dampConsumed = dampConsume(dyUnconsumed, type);
+      Log.d(TAG, "dampConsume:" + dampConsumed + " getScrollY:" + getScrollY());
+      dyUnconsumed = dyUnconsumed - dampConsumed;
       mPullTranslationY -= dyUnconsumed;
       mPullTranslationY = Math.min(mPullTranslationY, getMaxTranslationY());
       for (View scaleView : headerViews) {
@@ -135,7 +136,10 @@ public class PullToZoomContainer extends MultiRVScrollView {
         }
       }
     }
-    return dampConsumed +  (int) (mPullTranslationY - translationYBefore);
+    int realConsumed = (int) (mPullTranslationY - translationYBefore);
+    Log.d(TAG, String.format("dyUnconsumed %s dampConsume %s realConsumed %s",
+        dyUnconsumed, dampConsumed, realConsumed));
+    return dampConsumed + realConsumed;
   }
 
   protected int getMaxTranslationY() {
@@ -147,7 +151,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
    * You can custom damp logic here
    *
    * @param dyUnconsumed
-   * @param type Touch Type
+   * @param type         Touch Type
    * @return dampConsumed
    */
   protected int dampConsume(int dyUnconsumed, int type) {
@@ -158,7 +162,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
     int maxTranslationY = getMaxTranslationY();
     float dampRatio = Math.abs(translationY * 1f / maxTranslationY);
     if (type == ViewCompat.TYPE_NON_TOUCH) {
-      dampRatio = Math.min(dampRatio * 2, 1);
+      dampRatio = Math.min(dampRatio * 4, 1);
     }
     return (int) (dampRatio * dyUnconsumed);
   }
@@ -171,8 +175,8 @@ public class PullToZoomContainer extends MultiRVScrollView {
     boolean clamp = super.overScrollByCompat(deltaX, deltaY, scrollX, scrollY, scrollRangeX,
         scrollRangeY,
         maxOverScrollX, maxOverScrollY, isTouchEvent);
-    if (clamp || isTouchEvent) {
-      tryConsume(deltaY, ViewCompat.TYPE_NON_TOUCH);
+    if (isTouchEvent) {
+      tryConsume(deltaY, ViewCompat.TYPE_TOUCH);
     }
     return clamp;
   }
@@ -190,13 +194,9 @@ public class PullToZoomContainer extends MultiRVScrollView {
   public boolean startNestedScroll(int axes, int type) {
     mLastStartNestedScrollType = type;
     boolean b = super.startNestedScroll(axes, type);
-    removeCallbacks(mRollbackRunnable);
     Log.d(TAG, "onStartNestedScroll:" + b + " type " + type);
-    if (mRollbackAnimator != null) {
-      mRollbackAnimator.cancel();
-      mRollbackAnimator = null;
-    }
-    return b;
+    cancelRollback();
+    return true;
   }
 
   @Override
@@ -205,8 +205,21 @@ public class PullToZoomContainer extends MultiRVScrollView {
     Log.d(TAG, "stopNestedScroll:" + type);
     if (mLastStartNestedScrollType == type) {
       Log.d(TAG, "post rollback:" + type);
-      post(mRollbackRunnable);
+      restartRollbackAnim();
     }
+  }
+
+  private void cancelRollback() {
+    removeCallbacks(mRollbackRunnable);
+    if (mRollbackAnimator != null) {
+      mRollbackAnimator.cancel();
+      mRollbackAnimator = null;
+    }
+  }
+
+  private void restartRollbackAnim() {
+    cancelRollback();
+    post(mRollbackRunnable);
   }
 
   protected List<View> findScaleViews() {
@@ -243,12 +256,17 @@ public class PullToZoomContainer extends MultiRVScrollView {
     return translationViews;
   }
 
-  void rollbackIfNeed() {
-    if (mPullTranslationY > 0) {
+  protected void rollbackIfNeed() {
+    if (mPullTranslationY > 0 && (mRollbackAnimator == null || !mRollbackAnimator.isRunning())) {
       for (View view : findScaleViews()) {
-        view.animate().scaleY(1.01f).scaleX(1.01f).start();
+        view.animate().cancel();
+        view.animate()
+            .scaleY(1.01f).scaleX(1.01f)
+            .setDuration(getRollbackAnimDuration(mPullTranslationY))
+            .start();
       }
       mRollbackAnimator = ObjectAnimator.ofFloat(mPullTranslationY, 0);
+      mRollbackAnimator.setDuration(getRollbackAnimDuration(mPullTranslationY));
       mRollbackAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
@@ -272,6 +290,10 @@ public class PullToZoomContainer extends MultiRVScrollView {
       });
       mRollbackAnimator.start();
     }
+  }
+
+  protected int getRollbackAnimDuration(float distance) {
+    return 150;
   }
 
   public interface RefreshListener {
