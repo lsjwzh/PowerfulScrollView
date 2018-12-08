@@ -9,6 +9,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
@@ -31,6 +32,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
     }
   };
   private int mLastStartNestedScrollType;
+  private int mLastTouchEvent;
 
   public PullToZoomContainer(Context context) {
     super(context);
@@ -79,6 +81,12 @@ public class PullToZoomContainer extends MultiRVScrollView {
     Log.d(TAG, "onFlingStop:");
     super.onFlingStop();
     rollbackIfNeed();
+  }
+
+  @Override
+  public boolean dispatchTouchEvent(MotionEvent ev) {
+    mLastTouchEvent = ev.getAction();
+    return super.dispatchTouchEvent(ev);
   }
 
   @Override
@@ -204,13 +212,14 @@ public class PullToZoomContainer extends MultiRVScrollView {
   public void stopNestedScroll(int type) {
     super.stopNestedScroll(type);
     Log.d(TAG, "stopNestedScroll:" + type);
-    if (mLastStartNestedScrollType == type) {
+    if (mLastStartNestedScrollType == type && (mLastTouchEvent == MotionEvent.ACTION_UP
+    || mLastTouchEvent == MotionEvent.ACTION_DOWN)) {
       Log.d(TAG, "post rollback:" + type);
       restartRollbackAnim();
     }
   }
 
-  private void cancelRollback() {
+  protected void cancelRollback() {
     removeCallbacks(mRollbackRunnable);
     if (mRollbackAnimator != null) {
       mRollbackAnimator.cancel();
@@ -218,7 +227,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
     }
   }
 
-  private void restartRollbackAnim() {
+  protected void restartRollbackAnim() {
     cancelRollback();
     post(mRollbackRunnable);
   }
