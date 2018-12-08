@@ -108,6 +108,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   protected int tryConsume(int dyUnconsumed, int type) {
+    cancelRollback();
     float translationYBefore = mPullTranslationY;
     int dampConsumed = 0;
     List<View> headerViews = findScaleViews();
