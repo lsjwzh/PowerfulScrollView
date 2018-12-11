@@ -116,6 +116,10 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   protected int tryConsume(int dyUnconsumed, int type) {
+    // 避免原本应该scrollView处理的地方被pulltozoom处理
+    if (dyUnconsumed > 0 && getScrollY() == 0 && type == ViewCompat.TYPE_TOUCH) {
+      return 0;
+    }
     cancelRollback();
     float translationYBefore = mPullTranslationY;
     int dampConsumed = 0;
@@ -213,7 +217,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
     super.stopNestedScroll(type);
     Log.d(TAG, "stopNestedScroll:" + type);
     if (mLastStartNestedScrollType == type && (mLastTouchEvent == MotionEvent.ACTION_UP
-    || mLastTouchEvent == MotionEvent.ACTION_DOWN)) {
+        || mLastTouchEvent == MotionEvent.ACTION_DOWN)) {
       Log.d(TAG, "post rollback:" + type);
       restartRollbackAnim();
     }
@@ -268,13 +272,6 @@ public class PullToZoomContainer extends MultiRVScrollView {
 
   protected void rollbackIfNeed() {
     if (mPullTranslationY > 0 && (mRollbackAnimator == null || !mRollbackAnimator.isRunning())) {
-      for (View view : findScaleViews()) {
-        view.animate().cancel();
-        view.animate()
-            .scaleY(1.01f).scaleX(1.01f)
-            .setDuration(getRollbackAnimDuration(mPullTranslationY))
-            .start();
-      }
       mRollbackAnimator = ObjectAnimator.ofFloat(mPullTranslationY, 0);
       mRollbackAnimator.setDuration(getRollbackAnimDuration(mPullTranslationY));
       mRollbackAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -284,6 +281,10 @@ public class PullToZoomContainer extends MultiRVScrollView {
           for (View view : findTranslationViews()) {
             view.setTranslationY(mPullTranslationY);
           }
+          for (View view : findScaleViews()) {
+            view.setScaleX(mPullTranslationY / getMaxTranslationY() + 1f);
+            view.setScaleY(mPullTranslationY / getMaxTranslationY() + 1f);
+          }
         }
       });
       mRollbackAnimator.addListener(new AnimatorListenerAdapter() {
@@ -292,6 +293,10 @@ public class PullToZoomContainer extends MultiRVScrollView {
           mPullTranslationY = 0;
           for (View view : findTranslationViews()) {
             view.setTranslationY(mPullTranslationY);
+          }
+          for (View view : findScaleViews()) {
+            view.setScaleX(1.01f);
+            view.setScaleY(1.01f);
           }
           for (RefreshListener listener : mRefreshListeners) {
             listener.onRollbackAnimationEnd();
