@@ -45,10 +45,9 @@
 
     <com.lsjwzh.widget.multirvcontainer.CoordinateScrollRecyclerView
       android:id="@+id/recyclerview"
-
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_below="@+id/backdrop"
+      android:layout_marginTop="180dp"
       android:background="@color/cardview_dark_background"
       app:actionWhenOverScroll="translation"/>
   </com.lsjwzh.widget.PullToZoomCoreChild>

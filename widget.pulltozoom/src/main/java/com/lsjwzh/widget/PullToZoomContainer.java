@@ -97,7 +97,6 @@ public class PullToZoomContainer extends MultiRVScrollView {
       if (mRollbackAnimator != null && mRollbackAnimator.isRunning()) {
         // 强制停止fling
         ((RecyclerView) target).stopScroll();
-        restartRollbackAnim();
         Log.d(TAG, " onNestedPreScroll stop fling");
         realConsumed = unconsumed;
         unconsumed = 0;
@@ -116,10 +115,6 @@ public class PullToZoomContainer extends MultiRVScrollView {
   }
 
   protected int tryConsume(int dyUnconsumed, int type) {
-    // 避免原本应该scrollView处理的地方被pulltozoom处理
-    if (dyUnconsumed > 0 && getScrollY() == 0 && type == ViewCompat.TYPE_TOUCH) {
-      return 0;
-    }
     cancelRollback();
     float translationYBefore = mPullTranslationY;
     int dampConsumed = 0;
@@ -131,12 +126,14 @@ public class PullToZoomContainer extends MultiRVScrollView {
       dyUnconsumed = dyUnconsumed - dampConsumed;
       mPullTranslationY -= dyUnconsumed;
       mPullTranslationY = Math.min(mPullTranslationY, getMaxTranslationY());
+      // 避免某些情况下mPullTranslationY没有重置,而变成负数的case
+      mPullTranslationY = Math.max(mPullTranslationY, 0);
       for (View scaleView : headerViews) {
         int height = scaleView.getHeight();
         int targetHeight = (int) (height + mPullTranslationY);
         float scale = targetHeight * 1f / height;
-        scaleView.setScaleY(Math.max(1, scale));
-        scaleView.setScaleX(Math.max(1, scale));
+        scaleView.setScaleY(Math.max(1.01f, scale));
+        scaleView.setScaleX(Math.max(1.01f, scale));
         scaleView.setPivotY(0f);
         Log.d(TAG, "scaleY:" + scale);
       }
@@ -149,7 +146,8 @@ public class PullToZoomContainer extends MultiRVScrollView {
         }
       }
     }
-    int realConsumed = (int) (mPullTranslationY - translationYBefore);
+    // 向上是正
+    int realConsumed = (int) (translationYBefore - mPullTranslationY);
     Log.d(TAG, String.format("dyUnconsumed %s dampConsume %s realConsumed %s",
         dyUnconsumed, dampConsumed, realConsumed));
     return dampConsumed + realConsumed;
@@ -282,8 +280,12 @@ public class PullToZoomContainer extends MultiRVScrollView {
             view.setTranslationY(mPullTranslationY);
           }
           for (View view : findScaleViews()) {
-            view.setScaleX(mPullTranslationY / getMaxTranslationY() + 1f);
-            view.setScaleY(mPullTranslationY / getMaxTranslationY() + 1f);
+            int height = view.getHeight();
+            int targetHeight = (int) (height + mPullTranslationY);
+            float scale = targetHeight * 1f / height;
+            view.setScaleY(Math.max(1.01f, scale));
+            view.setScaleX(Math.max(1.01f, scale));
+            view.setPivotY(0f);
           }
         }
       });
@@ -301,6 +303,7 @@ public class PullToZoomContainer extends MultiRVScrollView {
           for (RefreshListener listener : mRefreshListeners) {
             listener.onRollbackAnimationEnd();
           }
+          mRollbackAnimator = null;
         }
       });
       mRollbackAnimator.start();
