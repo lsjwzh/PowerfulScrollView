@@ -4,21 +4,22 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 
 /**
  * Make RecyclerView.scrollToPosition works well in MultiRVScrollView.
  */
-public class CoordinateScrollRecyclerView extends RecyclerView {
-  public CoordinateScrollRecyclerView(Context context) {
+public class AutoMatchRecyclerView extends RecyclerView {
+  public AutoMatchRecyclerView(Context context) {
     super(context);
   }
 
-  public CoordinateScrollRecyclerView(Context context, @Nullable AttributeSet attrs) {
+  public AutoMatchRecyclerView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
   }
 
-  public CoordinateScrollRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+  public AutoMatchRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
   }
 
@@ -42,6 +43,19 @@ public class CoordinateScrollRecyclerView extends RecyclerView {
       getLayoutParams().height = multiRVScrollView.getHeight();
       heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getHeight(), MeasureSpec.EXACTLY);
       super.onMeasure(widthSpec, heightSpec);
+    } else if (multiRVScrollView != null && multiRVScrollView.getHeight() > 0) {
+      // match gap in multiRVScrollView
+      int topOffset = getTop();
+      ViewGroup parent = (ViewGroup) getParent();
+      while (parent != null) {
+        topOffset += parent.getTop();
+        if (parent == multiRVScrollView) {
+          break;
+        }
+        parent = (ViewGroup) parent.getParent();
+      }
+      int gapInScrollView = multiRVScrollView.getHeight() - topOffset;
+      setMeasuredDimension(getMeasuredWidth(), gapInScrollView);
     }
   }
 
@@ -73,9 +87,9 @@ public class CoordinateScrollRecyclerView extends RecyclerView {
 
   private void rvScrollToPosition(int position, boolean isSmooth) {
     if (isSmooth) {
-      CoordinateScrollRecyclerView.super.smoothScrollToPosition(position);
+      AutoMatchRecyclerView.super.smoothScrollToPosition(position);
     } else {
-      CoordinateScrollRecyclerView.super.scrollToPosition(position);
+      AutoMatchRecyclerView.super.scrollToPosition(position);
     }
   }
 

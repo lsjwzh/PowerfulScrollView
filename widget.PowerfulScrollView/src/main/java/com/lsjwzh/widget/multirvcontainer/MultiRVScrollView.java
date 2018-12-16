@@ -408,11 +408,6 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     super.onFlingStop();
   }
 
-  public int getScrollableHeight() {
-    return getHeight();
-  }
-
-
   protected void rebuildScrollBlocks() {
     mScrollBlocks.clear();
     int blockOffsetCursor = 0;

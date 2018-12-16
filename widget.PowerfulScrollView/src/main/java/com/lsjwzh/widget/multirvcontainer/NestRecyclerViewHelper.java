@@ -7,7 +7,7 @@ import android.view.View;
 public class NestRecyclerViewHelper {
   private static final String TAG = NestRecyclerViewHelper.class.getSimpleName();
   final MultiRVScrollView mHostScrollView;
-  RecyclerView mNestedRecyclerView;
+  public RecyclerView mNestedRecyclerView;
   private View mChildContainsRecyclerView;
 
   NestRecyclerViewHelper(RecyclerView recyclerView,
@@ -42,11 +42,7 @@ public class NestRecyclerViewHelper {
   }
 
   boolean isRecyclerViewActive() {
-    return mHostScrollView.getScrollY() + getRecyclerViewTopOffset() == getRecyclerViewPartTop();
-  }
-
-  int getRecyclerViewTopOffset() {
-    return mHostScrollView.getHeight() - mHostScrollView.getScrollableHeight();
+    return mHostScrollView.getScrollY() == getRecyclerViewPartTop();
   }
 
   int getRecyclerViewPartTop() {
