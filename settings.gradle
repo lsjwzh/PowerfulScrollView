@@ -1,5 +1,1 @@
-include ':app', 'demo4Zoomable', 'demo4Instagram', 'demo4Refresh',
-        ':widget.multirvcontainer',
-        ':widget.pulltozoom',
-        ':widget.instacontainer',
-        ':widget.pulltorefresh'
+include ':app', ':widget.PowerfulScrollView'

@@ -1,0 +1,12 @@
+[submodule "ZepetoContainer"]
+	path = ZepetoContainer
+	url = https://github.com/lsjwzh/ZepetoContainer.git
+[submodule "PullToZoomContainer"]
+	path = PullToZoomContainer
+	url = https://github.com/lsjwzh/PullToZoomContainer.git
+[submodule "PullToRefreshContainer"]
+	path = PullToRefreshContainer
+	url = https://github.com/lsjwzh/PullToRefreshContainer.git
+[submodule "InstaContaner"]
+	path = InstaContaner
+	url = https://github.com/lsjwzh/InstaContaner.git

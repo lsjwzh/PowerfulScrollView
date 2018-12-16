@@ -1,8 +1,0 @@
-apply from: rootProject.file('lib.gradle')
-
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(path: ':widget.multirvcontainer')
-}
-apply from: rootProject.file('upload.gradle')
-

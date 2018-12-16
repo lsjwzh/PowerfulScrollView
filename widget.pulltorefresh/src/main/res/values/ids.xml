@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <item name="ptr_refreshLoadingView" type="id"/>
-  <item name="ptr_refreshTargetView" type="id"/>
-</resources>
