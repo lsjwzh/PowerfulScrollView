@@ -17,8 +17,8 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
-import android.support.design.widget.PullToRefreshScrollView;
-import android.support.v4.widget.NestedScrollViewExtend;
+import com.lsjwzh.widget.PullToRefreshContainer;
+
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,7 +39,7 @@ public class RefreshableDetailActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_detail_refreshable_image);
 //    loadBackdrop();
-    final PullToRefreshScrollView refreshContainer
+    final PullToRefreshContainer refreshContainer
         = findViewById(R.id.main_content);
     final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
     imageView.setOnClickListener(new View.OnClickListener() {
@@ -49,23 +49,39 @@ public class RefreshableDetailActivity extends AppCompatActivity {
       }
     });
 
-    RecyclerView rv = findViewById(R.id.recyclerview);
+    final RecyclerView rv = findViewById(R.id.recyclerview);
     refreshContainer.takeOverScrollBehavior(rv);
-    setupRecyclerView(rv);
-    loadBackdrop();
-    refreshContainer.addOnScrollChangeListener(new NestedScrollViewExtend.OnScrollChangeListener() {
+    refreshContainer.addRefreshListener(new PullToRefreshContainer.RefreshListener() {
       @Override
-      public void onScrollChange(NestedScrollViewExtend v, int scrollX, int scrollY, int
-          oldScrollX, int oldScrollY) {
-        View view = findViewById(R.id.imageWrapper);
-        ImageView imageView = findViewById(R.id.backdrop);
-        float progress = scrollY * 1f / view.getHeight();
-        float scale = Math.max(1 - progress, 0);
-        imageView.setScaleX(scale);
-        imageView.setScaleY(scale);
-        imageView.setPivotY(view.getHeight());
+      public void onRefreshing() {
+        rv.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            refreshContainer.endRefresh();
+          }
+        }, 100);
+      }
+
+      @Override
+      public void onRefreshAnimationEnd() {
+
       }
     });
+    setupRecyclerView(rv);
+    loadBackdrop();
+//    refreshContainer.addOnScrollChangeListener(new NestedScrollViewExtend.OnScrollChangeListener() {
+//      @Override
+//      public void onScrollChange(NestedScrollViewExtend v, int scrollX, int scrollY, int
+//          oldScrollX, int oldScrollY) {
+//        View view = findViewById(R.id.imageWrapper);
+//        ImageView imageView = findViewById(R.id.backdrop);
+//        float progress = scrollY * 1f / view.getHeight();
+//        float scale = Math.max(1 - progress, 0);
+//        imageView.setScaleX(scale);
+//        imageView.setScaleY(scale);
+//        imageView.setPivotY(view.getHeight());
+//      }
+//    });
     rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
       @Override
       public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -80,7 +96,7 @@ public class RefreshableDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
               try {
-                Thread.sleep(5000);
+                Thread.sleep(1000);
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
@@ -114,7 +130,7 @@ public class RefreshableDetailActivity extends AppCompatActivity {
 
   private void setupRecyclerView(RecyclerView recyclerView) {
     LinearLayoutManager layout = new LinearLayoutManager(recyclerView.getContext());
-    layout.setAutoMeasureEnabled(false);
+//    layout.setAutoMeasureEnabled(false);
     recyclerView.setLayoutManager(layout);
     adapter = new SimpleStringRecyclerViewAdapter(this,
         DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 1)) {

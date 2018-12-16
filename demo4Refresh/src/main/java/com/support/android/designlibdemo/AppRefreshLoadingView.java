@@ -11,7 +11,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.PullToRefreshScrollView;
+import com.lsjwzh.widget.PullToRefreshContainer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +22,7 @@ import me.zhanghai.android.materialprogressbar.RoundCapCircularProgressDrawable;
 import me.zhanghai.android.materialprogressbar.RoundCapIndeterminateCircularProgressDrawable;
 
 public class AppRefreshLoadingView extends FrameLayout
-    implements PullToRefreshScrollView.IRefreshLoadingView {
+    implements PullToRefreshContainer.IRefreshLoadingView {
 
   public static final int STATE_NONE = 0;
   public static final int STATE_REFRESHING = 1;

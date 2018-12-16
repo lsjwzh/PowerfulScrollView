@@ -1,7 +1,9 @@
-package android.support.design.widget;
+package com.lsjwzh.widget;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ScrollerCompatExtend;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -9,7 +11,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
-import com.lsjwzh.widget.multirvcontainer.NestRecyclerViewHelper;
+import com.lsjwzh.widget.multirvcontainer.ScrollBlock;
 import com.lsjwzh.widget.pulltorefresh.R;
 
 import java.util.ArrayList;
@@ -19,25 +21,25 @@ import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_OUTSIDE;
 import static android.view.MotionEvent.ACTION_UP;
 
-public class PullToRefreshScrollView extends MultiRVScrollView {
-  static final String TAG = PullToRefreshScrollView.class.getSimpleName();
+public class PullToRefreshContainer extends MultiRVScrollView {
+  static final String TAG = PullToRefreshContainer.class.getSimpleName();
   protected boolean mMoveBeforeTouchRelease;
   protected boolean mIsRefreshing = false;
-  int mTouchSlop;
-  int mLastEventAction = ACTION_OUTSIDE;
-  List<RefreshListener> mRefreshListeners = new ArrayList<>();
+  protected int mTouchSlop;
+  protected int mLastEventAction = ACTION_OUTSIDE;
+  private List<RefreshListener> mRefreshListeners = new ArrayList<>();
 
-  public PullToRefreshScrollView(Context context) {
+  public PullToRefreshContainer(Context context) {
     super(context);
     init();
   }
 
-  public PullToRefreshScrollView(Context context, AttributeSet attrs) {
+  public PullToRefreshContainer(Context context, AttributeSet attrs) {
     super(context, attrs);
     init();
   }
 
-  public PullToRefreshScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public PullToRefreshContainer(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     init();
   }
@@ -84,14 +86,14 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
     Log.d(TAG, String.format("overScrollByCompat getScrollY() %s deltaY: %s", getScrollY(),
         deltaY));
     if (getScrollY() == 0 || (isTouchEvent && mMoveBeforeTouchRelease)) {
-      deltaY = tryConsume(deltaY, true);
+      deltaY = tryConsume(deltaY, ViewCompat.TYPE_NON_TOUCH);
       if (deltaY != 0 && mMoveBeforeTouchRelease) {
         float translationY = getRefreshTargetView().getTranslationY();
         float mayTranslationY = translationY - deltaY;
         if (mayTranslationY < 0) {
-          for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-            helper.tryConsumeScroll(deltaY);
-          }
+//          for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
+//            helper.tryConsumeScroll(deltaY);
+//          }
           return true;
         }
       }
@@ -160,17 +162,6 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
         });
   }
 
-
-  @Override
-  public void stopNestedScroll() {
-    super.stopNestedScroll();
-    Log.d(TAG, "stopNestedScroll:");
-    if (mLastEventAction == ACTION_UP || mLastEventAction == ACTION_CANCEL) {
-      adjustRefreshViewState();
-      mLastEventAction = ACTION_OUTSIDE;
-    }
-  }
-
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
     mLastEventAction = ev.getAction();
@@ -182,27 +173,35 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
   }
 
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-    int dyUnconsumed = dy - consumed[1];
-    Log.d(TAG, " onNestedPreScroll dyConsumed:" + consumed[1] + " dyUnconsumed:" + dyUnconsumed);
-    if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease)
-        && canHandleByHostScrollView(dyUnconsumed)) {
-      consumed[1] = dyUnconsumed - tryConsume(dyUnconsumed);
+  protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
+    int realConsumed = 0;
+    if (mScrollBlocks.indexOf(scrollBlock) == 0) {
+      // 第一个block就意味着处理pulltorefresh的最佳时机
+      if (isRefreshing()) {
+        // 强制停止fling
+        ((RecyclerView) target).stopScroll();
+        Log.d(TAG, " onNestedPreScroll stop fling");
+        realConsumed = unconsumed;
+        unconsumed = 0;
+      } else {
+        realConsumed = tryConsume(unconsumed, type);
+        unconsumed = unconsumed - realConsumed;
+        if (type == ViewCompat.TYPE_NON_TOUCH && unconsumed == 0) {
+          // 强制停止fling
+          ((RecyclerView) target).stopScroll();
+          Log.d(TAG, " onNestedPreScroll stop fling");
+        }
+      }
     }
-    super.onNestedPreScroll(target, dx, dy, consumed);
-    Log.d(TAG, "dy:" + dy + " consumed:" + consumed[1]);
+    return realConsumed + super.consumeSelfBlock(target, scrollBlock, unconsumed, type);
   }
 
   @Override
-  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int
-      dyUnconsumed) {
-    Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-    if (dyUnconsumed != 0 && (getScrollY() == 0 || mMoveBeforeTouchRelease) &&
-        canHandleByHostScrollView(dyUnconsumed)) {
-      dyUnconsumed = tryConsume(dyUnconsumed);
-    }
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+  protected void rebuildScrollBlocks() {
+    super.rebuildScrollBlocks();
+    mScrollBlocks.add(0, new ScrollBlock());
   }
+
 
   private boolean canTryMoveToStable() {
     float translationY = getRefreshTargetView().getTranslationY();
@@ -220,16 +219,21 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
   }
 
   @Override
-  public boolean startNestedScroll(int axes) {
-    boolean b = super.startNestedScroll(axes);
+  public boolean startNestedScroll(int axes, int type) {
+    boolean b = super.startNestedScroll(axes, type);
     Log.d(TAG, "startNestedScroll:" + b);
     return b;
   }
 
   @Override
-  public void onStopNestedScroll(View target) {
-    Log.d(TAG, "onStopNestedScroll");
-    super.onStopNestedScroll(target);
+  public void stopNestedScroll(int type) {
+    Log.d(TAG, "stopNestedScroll:" + type);
+    super.stopNestedScroll(type);
+    if (type == ViewCompat.TYPE_NON_TOUCH || mLastEventAction == ACTION_UP
+        || mLastEventAction == ACTION_CANCEL) {
+      adjustRefreshViewState();
+      mLastEventAction = ACTION_OUTSIDE;
+    }
   }
 
   public View getRefreshTargetView() {
@@ -242,43 +246,52 @@ public class PullToRefreshScrollView extends MultiRVScrollView {
 
   /**
    * @param dyUnconsumed
-   * @return dyUnconsumed
+   * @return consumed
    */
-  protected int tryConsume(int dyUnconsumed) {
-    return tryConsume(dyUnconsumed, false);
+  protected int tryConsume(int dyUnconsumed, int type) {
+    // 刷新状态下,优先滚动整个ScrollView
+    if (isRefreshing()) {
+      return dyUnconsumed;
+    }
+    int dampConsumed = dampConsume(dyUnconsumed, type);
+    dyUnconsumed = dyUnconsumed - dampConsumed;
+    // dyUnconsumed和translationY的方向是相反的
+    float translationY = getRefreshTargetView().getTranslationY();
+    float mayTranslationY = translationY - dyUnconsumed;
+    if (translationY - dyUnconsumed >= getLoadingMaxOffsetY()) {
+      mayTranslationY = getLoadingMaxOffsetY();
+    }
+    mayTranslationY = Math.max(0, mayTranslationY);
+    Log.d(TAG, "translationY:" + translationY);
+    getRefreshLoadingView().cancelAnimation();
+    getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) mayTranslationY,
+        IRefreshLoadingView.MoveType.TOUCH);
+    getRefreshTargetView().setTranslationY(mayTranslationY);
+    return dampConsumed + (int) (translationY - getRefreshTargetView().getTranslationY());
   }
 
   /**
+   * You can custom damp logic here
+   *
    * @param dyUnconsumed
-   * @return dyUnconsumed
+   * @param type Touch Type
+   * @return dampConsumed
    */
-  protected int tryConsume(int dyUnconsumed, boolean limitMaxTranslationY) {
+  protected int dampConsume(int dyUnconsumed, int type) {
+    if (dyUnconsumed > 0) {
+      return 0;
+    }
     float translationY = getRefreshTargetView().getTranslationY();
-    float mayTranslationY = translationY - dyUnconsumed;
-    if (limitMaxTranslationY
-        && translationY >= getRefreshLoadingView().getRefreshTriggerHeight()) {
-      mayTranslationY = translationY;
+    int maxTranslationY = getLoadingMaxOffsetY();
+    float dampRatio = Math.abs(translationY * 1f / maxTranslationY);
+    if (type == ViewCompat.TYPE_NON_TOUCH) {
+      dampRatio = Math.min(dampRatio * 2, 1);
     }
-    if (mayTranslationY > 0 && getScrollY() == 0) {
-      mMoveBeforeTouchRelease = true;
-    }
-    if (mMoveBeforeTouchRelease) {
-      if (getScrollY() > 0) {
-        int oldScroll = getScrollY();
-        scrollBy(0, dyUnconsumed);
-        int scroll = getScrollY();
-        dyUnconsumed -= scroll - oldScroll;
-        mayTranslationY = translationY - dyUnconsumed;
-        Log.d(TAG, "scrollBy BeforeTouchRelease:" + (scroll - oldScroll));
-      }
-      translationY = Math.max(0, mayTranslationY);
-      Log.d(TAG, "translationY:" + translationY);
-      getRefreshLoadingView().cancelAnimation();
-      getRefreshLoadingView().setVisibleHeight(getRefreshTargetView(), (int) translationY, IRefreshLoadingView.MoveType.TOUCH);
-      getRefreshTargetView().setTranslationY(translationY);
-      return (int) (translationY - mayTranslationY);
-    }
-    return dyUnconsumed;
+    return (int) (dampRatio * dyUnconsumed);
+  }
+
+  protected int getLoadingMaxOffsetY() {
+    return getRefreshLoadingView().getRefreshTriggerHeight() * 2;
   }
 
   public interface RefreshListener {

@@ -7,7 +7,9 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollViewExtend;
+import android.support.v7.widget.RVScrollViewUtils;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -24,6 +27,8 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   static final String TAG = MultiRVScrollView.class.getSimpleName();
   private final List<OnScrollChangeListener> mListeners = new ArrayList<>();
   protected List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
+  protected boolean mNonTouchScrollStarted;
+  protected LinkedList<ScrollBlock> mScrollBlocks = new LinkedList<>();
 
   public MultiRVScrollView(Context context) {
     this(context, null);
@@ -35,6 +40,16 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
 
   public MultiRVScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+  }
+
+  @Override
+  public void onViewAdded(View child) {
+    super.onViewAdded(child);
+  }
+
+  @Override
+  public void onViewRemoved(View child) {
+    super.onViewRemoved(child);
   }
 
   @Override
@@ -147,21 +162,25 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     return 0;
   }
 
-  public void takeOverScrollBehavior(@NonNull RecyclerView recyclerView) {
+  public void takeOverScrollBehavior(@NonNull final RecyclerView recyclerView) {
     final NestRecyclerViewHelper nestRecyclerViewHelper =
         new NestRecyclerViewHelper(recyclerView, this);
     mNestRecyclerViewHelpers.add(nestRecyclerViewHelper);
-    if (getHeight() > 0) {
-      fitRecyclerViewHeight();
-    } else {
+    if (getHeight() == 0) {
+      // 由于第一次measure时,ScrollView高度为0,
+      // 所以CoordinateScrollRecyclerView的Measure不能准确校准,
+      // 所以需要手动触发layout
       getViewTreeObserver()
           .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
               getViewTreeObserver().removeGlobalOnLayoutListener(this);
-              fitRecyclerViewHeight();
+              recyclerView.requestLayout();
+              rebuildScrollBlocks();
             }
           });
+    } else {
+      rebuildScrollBlocks();
     }
   }
 
@@ -170,10 +189,10 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     while (iterator.hasNext()) {
       final NestRecyclerViewHelper next = iterator.next();
       if (next.mNestedRecyclerView == recyclerView) {
-        next.removeLayoutChangeRelationship();
         iterator.remove();
       }
     }
+    rebuildScrollBlocks();
   }
 
   public boolean hasTakeOver(@NonNull RecyclerView recyclerView) {
@@ -218,56 +237,174 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
   }
 
   @Override
-  public boolean startNestedScroll(int axes) {
-    Log.d(TAG, "startNestedScroll axes:" + axes);
-    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.startNestedScroll(axes);
-    }
-    return super.startNestedScroll(axes);
+  public boolean startNestedScroll(int axes, int type) {
+    Log.d(TAG, "startNestedScroll axes:" + axes + " type" + type);
+    return super.startNestedScroll(axes, type);
   }
 
   @Override
-  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-    Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
-    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.onNestedPreScroll(target, dx, dy, consumed);
+  public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes, int type) {
+    if (!getScroller().isFinished()) {
+      Log.d(TAG, "onStartNestedScroll scroll not finished");
     }
-    super.onNestedPreScroll(target, dx, dy, consumed);
+    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
+      if (helper.mNestedRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+        helper.mNestedRecyclerView.stopScroll();
+        Log.d(TAG, helper.mNestedRecyclerView + " onStartNestedScroll mNestedRecyclerView " +
+            "stopScroll");
+      }
+    }
+    if (type == ViewCompat.TYPE_NON_TOUCH) {
+      mNonTouchScrollStarted = true;
+      Log.d(TAG, "mNonTouchScrollStarted");
+    }
+    return true;
+  }
+
+  @Override
+  public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {
+    Log.d(TAG, "onNestedScrollAccepted type" + type);
+    super.onNestedScrollAccepted(child, target, nestedScrollAxes, type);
+
+  }
+
+  @Override
+  public void stopNestedScroll(int type) {
+    Log.d(TAG, "stopNestedScroll type" + type);
+    super.stopNestedScroll(type);
+  }
+
+  @Override
+  public void onStopNestedScroll(@NonNull View target, int type) {
+    super.onStopNestedScroll(target, type);
+    if (type == ViewCompat.TYPE_NON_TOUCH) {
+      mNonTouchScrollStarted = false;
+      Log.d(TAG, "mNonTouchScrollStarted end");
+    }
+  }
+
+  @Override
+  public boolean hasNestedScrollingParent(int type) {
+    return super.hasNestedScrollingParent(type);
+  }
+
+  @Override
+  public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
+    Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
+    super.onNestedPreScroll(target, dx, dy, consumed, type);
+  }
+
+  @Override
+  public void fling(int velocityY) {
+    Log.d(TAG, "srcollView self fling");
+    if (mNestRecyclerViewHelpers.size() > 0) {
+      mNestRecyclerViewHelpers.get(0).mNestedRecyclerView.fling(0, velocityY);
+    } else {
+      super.fling(velocityY);
+    }
   }
 
   @Override
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
-                             int dyUnconsumed) {
-    Log.d(TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed);
-    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-    }
-    super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-    if (dyConsumed == 0 && dyUnconsumed > 0) {
+                             int dyUnconsumed, int type) {
+    int[] consumed = new int[]{dxConsumed, dyConsumed};
+    int[] unconsumed = new int[]{dxUnconsumed, dyUnconsumed};
+    Log.d(TAG, target + "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" +
+        dyUnconsumed);
+    // dyConsumed 是rv已经scroll过的,dyUnconsumed是剩余需要处理的,
+    // 这个时候如果dyConsumed==0,说明当前RV已经触底
+    // dyConsumed != 0 说明RV可以滚动,需要反向把RV的滚动距离回滚回来
+    // 如果dyUnconsumed!=0, dyConsumed == 0 说明ScrollView已经触底,需要触发其他RV的滚动
+
+    // 考虑如下情况
+    // -----
+    // A
+    // ==
+    // B
+    // -----
+    // 分为四种情况:
+    // 1.在A处往上滑动 滚到头  consumed[1] == 0 && unconsumed[1] > 0 未到头 consumed[1] > 0 && unconsumed[1]
+    // == 0
+    // 2.在A处往下滑动 滚到头  consumed[1] < 0 && unconsumed[1] == 0
+    // 3.在B处往上滑动 滚到头  consumed[1] > 0 && unconsumed[1] == 0 未到头 consumed[1] == 0 && unconsumed[1]
+    // > 0
+    // 4.在B处往下滑动 滚到头  consumed[1] == 0 && unconsumed[1] < 0
+
+    // 先把RecyclerView滚动的距离处理掉
+    int reverseScroll = -RVScrollViewUtils.scrollVerticallyBy((RecyclerView) target,
+        -consumed[1]);
+    consumed[1] -= reverseScroll;
+    unconsumed[1] += reverseScroll;
+    // 按照顺序消费 Scroll
+    drainScrollY(target, consumed, unconsumed, type);
+    super.onNestedScroll(target, consumed[0], consumed[1], unconsumed[0], unconsumed[1], type);
+    if (consumed[1] == 0 && unconsumed[1] > 0) {
       onBottomEdgePull(getWidth() / 2, dyUnconsumed);
       postInvalidate();
     }
   }
 
-  @Override
-  public boolean onNestedPreFling(View target, float velocityX, final float velocityY) {
-    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      if (helper.onNestedPreFling(target, velocityX, velocityY)) {
-        return true;
+  private void drainScrollY(View target, int[] consumed, int[] unconsumed, int type) {
+    if (unconsumed[1] > 0) {
+      for (int i = 0; i < mScrollBlocks.size(); i++) {
+        if (doDrain(target, consumed, unconsumed, i, type)) break;
+      }
+    } else if (unconsumed[1] < 0) {
+      for (int i = mScrollBlocks.size() - 1; i >= 0; i--) {
+        if (doDrain(target, consumed, unconsumed, i, type)) break;
       }
     }
-    return super.onNestedPreFling(target, velocityX, velocityY);
   }
+
+  private boolean doDrain(View target, int[] consumed, int[] unconsumed, int i, int type) {
+    ScrollBlock scrollBlock = mScrollBlocks.get(i);
+    if (scrollBlock.type == ScrollBlock.BlockType.Self) {
+      int realScroll = consumeSelfBlock(target, scrollBlock, unconsumed[1], type);
+      consumed[1] += realScroll;
+      unconsumed[1] -= realScroll;
+      return unconsumed[1] == 0;
+    } else if (scrollBlock.type == ScrollBlock.BlockType.RecyclerView) {
+      if (scrollBlock.recyclerView.isNestedScrollingEnabled()) {
+        int scroll = consumeRecyclerViewBlock(target, scrollBlock, unconsumed[1], type);
+        consumed[1] += scroll;
+        unconsumed[1] -= scroll;
+        return unconsumed[1] == 0;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * @param unconsumed
+   * @return consumed by current block
+   */
+  protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
+    Log.d(TAG, "try consume " + unconsumed + "by self");
+    int oldScrollY = getScrollY();
+    scrollBy(0, unconsumed);
+    int realScroll = getScrollY() - oldScrollY;
+    Log.d(TAG, "self consume" + realScroll);
+    return realScroll;
+  }
+
+  /**
+   * @param unconsumed
+   * @return consumed by current block
+   */
+  protected int consumeRecyclerViewBlock(View target, ScrollBlock scrollBlock, int unconsumed,
+                                         int type) {
+    Log.d(TAG, "try consume" + unconsumed + " by recyclerView" + scrollBlock.recyclerView);
+    int scroll = RVScrollViewUtils.scrollVerticallyBy(scrollBlock.recyclerView,
+        unconsumed);
+    Log.d(TAG, "recyclerView consume " + scroll);
+    return scroll;
+  }
+
 
   @Override
   protected void onFlingStop() {
     Log.d(TAG, "onFlingStop: scrollY " + getScrollY());
-    for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      if (helper.onFlingStop(getScrollY(), getScrollY() >=
-          computeVerticalScrollRange() - computeVerticalScrollExtent())) {
-        break;
-      }
-    }
     super.onFlingStop();
   }
 
@@ -275,12 +412,27 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     return getHeight();
   }
 
-  private void fitRecyclerViewHeight() {
+
+  protected void rebuildScrollBlocks() {
+    mScrollBlocks.clear();
+    int blockOffsetCursor = 0;
     for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-      helper.fitRecyclerViewHeight();
+      if (helper.getRecyclerViewPartTop() > blockOffsetCursor) {
+        mScrollBlocks.add(new ScrollBlock());
+        blockOffsetCursor = helper.getRecyclerViewPartTop();
+      }
+      mScrollBlocks.add(new ScrollBlock(helper.mNestedRecyclerView));
+    }
+    if (mNestRecyclerViewHelpers.size() > 0) {
+      // 如果列表不是最后一个block,则需要补齐一个Self的block
+      NestRecyclerViewHelper lastNRVH = mNestRecyclerViewHelpers.get
+          (mNestRecyclerViewHelpers.size() - 1);
+      if (lastNRVH.getRecyclerViewPartTop() + lastNRVH.mNestedRecyclerView.getHeight() <
+          getScrollRange()) {
+        mScrollBlocks.add(new ScrollBlock());
+      }
     }
   }
-
 
   public static class LayoutParams extends FrameLayout.LayoutParams {
     public static final int ACTION_TYPE_NONE = 0;

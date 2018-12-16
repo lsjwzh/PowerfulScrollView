@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.support.android.designlibdemo;
+package com.support.android.designlibdemo.zoom;
 
 import android.os.Bundle;
-import android.support.design.widget.PullToZoomContainer;
+import com.lsjwzh.widget.PullToZoomContainer;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;

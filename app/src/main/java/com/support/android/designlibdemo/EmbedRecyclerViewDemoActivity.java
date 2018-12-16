@@ -17,7 +17,7 @@
 package com.support.android.designlibdemo;
 
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,35 +29,54 @@ import com.bumptech.glide.Glide;
 import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
 
 public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
+  public static final String MODE = "mode";
+
   MultiRVScrollView mMultiRVScrollView;
-  RecyclerView mRecyclerView;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.embed_rv_demo);
+    String mode = getIntent().getStringExtra(MODE);
+    if (mode.equals(MainActivity.BANNER_LIST)) {
+      setContentView(R.layout.banner_list_demo);
+      mMultiRVScrollView = findViewById(R.id.main_content);
+      setupRecyclerView(R.id.recyclerview2, "[list1]");
+    } else if (mode.equals(MainActivity.LIST_LIST)) {
+      setContentView(R.layout.list_list_demo);
+      mMultiRVScrollView = findViewById(R.id.main_content);
+      setupRecyclerView(R.id.recyclerview, "[list1]");
+      setupRecyclerView(R.id.recyclerview2, "[list2]");
+    } else if (mode.equals(MainActivity.LIST_BANNER_LIST)) {
+      setContentView(R.layout.list_banner_list_demo);
+      mMultiRVScrollView = findViewById(R.id.main_content);
+      setupRecyclerView(R.id.recyclerview, "[list1]");
+      setupRecyclerView(R.id.recyclerview2, "[list2]");
+    }
     loadBackdrop();
-    mMultiRVScrollView = (MultiRVScrollView) findViewById(R.id.main_content);
-    mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-    mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
-    mRecyclerView.setAdapter(new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(Cheeses.sCheeseStrings, 200)));
-    mMultiRVScrollView.takeOverScrollBehavior(mRecyclerView);
-    new Handler().postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        mRecyclerView.smoothScrollToPosition(0);
-      }
-    }, 3000);
+  }
+
+  private void setupRecyclerView(int id, String prefix) {
+    RecyclerView recyclerView = findViewById(id);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    recyclerView.setAdapter(getAdapter(prefix));
+    mMultiRVScrollView.takeOverScrollBehavior(recyclerView);
+  }
+
+  @NonNull
+  private SimpleStringRecyclerViewAdapter getAdapter(String prefix) {
+    return new SimpleStringRecyclerViewAdapter(this,
+        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 50));
   }
 
   private void loadBackdrop() {
     final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+    if (imageView == null) {
+      return;
+    }
     Glide.with(this).load(Cheeses.getRandomCheeseDrawable()).centerCrop().into(imageView);
     imageView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        mRecyclerView.smoothScrollToPosition(10);
       }
     });
   }
