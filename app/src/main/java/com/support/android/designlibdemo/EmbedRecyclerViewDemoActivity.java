@@ -26,12 +26,12 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.lsjwzh.widget.multirvcontainer.MultiRVScrollView;
+import com.lsjwzh.widget.powerfulscrollview.PowerfulScrollView;
 
 public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
   public static final String MODE = "mode";
 
-  MultiRVScrollView mMultiRVScrollView;
+  PowerfulScrollView mMultiRVScrollView;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {

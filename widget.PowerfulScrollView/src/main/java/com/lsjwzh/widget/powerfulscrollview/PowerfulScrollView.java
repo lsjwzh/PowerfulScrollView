@@ -1,4 +1,4 @@
-package com.lsjwzh.widget.multirvcontainer;
+package com.lsjwzh.widget.powerfulscrollview;
 
 
 import android.content.Context;
@@ -23,22 +23,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class MultiRVScrollView extends NestedScrollViewExtend {
-  static final String TAG = MultiRVScrollView.class.getSimpleName();
+public class PowerfulScrollView extends NestedScrollViewExtend {
+  static final String TAG = PowerfulScrollView.class.getSimpleName();
   private final List<OnScrollChangeListener> mListeners = new ArrayList<>();
   protected List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
   protected boolean mNonTouchScrollStarted;
   protected LinkedList<ScrollBlock> mScrollBlocks = new LinkedList<>();
 
-  public MultiRVScrollView(Context context) {
+  public PowerfulScrollView(Context context) {
     this(context, null);
   }
 
-  public MultiRVScrollView(Context context, AttributeSet attrs) {
+  public PowerfulScrollView(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public MultiRVScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public PowerfulScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
   }
 
@@ -449,11 +449,11 @@ public class MultiRVScrollView extends NestedScrollViewExtend {
     public LayoutParams(@NonNull Context c, @Nullable AttributeSet attrs) {
       super(c, attrs);
       final TypedArray a
-          = c.obtainStyledAttributes(attrs, R.styleable.MultiRVScrollView_Layout);
+          = c.obtainStyledAttributes(attrs, R.styleable.PowerfulScrollView_Layout);
       actionType
-          = a.getInt(R.styleable.MultiRVScrollView_Layout_actionType, ACTION_TYPE_NONE);
+          = a.getInt(R.styleable.PowerfulScrollView_Layout_actionType, ACTION_TYPE_NONE);
       stickyCopyView
-          = a.getResourceId(R.styleable.MultiRVScrollView_Layout_stickyCopyView, View.NO_ID);
+          = a.getResourceId(R.styleable.PowerfulScrollView_Layout_stickyCopyView, View.NO_ID);
       a.recycle();
     }
 

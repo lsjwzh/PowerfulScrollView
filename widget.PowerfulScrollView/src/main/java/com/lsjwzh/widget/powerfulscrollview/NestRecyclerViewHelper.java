@@ -1,4 +1,4 @@
-package com.lsjwzh.widget.multirvcontainer;
+package com.lsjwzh.widget.powerfulscrollview;
 
 
 import android.support.v7.widget.RecyclerView;
@@ -6,12 +6,12 @@ import android.view.View;
 
 public class NestRecyclerViewHelper {
   private static final String TAG = NestRecyclerViewHelper.class.getSimpleName();
-  final MultiRVScrollView mHostScrollView;
+  final PowerfulScrollView mHostScrollView;
   public RecyclerView mNestedRecyclerView;
   private View mChildContainsRecyclerView;
 
   NestRecyclerViewHelper(RecyclerView recyclerView,
-                         MultiRVScrollView scrollView) {
+                         PowerfulScrollView scrollView) {
     mNestedRecyclerView = recyclerView;
     mHostScrollView = scrollView;
 

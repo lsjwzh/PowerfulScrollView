@@ -16,12 +16,12 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
-      <com.lsjwzh.widget.multirvcontainer.AutoExtendRecyclerView
+      <com.lsjwzh.widget.powerfulscrollview.AutoExtendRecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:overScrollMode="never">
-      </com.lsjwzh.widget.multirvcontainer.AutoExtendRecyclerView>
+      </com.lsjwzh.widget.powerfulscrollview.AutoExtendRecyclerView>
     </FrameLayout>
 
     <FrameLayout

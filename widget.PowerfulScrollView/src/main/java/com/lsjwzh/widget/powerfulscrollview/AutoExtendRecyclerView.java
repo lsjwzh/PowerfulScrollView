@@ -1,25 +1,24 @@
-package com.lsjwzh.widget.multirvcontainer;
+package com.lsjwzh.widget.powerfulscrollview;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 
 /**
  * Make RecyclerView.scrollToPosition works well in MultiRVScrollView.
  */
-public class AutoMatchRecyclerView extends RecyclerView {
-  public AutoMatchRecyclerView(Context context) {
+public class AutoExtendRecyclerView extends RecyclerView {
+  public AutoExtendRecyclerView(Context context) {
     super(context);
   }
 
-  public AutoMatchRecyclerView(Context context, @Nullable AttributeSet attrs) {
+  public AutoExtendRecyclerView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
   }
 
-  public AutoMatchRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+  public AutoExtendRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
   }
 
@@ -35,7 +34,7 @@ public class AutoMatchRecyclerView extends RecyclerView {
 
   @Override
   protected void onMeasure(int widthSpec, int heightSpec) {
-    MultiRVScrollView multiRVScrollView = findMultiRVScrollView();
+    PowerfulScrollView multiRVScrollView = findMultiRVScrollView();
     super.onMeasure(widthSpec, heightSpec);
     if (multiRVScrollView != null && multiRVScrollView.getHeight() > 0
         && getMeasuredHeight() > multiRVScrollView.getHeight()) {
@@ -43,24 +42,11 @@ public class AutoMatchRecyclerView extends RecyclerView {
       getLayoutParams().height = multiRVScrollView.getHeight();
       heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getHeight(), MeasureSpec.EXACTLY);
       super.onMeasure(widthSpec, heightSpec);
-    } else if (multiRVScrollView != null && multiRVScrollView.getHeight() > 0) {
-      // match gap in multiRVScrollView
-      int topOffset = getTop();
-      ViewGroup parent = (ViewGroup) getParent();
-      while (parent != null) {
-        topOffset += parent.getTop();
-        if (parent == multiRVScrollView) {
-          break;
-        }
-        parent = (ViewGroup) parent.getParent();
-      }
-      int gapInScrollView = multiRVScrollView.getHeight() - topOffset;
-      setMeasuredDimension(getMeasuredWidth(), gapInScrollView);
     }
   }
 
   private void scrollToPositionInternal(int position, boolean isSmooth) {
-    MultiRVScrollView multiRVScrollView = findMultiRVScrollView();
+    PowerfulScrollView multiRVScrollView = findMultiRVScrollView();
     if (multiRVScrollView != null && multiRVScrollView.isCoordinatedWith(this)
         && getChildCount() > 0) {
       ViewHolder childViewHolder = getChildViewHolder(getChildAt(getChildCount() - 1));
@@ -87,17 +73,17 @@ public class AutoMatchRecyclerView extends RecyclerView {
 
   private void rvScrollToPosition(int position, boolean isSmooth) {
     if (isSmooth) {
-      AutoMatchRecyclerView.super.smoothScrollToPosition(position);
+      AutoExtendRecyclerView.super.smoothScrollToPosition(position);
     } else {
-      AutoMatchRecyclerView.super.scrollToPosition(position);
+      AutoExtendRecyclerView.super.scrollToPosition(position);
     }
   }
 
-  private MultiRVScrollView findMultiRVScrollView() {
+  private PowerfulScrollView findMultiRVScrollView() {
     ViewParent parent = getParent();
     while (parent != null) {
-      if (parent instanceof MultiRVScrollView) {
-        return (MultiRVScrollView) parent;
+      if (parent instanceof PowerfulScrollView) {
+        return (PowerfulScrollView) parent;
       }
       parent = parent.getParent();
     }
