@@ -20,7 +20,13 @@ public class NestRecyclerViewHelper {
     mNestedRecyclerView.setFocusable(false);
     mNestedRecyclerView.setNestedScrollingEnabled(true);
     mNestedRecyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-    mChildContainsRecyclerView = findDirectChildContainsRecyclerView();
+  }
+
+  View getDirectChildContainsRecyclerView() {
+    if (mChildContainsRecyclerView == null) {
+      findDirectChildContainsRecyclerView();
+    }
+    return mChildContainsRecyclerView;
   }
 
   boolean canHandleByHostScrollView(int dy) {
@@ -46,9 +52,10 @@ public class NestRecyclerViewHelper {
   }
 
   int getRecyclerViewPartTop() {
-    return (int) (mChildContainsRecyclerView == null
+    final View directChildContainsRecyclerView = getDirectChildContainsRecyclerView();
+    return (int) (directChildContainsRecyclerView == null
         ? mNestedRecyclerView.getTop() + mNestedRecyclerView.getTranslationY()
-        : mChildContainsRecyclerView.getTop() + mChildContainsRecyclerView.getTranslationY()
+        : directChildContainsRecyclerView.getTop() + directChildContainsRecyclerView.getTranslationY()
         + mNestedRecyclerView.getTop() + mNestedRecyclerView.getTranslationY());
   }
 
