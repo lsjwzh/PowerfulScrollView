@@ -9,6 +9,10 @@ import java.lang.reflect.Field;
 
 public class RVScrollViewUtils {
 
+  public static void setScrollState(RecyclerView recyclerView, int state) {
+    recyclerView.setScrollState(state);
+  }
+
   public static int scrollVerticallyBy(RecyclerView recyclerView, int scroll) {
     return recyclerView.getLayoutManager()
         .scrollVerticallyBy(scroll, recyclerView.mRecycler, recyclerView.mState);

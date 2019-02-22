@@ -24,6 +24,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.lsjwzh.widget.powerfulscrollview.PowerfulScrollView;
@@ -65,7 +66,18 @@ public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
   @NonNull
   private SimpleStringRecyclerViewAdapter getAdapter(String prefix) {
     return new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 50));
+        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 50)) {
+      @Override
+      public void onBindViewHolder(ViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            Toast.makeText(v.getContext(), "test", Toast.LENGTH_SHORT).show();
+          }
+        });
+      }
+    };
   }
 
   private void loadBackdrop() {

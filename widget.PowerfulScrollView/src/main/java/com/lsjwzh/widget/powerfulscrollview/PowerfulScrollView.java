@@ -13,6 +13,7 @@ import android.support.v7.widget.RVScrollViewUtils;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -29,6 +30,7 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
   protected List<NestRecyclerViewHelper> mNestRecyclerViewHelpers = new ArrayList<>();
   protected boolean mNonTouchScrollStarted;
   protected LinkedList<ScrollBlock> mScrollBlocks = new LinkedList<>();
+  protected RecyclerView mScrollingRecyclerViewWhenActionDown;
 
   public PowerfulScrollView(Context context) {
     this(context, null);
@@ -72,6 +74,36 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
   }
 
   @Override
+  public boolean dispatchTouchEvent(MotionEvent ev) {
+    // 避免在手动停止fling时，触发RecyclerViewItem的click或者touch事件
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+      for (NestRecyclerViewHelper next : mNestRecyclerViewHelpers) {
+        if (next.mNestedRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+          mScrollingRecyclerViewWhenActionDown = next.mNestedRecyclerView;
+          Log.d(TAG,
+                  "set mScrollingRecyclerViewWhenActionDown " + mScrollingRecyclerViewWhenActionDown.getScrollState());
+        }
+      }
+    } else if (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_CANCEL) {
+      if (mScrollingRecyclerViewWhenActionDown != null) {
+        mScrollingRecyclerViewWhenActionDown = null;
+        Log.d(TAG, "release mScrollingRecyclerViewWhenActionDown");
+        return true;
+      }
+    }
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    if (mScrollingRecyclerViewWhenActionDown != null) {
+      mScrollingRecyclerViewWhenActionDown.onInterceptTouchEvent(ev);
+      return true;
+    }
+    return super.onInterceptTouchEvent(ev);
+  }
+
+    @Override
   protected void onScrollChanged(int l, int t, int oldl, int oldt) {
     super.onScrollChanged(l, t, oldl, oldt);
     int childCount = getChildCount();
@@ -238,8 +270,9 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
 
   @Override
   public boolean startNestedScroll(int axes, int type) {
-    Log.d(TAG, "startNestedScroll axes:" + axes + " type" + type);
-    return super.startNestedScroll(axes, type);
+    final boolean ret = super.startNestedScroll(axes, type);
+    Log.d(TAG, "startNestedScroll axes:" + axes + " type" + type + " ret" + ret);
+    return ret;
   }
 
   @Override
