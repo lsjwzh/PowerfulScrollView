@@ -24,7 +24,7 @@ public class NestRecyclerViewHelper {
 
   View getDirectChildContainsRecyclerView() {
     if (mChildContainsRecyclerView == null) {
-      findDirectChildContainsRecyclerView();
+      mChildContainsRecyclerView = findDirectChildContainsRecyclerView();
     }
     return mChildContainsRecyclerView;
   }
