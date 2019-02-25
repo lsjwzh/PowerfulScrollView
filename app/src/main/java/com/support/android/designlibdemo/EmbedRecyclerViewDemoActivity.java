@@ -71,7 +71,7 @@ public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
   @NonNull
   private SimpleStringRecyclerViewAdapter getAdapter(String prefix) {
     return new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 4)) {
+        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 300)) {
       @Override
       public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);

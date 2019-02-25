@@ -45,16 +45,6 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     }
 
     @Override
-    public void onViewAdded(View child) {
-        super.onViewAdded(child);
-    }
-
-    @Override
-    public void onViewRemoved(View child) {
-        super.onViewRemoved(child);
-    }
-
-    @Override
     protected LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT);
@@ -87,20 +77,9 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
         } else if (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_CANCEL) {
             if (mScrollingRecyclerViewWhenActionDown != null) {
                 mScrollingRecyclerViewWhenActionDown = null;
-                Log.d(TAG, "release mScrollingRecyclerViewWhenActionDown");
-                return true;
             }
         }
         return super.dispatchTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (mScrollingRecyclerViewWhenActionDown != null) {
-            mScrollingRecyclerViewWhenActionDown.onInterceptTouchEvent(ev);
-            return true;
-        }
-        return super.onInterceptTouchEvent(ev);
     }
 
     @Override
@@ -281,7 +260,7 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
             Log.d(TAG, "onStartNestedScroll scroll not finished");
         }
         for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-            if (helper.mNestedRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            if (helper.mNestedRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_SETTLING) {
                 helper.mNestedRecyclerView.stopScroll();
                 Log.d(TAG, helper.mNestedRecyclerView + " onStartNestedScroll mNestedRecyclerView " +
                         "stopScroll");
@@ -325,11 +304,6 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
         Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
         super.onNestedPreScroll(target, dx, dy, consumed, type);
-    }
-
-    @Override
-    public void requestLayout() {
-        super.requestLayout();
     }
 
     @Override
