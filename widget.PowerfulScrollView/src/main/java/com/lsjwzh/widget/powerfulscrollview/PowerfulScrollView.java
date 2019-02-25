@@ -64,6 +64,13 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // 先设置setMeasuredDimension，避免子View在onMeasure过程中无法获取PowerfulScrollView的高宽
+        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         // 避免在手动停止fling时，触发RecyclerViewItem的click或者touch事件
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
