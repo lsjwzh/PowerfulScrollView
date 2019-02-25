@@ -51,12 +51,13 @@ public class AutoMeasureRecyclerView extends RecyclerView {
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         PowerfulScrollView multiRVScrollView = findMultiRVScrollView();
-        if (multiRVScrollView != null && multiRVScrollView.getMeasuredHeight() > 0) {
-            heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getMeasuredHeight(),
-                    MeasureSpec.EXACTLY);
-        }
         if (heightSpec == 0) {
             heightSpec = MeasureSpec.makeMeasureSpec(getSuggestedMinimumHeight(),
+                    MeasureSpec.EXACTLY);
+        }
+        if (MeasureSpec.getSize(heightSpec) == 0 &&
+                multiRVScrollView != null && multiRVScrollView.getMeasuredHeight() > 0) {
+            heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getMeasuredHeight(),
                     MeasureSpec.EXACTLY);
         }
         super.onMeasure(widthSpec, heightSpec);
