@@ -17,12 +17,12 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
-      <com.lsjwzh.widget.powerfulscrollview.AutoExtendRecyclerView
+      <com.lsjwzh.widget.powerfulscrollview.AutoMatchRecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:overScrollMode="never">
-      </com.lsjwzh.widget.powerfulscrollview.AutoExtendRecyclerView>
+      </com.lsjwzh.widget.powerfulscrollview.AutoMatchRecyclerView>
     </FrameLayout>
 
     <ImageView
@@ -35,12 +35,12 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
-      <com.lsjwzh.widget.powerfulscrollview.AutoExtendRecyclerView
+      <com.lsjwzh.widget.powerfulscrollview.AutoMatchRecyclerView
         android:id="@+id/recyclerview2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:overScrollMode="never">
-      </com.lsjwzh.widget.powerfulscrollview.AutoExtendRecyclerView>
+      </com.lsjwzh.widget.powerfulscrollview.AutoMatchRecyclerView>
     </FrameLayout>
 
 

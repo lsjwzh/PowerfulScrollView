@@ -328,6 +328,11 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
   }
 
   @Override
+  public void requestLayout() {
+    super.requestLayout();
+  }
+
+  @Override
   public void fling(int velocityY) {
     Log.d(TAG, "srcollView self fling");
     if (mNestRecyclerViewHelpers.size() > 0) {

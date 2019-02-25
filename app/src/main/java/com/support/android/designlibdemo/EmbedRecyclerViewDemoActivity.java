@@ -58,7 +58,12 @@ public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
 
   private void setupRecyclerView(int id, String prefix) {
     RecyclerView recyclerView = findViewById(id);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    recyclerView.setLayoutManager(new LinearLayoutManager(this){
+      @Override
+      public boolean isAutoMeasureEnabled() {
+        return true;
+      }
+    });
     recyclerView.setAdapter(getAdapter(prefix));
     mMultiRVScrollView.takeOverScrollBehavior(recyclerView);
   }
@@ -66,7 +71,7 @@ public class EmbedRecyclerViewDemoActivity extends AppCompatActivity {
   @NonNull
   private SimpleStringRecyclerViewAdapter getAdapter(String prefix) {
     return new SimpleStringRecyclerViewAdapter(this,
-        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 50)) {
+        DemoUtils.getRandomSublist(prefix, Cheeses.sCheeseStrings, 4)) {
       @Override
       public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);

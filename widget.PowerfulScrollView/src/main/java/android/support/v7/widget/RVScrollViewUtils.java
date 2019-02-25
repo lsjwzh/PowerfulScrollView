@@ -9,13 +9,34 @@ import java.lang.reflect.Field;
 
 public class RVScrollViewUtils {
 
+  public static void setMeasureSpecs(RecyclerView.LayoutManager layoutManager, int wSpec, int hSpec) {
+    layoutManager.setMeasureSpecs(wSpec, hSpec);
+  }
+
+  public static RecyclerView.Recycler getRecycler(RecyclerView recyclerView) {
+    return recyclerView.mRecycler;
+  }
+
+  public static RecyclerView.State getState(RecyclerView recyclerView) {
+    return recyclerView.mState;
+  }
+
   public static void setScrollState(RecyclerView recyclerView, int state) {
     recyclerView.setScrollState(state);
   }
 
   public static int scrollVerticallyBy(RecyclerView recyclerView, int scroll) {
-    return recyclerView.getLayoutManager()
-        .scrollVerticallyBy(scroll, recyclerView.mRecycler, recyclerView.mState);
+    final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+    if (layoutManager == null) {
+      return 0;
+    }
+    // 如果不使用startInterceptRequestLayout/stopInterceptRequestLayout
+    // 会导致RecyclerView频繁触发requestLayout
+    recyclerView.startInterceptRequestLayout();
+    final int scrollVerticallyBy = layoutManager
+            .scrollVerticallyBy(scroll, recyclerView.mRecycler, recyclerView.mState);
+    recyclerView.stopInterceptRequestLayout(false);
+    return scrollVerticallyBy;
   }
 
   public static boolean isTopOverScrolled(RecyclerView recyclerView) {
