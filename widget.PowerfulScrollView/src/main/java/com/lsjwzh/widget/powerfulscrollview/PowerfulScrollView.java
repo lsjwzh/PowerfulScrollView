@@ -401,6 +401,19 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     protected int consumeSelfBlock(View target, ScrollBlock scrollBlock, int unconsumed, int type) {
         Log.d(TAG, "try consume " + unconsumed + "by self");
         int oldScrollY = getScrollY();
+        if (target instanceof RecyclerView) {
+            for (NestRecyclerViewHelper recyclerViewHelper : mNestRecyclerViewHelpers) {
+                if (recyclerViewHelper.mNestedRecyclerView == target) {
+                    final int diff = recyclerViewHelper.getRecyclerViewPartTop() - oldScrollY;
+                    if (diff * unconsumed > 0 && Math.abs(unconsumed) > Math.abs(diff)) {
+                        unconsumed = diff;
+                    } else if (diff == 0 && recyclerViewHelper.mNestedRecyclerView.canScrollVertically(unconsumed)) {
+                        unconsumed = diff;
+                    }
+                    break;
+                }
+            }
+        }
         scrollBy(0, unconsumed);
         int realScroll = getScrollY() - oldScrollY;
         Log.d(TAG, "self consume" + realScroll);
@@ -439,12 +452,7 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
         }
         if (mNestRecyclerViewHelpers.size() > 0) {
             // 如果列表不是最后一个block,则需要补齐一个Self的block
-            NestRecyclerViewHelper lastNRVH = mNestRecyclerViewHelpers.get
-                    (mNestRecyclerViewHelpers.size() - 1);
-            if (lastNRVH.getRecyclerViewPartTop() + lastNRVH.mNestedRecyclerView.getHeight() <
-                    getScrollRange()) {
-                mScrollBlocks.add(new ScrollBlock());
-            }
+            mScrollBlocks.add(new ScrollBlock());
         }
     }
 
