@@ -65,7 +65,8 @@ public class AutoMeasureRecyclerView extends RecyclerView {
         if (getChildCount() > 0 && adapter != null) {
             if (getChildCount() == adapter.getItemCount()) {
                 final Rect lastItemRect = getLastItemRect();
-                heightSpec = MeasureSpec.makeMeasureSpec(lastItemRect.bottom, MeasureSpec.EXACTLY);
+                heightSpec = MeasureSpec.makeMeasureSpec(lastItemRect.bottom
+                        + getPaddingTop() + getPaddingBottom(), MeasureSpec.EXACTLY);
                 super.onMeasure(widthSpec, heightSpec);
             }
         }
