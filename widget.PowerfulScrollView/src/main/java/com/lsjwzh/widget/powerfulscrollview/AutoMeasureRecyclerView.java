@@ -5,7 +5,6 @@ import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 
 /**
@@ -51,24 +50,27 @@ public class AutoMeasureRecyclerView extends RecyclerView {
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         PowerfulScrollView multiRVScrollView = findMultiRVScrollView();
-        if (heightSpec == 0) {
-            heightSpec = MeasureSpec.makeMeasureSpec(getSuggestedMinimumHeight(),
-                    MeasureSpec.EXACTLY);
-        }
-        if (MeasureSpec.getSize(heightSpec) == 0 &&
-                multiRVScrollView != null && multiRVScrollView.getMeasuredHeight() > 0) {
-            heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getMeasuredHeight(),
-                    MeasureSpec.EXACTLY);
-        }
-        super.onMeasure(widthSpec, heightSpec);
         final Adapter adapter = getAdapter();
         if (getChildCount() > 0 && adapter != null) {
+            if (MeasureSpec.getSize(heightSpec) == 0 &&
+                    multiRVScrollView != null && multiRVScrollView.getMeasuredHeight() > 0) {
+                heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getMeasuredHeight(),
+                        MeasureSpec.EXACTLY);
+            }
+            super.onMeasure(widthSpec, heightSpec);
             if (getChildCount() == adapter.getItemCount()) {
                 final Rect lastItemRect = getLastItemRect();
-                heightSpec = MeasureSpec.makeMeasureSpec(lastItemRect.bottom
-                        + getPaddingTop() + getPaddingBottom(), MeasureSpec.EXACTLY);
+                int targetHeight = lastItemRect.bottom
+                        + getPaddingTop() + getPaddingBottom();
+                targetHeight = Math.max(targetHeight, getSuggestedMinimumHeight());
+                heightSpec = MeasureSpec.makeMeasureSpec(targetHeight, MeasureSpec.EXACTLY);
                 super.onMeasure(widthSpec, heightSpec);
             }
+        } else {
+            if (MeasureSpec.getSize(heightSpec) < getSuggestedMinimumHeight()) {
+                heightSpec = MeasureSpec.makeMeasureSpec(getSuggestedMinimumHeight(), MeasureSpec.EXACTLY);
+            }
+            super.onMeasure(widthSpec, heightSpec);
         }
     }
 
