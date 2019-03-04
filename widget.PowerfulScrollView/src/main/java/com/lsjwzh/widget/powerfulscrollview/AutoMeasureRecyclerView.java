@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver;
 
 /**
  * 按照内容自动适配高度，直到高度等于PowerfulScrollView
@@ -51,7 +52,7 @@ public class AutoMeasureRecyclerView extends RecyclerView {
     protected void onMeasure(int widthSpec, int heightSpec) {
         PowerfulScrollView multiRVScrollView = findMultiRVScrollView();
         final Adapter adapter = getAdapter();
-        if (getChildCount() > 0 && adapter != null) {
+        if (adapter != null && adapter.getItemCount() > 0) {
             if (MeasureSpec.getSize(heightSpec) == 0 &&
                     multiRVScrollView != null && multiRVScrollView.getMeasuredHeight() > 0) {
                 heightSpec = MeasureSpec.makeMeasureSpec(multiRVScrollView.getMeasuredHeight(),
@@ -65,6 +66,16 @@ public class AutoMeasureRecyclerView extends RecyclerView {
                 targetHeight = Math.max(targetHeight, getSuggestedMinimumHeight());
                 heightSpec = MeasureSpec.makeMeasureSpec(targetHeight, MeasureSpec.EXACTLY);
                 super.onMeasure(widthSpec, heightSpec);
+            } else if (getChildCount() == 0) {
+                // 第一次layout时，可能出现getChildCount=0，此时需要多layout一次进行校正
+                getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        getViewTreeObserver().removeOnPreDrawListener(this);
+                        requestLayout();
+                        return false;
+                    }
+                });
             }
         } else {
             if (MeasureSpec.getSize(heightSpec) < getSuggestedMinimumHeight()) {
