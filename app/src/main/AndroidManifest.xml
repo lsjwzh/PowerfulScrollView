@@ -85,6 +85,9 @@
             <meta-data android:name="android.support.PARENT_ACTIVITY"
                        android:value=".MainActivity" />
         </activity>
+
+        <activity android:name=".MultiExpandableListDemoActivity"/>
+
         <activity android:name=".CheeseDetailActivity"
                   android:resizeableActivity="false"
             android:parentActivityName=".MainActivity">

@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -63,9 +64,11 @@ public class CheeseListFragment extends Fragment {
           @Override
           public void onClick(View v) {
             Context context = v.getContext();
-            Intent intent = new Intent(context, EmbedRecyclerViewDemoActivity.class);
-            intent.putExtra("mode", getArguments().getString("mode"));
-            intent.putExtra(CheeseDetailActivity.EXTRA_NAME, holder.mBoundString);
+//            Intent intent = new Intent(context, EmbedRecyclerViewDemoActivity.class);
+//            intent.putExtra("mode", getArguments().getString("mode"));
+//            intent.putExtra(CheeseDetailActivity.EXTRA_NAME, holder.mBoundString);
+//            context.startActivity(intent);
+            Intent intent = new Intent(context, MultiExpandableListDemoActivity.class);
             context.startActivity(intent);
           }
         });
