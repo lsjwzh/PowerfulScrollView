@@ -143,6 +143,8 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
       }
     }
   };
+  private boolean isDisallowIntercept;
+
   public NestedScrollViewExtend(Context context) {
     this(context, null);
   }
@@ -492,6 +494,10 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     mOnScrollChangeListener = l;
   }
 
+  public boolean isDisallowIntercept() {
+    return isDisallowIntercept;
+  }
+
   /**
    * @return Returns true this ScrollView can be scrolled
    */
@@ -680,6 +686,7 @@ public class NestedScrollViewExtend extends FrameLayout implements NestedScrolli
     if (disallowIntercept) {
       recycleVelocityTracker();
     }
+    isDisallowIntercept = disallowIntercept;
     super.requestDisallowInterceptTouchEvent(disallowIntercept);
   }
 
