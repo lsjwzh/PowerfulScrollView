@@ -71,6 +71,12 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     }
 
     @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        rebuildScrollBlocks();
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         // 避免在手动停止fling时，触发RecyclerViewItem的click或者touch事件
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -266,13 +272,6 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
         if (!getScroller().isFinished()) {
             Log.d(TAG, "onStartNestedScroll scroll not finished");
         }
-        for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
-            if (helper.mNestedRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_SETTLING) {
-                helper.mNestedRecyclerView.stopScroll();
-                Log.d(TAG, helper.mNestedRecyclerView + " onStartNestedScroll mNestedRecyclerView " +
-                        "stopScroll");
-            }
-        }
         if (type == ViewCompat.TYPE_NON_TOUCH) {
             mNonTouchScrollStarted = true;
             Log.d(TAG, "mNonTouchScrollStarted");
@@ -311,6 +310,10 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {
         Log.d(TAG, "onNestedPreScroll dy:" + dy + " consumed:" + consumed[1]);
         super.onNestedPreScroll(target, dx, dy, consumed, type);
+//        if (target instanceof RecyclerView) {
+//            drainScrollY(target, consumed, new int[]{dx, dy}, type);
+//            // 此时相当于先禁止RecyclerView的滑动
+//        }
     }
 
     @Override
@@ -350,10 +353,11 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
         // 4.在B处往下滑动 滚到头  consumed[1] == 0 && unconsumed[1] < 0
 
         // 先把RecyclerView滚动的距离处理掉
-        int reverseScroll = -RVScrollViewUtils.scrollVerticallyBy((RecyclerView) target,
-                -consumed[1]);
-        consumed[1] -= reverseScroll;
-        unconsumed[1] += reverseScroll;
+        int[] reverseUnconsumed = new int[]{-consumed[0], -consumed[1]};
+        int[] reverseConsumed = new int[]{0, 0};
+        RVScrollViewUtils.scrollStep((RecyclerView) target, reverseUnconsumed[0], reverseUnconsumed[1], reverseConsumed);
+        consumed[1] -= -reverseConsumed[1];
+        unconsumed[1] += -reverseConsumed[1];
         // 按照顺序消费 Scroll
         drainScrollY(target, consumed, unconsumed, type);
         super.onNestedScroll(target, consumed[0], consumed[1], unconsumed[0], unconsumed[1], type);
@@ -427,10 +431,10 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
     protected int consumeRecyclerViewBlock(View target, ScrollBlock scrollBlock, int unconsumed,
                                            int type) {
         Log.d(TAG, "try consume" + unconsumed + " by recyclerView" + scrollBlock.recyclerView);
-        int scroll = RVScrollViewUtils.scrollVerticallyBy(scrollBlock.recyclerView,
-                unconsumed);
-        Log.d(TAG, "recyclerView consume " + scroll);
-        return scroll;
+        int[] consumed = new int[]{0, 0};
+        RVScrollViewUtils.scrollStep(scrollBlock.recyclerView, 0, unconsumed, consumed);
+        Log.d(TAG, "recyclerView consume " + consumed[1]);
+        return consumed[1];
     }
 
 
@@ -442,7 +446,17 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
 
     protected void rebuildScrollBlocks() {
         mScrollBlocks.clear();
+        mNestRecyclerViewHelpers.clear();
         int blockOffsetCursor = 0;
+        List<RecyclerView> recyclerViews = RVScrollViewUtils.findRecyclerViews(this);
+        for (RecyclerView recyclerView : recyclerViews) {
+            if (recyclerView.getVisibility() != View.VISIBLE) {
+                continue;
+            }
+            final NestRecyclerViewHelper nestRecyclerViewHelper =
+                    new NestRecyclerViewHelper(recyclerView, this);
+            mNestRecyclerViewHelpers.add(nestRecyclerViewHelper);
+        }
         for (NestRecyclerViewHelper helper : mNestRecyclerViewHelpers) {
             if (helper.getRecyclerViewPartTop() > blockOffsetCursor) {
                 mScrollBlocks.add(new ScrollBlock());
@@ -455,6 +469,7 @@ public class PowerfulScrollView extends NestedScrollViewExtend {
             mScrollBlocks.add(new ScrollBlock());
         }
     }
+
 
     public static class LayoutParams extends FrameLayout.LayoutParams {
         public static final int ACTION_TYPE_NONE = 0;
