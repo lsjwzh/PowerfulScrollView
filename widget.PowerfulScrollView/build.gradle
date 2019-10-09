@@ -1,7 +1,0 @@
-apply from: 'https://raw.githubusercontent.com/lsjwzh/widget.gradle/master/lib-androidx.gradle'
-
-dependencies {
-//    compile fileTree(dir: 'libs', include: ['*.jar'])
-}
-//apply from: 'https://raw.githubusercontent.com/lsjwzh/widget.gradle/master/upload-androidx.gradle'
-
