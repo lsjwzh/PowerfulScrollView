@@ -1,11 +1,11 @@
 package com.lsjwzh.widget.powerfulscrollview;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RVScrollViewUtils;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.ViewParent;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Auto match PowerfulScrollView's height.

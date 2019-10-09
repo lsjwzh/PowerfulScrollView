@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.widget;
+package androidx.core.widget;
 
 import android.content.Context;
 import android.view.animation.Interpolator;

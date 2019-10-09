@@ -1,9 +1,10 @@
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
 
-import android.support.v4.widget.ScrollerCompat;
 import android.view.View;
 import android.widget.OverScroller;
+
+import androidx.core.widget.ScrollerCompat;
 
 import java.lang.reflect.Field;
 

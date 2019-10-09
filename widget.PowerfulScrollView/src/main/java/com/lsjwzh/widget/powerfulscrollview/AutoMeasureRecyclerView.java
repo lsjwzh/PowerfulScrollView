@@ -2,11 +2,12 @@ package com.lsjwzh.widget.powerfulscrollview;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 按照内容自动适配高度，直到高度等于PowerfulScrollView

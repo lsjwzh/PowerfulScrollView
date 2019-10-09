@@ -1,6 +1,7 @@
 package com.lsjwzh.widget.powerfulscrollview;
 
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ScrollBlock {
 
