@@ -10,3 +10,6 @@
 [submodule "InstaContaner"]
 	path = InstaContaner
 	url = https://github.com/lsjwzh/InstaContaner.git
+[submodule "PowerfulScrollView-Core"]
+	path = PowerfulScrollView-Core
+	url = https://github.com/lsjwzh/PowerfulScrollView-Core.git
